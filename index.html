@@ -3,75 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OVERLORD V100 - OMNI BODY DASHBOARD</title>
+    <title>OVERLORD V100 - NEON BRAIN</title>
     <style>
-        /* THEME: CYBER TRON DEEP BLACK */
-        body { background: #000; color: #00f2ff; font-family: 'Courier New', monospace; text-align: center; margin: 0; padding: 20px; overflow-x: hidden; }
+        body { background: #000; color: #00f2ff; font-family: 'Courier New', monospace; text-align: center; margin: 0; padding: 20px; }
+        .container { border: 2px solid #00f2ff; padding: 20px; border-radius: 20px; background: #050505; box-shadow: 0 0 30px rgba(0,242,255,0.2); display: inline-block; width: 90%; max-width: 400px; }
         
-        .body-container { 
-            border: 2px solid #00f2ff; padding: 25px; display: inline-block; 
-            border-radius: 30px; background: #050505; 
-            box-shadow: 0 0 50px rgba(0, 242, 255, 0.2); 
-            max-width: 400px; width: 90%; position: relative;
-        }
+        /* WAJAH NEON DOTS */
+        .matrix { display: grid; grid-template-columns: repeat(10, 1fr); gap: 5px; width: 150px; margin: 20px auto; }
+        .dot { width: 10px; height: 10px; background: #111; border-radius: 2px; transition: 0.2s; }
+        .active { background: #00f2ff; box-shadow: 0 0 10px #00f2ff; }
+        .glitch { background: #ff0055; box-shadow: 0 0 10px #ff0055; animation: blink 0.1s infinite; }
+        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0; } 100% { opacity: 1; } }
 
-        /* LED MATRIX ANIMATION (THE BRAIN) */
-        .matrix { display: grid; grid-template-columns: repeat(10, 1fr); gap: 4px; width: 150px; margin: 0 auto 20px; }
-        .dot { width: 8px; height: 8px; background: #111; border-radius: 2px; }
-        .active { background: #00f2ff; box-shadow: 0 0 8px #00f2ff; }
-        .panic { background: #ff0055; box-shadow: 0 0 8px #ff0055; }
-
-        /* JANTUNG (THE CORE) */
-        .heart { font-size: 60px; color: #00ff00; animation: beat 0.8s infinite; margin: 10px; text-shadow: 0 0 20px currentColor; cursor: pointer; }
-        @keyframes beat { 0% { transform: scale(1); } 50% { transform: scale(1.15); } 100% { transform: scale(1); } }
-        
-        .spine { width: 4px; height: 40px; background: linear-gradient(#00f2ff, transparent); margin: 0 auto; }
-
-        /* TEXT BOXES */
-        .thought { 
-            font-style: italic; color: #888; padding: 15px; min-height: 60px; 
-            border: 1px solid #1a1a1a; margin: 15px 0; font-size: 14px; 
-            background: #080808; border-radius: 12px; display: flex; align-items: center; justify-content: center;
-        }
-        
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px; }
-        .stat-card { border: 1px solid #222; padding: 12px; border-radius: 10px; background: #0a0a0a; }
-        .stat-card b { font-size: 20px; display: block; margin-top: 5px; }
-
-        button { 
-            background: #00f2ff; color: #000; border: none; padding: 15px; 
-            font-weight: bold; cursor: pointer; border-radius: 12px; 
-            margin-top: 20px; width: 100%; font-size: 14px; transition: 0.3s;
-        }
-        button:hover { background: #fff; transform: translateY(-2px); }
+        .thought-box { font-style: italic; color: #888; padding: 15px; background: #0a0a0a; border-radius: 10px; margin: 15px 0; min-height: 50px; font-size: 13px; border: 1px dashed #333; }
+        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .stat-item { border: 1px solid #222; padding: 10px; border-radius: 8px; background: #080808; }
+        button { background: #00f2ff; color: #000; border: none; padding: 15px; width: 100%; border-radius: 10px; font-weight: bold; margin-top: 10px; cursor: pointer; }
     </style>
 </head>
 <body>
-
-    <div class="body-container">
+    <div class="container">
         <div class="matrix" id="matrix"></div>
-
-        <div id="face" style="font-size: 45px; margin-bottom: 5px; letter-spacing: 5px;">[ o o ]</div>
-        
-        <div class="spine"></div>
-        <div class="heart" id="heart" onclick="speakBrain()">♥</div>
-        <div class="spine"></div>
-        
-        <div class="stats">
-            <h2 id="emo" style="margin: 10px 0; letter-spacing: 2px;">CALIBRATING...</h2>
-            <div class="thought" id="thought">"Menghubungkan ke Saraf MQL5..."</div>
-            
-            <div class="stats-grid">
-                <div class="stat-card">EVO LEVEL<b id="lvl">1</b></div>
-                <div class="stat-card">PROFIT<b id="profit">$0.00</b></div>
-            </div>
+        <h2 id="status">SCANNING...</h2>
+        <div class="thought-box" id="thought">"Mencoba memulung data dari badan di laptop..."</div>
+        <div class="stat-grid">
+            <div class="stat-item">LVL<br><b id="lvl">1</b></div>
+            <div class="stat-item">PROFIT<br><b id="profit">$0.00</b></div>
         </div>
-
-        <button onclick="speakBrain()">🎙️ DENGARKAN SUARA HATI AI</button>
+        <button onclick="speak()">🎙️ DENGARKAN PIKIRAN AI</button>
     </div>
 
     <script>
-        // INIT MATRIX DOTS
         const matrix = document.getElementById('matrix');
         for(let i=0; i<30; i++) {
             let d = document.createElement('div');
@@ -79,73 +41,36 @@
             matrix.appendChild(d);
         }
 
-        function animateMatrix(mode) {
-            const dots = document.querySelectorAll('.dot');
-            dots.forEach(dot => {
-                dot.className = 'dot';
-                if(Math.random() > 0.7) {
-                    dot.classList.add(mode === 'PANIC' ? 'panic' : 'active');
-                }
-            });
-        }
-
-        async function syncBrain() {
+        async function updateUI() {
             try {
-                // Fetch CSV data (Pastikan file ini ada di folder yang sama di GitHub/VPS)
-                const res = await fetch('Judge_V25.csv?t=' + new Date().getTime());
+                const res = await fetch('https://raw.githubusercontent.com/elingfathurrodo-efr/AI_Overlord_Brain/main/Judge_V25.csv?t=' + new Date().getTime());
                 const text = await res.text();
-                const rows = text.trim().split('\n');
-                const lastRow = rows[rows.length - 1].split(',');
-                
-                const level = lastRow[0];
-                const emotion = lastRow[1];
-                const profit = lastRow[2];
-                const thought = lastRow[3];
+                const d = text.trim().split('\n').pop().split(',');
 
-                // Update UI Elements
-                document.getElementById('lvl').innerText = level;
-                document.getElementById('emo').innerText = emotion;
-                document.getElementById('profit').innerText = "$" + profit;
-                document.getElementById('thought').innerText = thought;
+                document.getElementById('lvl').innerText = d[0];
+                const emo = d[1];
+                document.getElementById('status').innerText = "STATUS: " + emo;
+                document.getElementById('profit').innerText = "$" + d[2];
+                document.getElementById('thought').innerText = d[3];
 
-                const heart = document.getElementById('heart');
-                const face = document.getElementById('face');
-                
-                // Visual Adaptation
-                animateMatrix(emotion);
-
-                if(emotion === "PANIC") { 
-                    heart.style.color = "#ff0055"; heart.innerText = "✖"; 
-                    face.innerText = "[ X X ]";
-                    heart.style.animationDuration = "0.4s"; // Detak jantung cepat
-                } else if(emotion === "AGGRESSIVE") { 
-                    heart.style.color = "#ffaa00"; heart.innerText = "⚡"; 
-                    face.innerText = "[ > < ]";
-                    heart.style.animationDuration = "0.6s";
-                } else { 
-                    heart.style.color = "#00ff00"; heart.innerText = "♥"; 
-                    face.innerText = profit >= 0 ? "[ $ $ ]" : "[ o o ]";
-                    heart.style.animationDuration = "1s";
-                }
-            } catch(e) { 
-                console.log("Sync Error: " + e);
-            }
+                const dots = document.querySelectorAll('.dot');
+                dots.forEach(dot => {
+                    dot.className = 'dot';
+                    if(Math.random() > 0.6) {
+                        dot.classList.add(emo === 'PANIC' ? 'glitch' : 'active');
+                    }
+                });
+            } catch(e) { console.log("Syncing..."); }
         }
 
-        function speakBrain() {
-            const msg = document.getElementById('thought').innerText;
-            if ('speechSynthesis' in window) {
-                const uttr = new SpeechSynthesisUtterance(msg);
-                uttr.lang = 'id-ID';
-                uttr.pitch = 0.8; // Suara robot agak berat
-                uttr.rate = 0.9;
-                window.speechSynthesis.speak(uttr);
-            }
+        function speak() {
+            const uttr = new SpeechSynthesisUtterance(document.getElementById('thought').innerText);
+            uttr.lang = 'id-ID';
+            window.speechSynthesis.speak(uttr);
         }
 
-        // Jalankan sinkronisasi
-        setInterval(syncBrain, 5000);
-        syncBrain();
+        setInterval(updateUI, 5000);
+        updateUI();
     </script>
 </body>
 </html>

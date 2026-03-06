@@ -1,43 +1,34 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Overlord V32 - Live Dashboard</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <style>
-        body { background: #0a0a0a; color: #00f2ff; font-family: 'Courier New', monospace; text-align: center; }
-        .box { border: 2px solid #00f2ff; margin: 20px; padding: 20px; border-radius: 10px; }
-        .gold { color: #ffd700; border-color: #ffd700; } /* Untuk Mode Sniper */
-        h1 { font-size: 24px; text-transform: uppercase; }
-        .stat { font-size: 30px; font-weight: bold; display: block; margin: 10px 0; }
-    </style>
-</head>
-<body>
-    <div id="dashboard" class="box">
-        <h1>AI Overlord V32 Status</h1>
-        <div id="content">Memuat Data dari DNA...</div>
-    </div>
-
     <script>
-        // Fungsi untuk membaca CSV otomatis
         async function updateStatus() {
-            const response = await fetch('Judge_V25.csv');
-            const data = await response.text();
-            const lines = data.split('\n');
-            const lastData = lines[lines.length - 2].split(','); // Ambil baris terakhir
+            try {
+                // Menambahkan timestamp agar browser tidak menyimpan cache lama
+                const response = await fetch('Judge_V25.csv?t=' + new Date().getTime());
+                const data = await response.text();
+                const lines = data.trim().split('\n');
+                
+                // Ambil baris paling bawah yang ada isinya
+                const lastLine = lines[lines.length - 1];
+                const col = lastLine.split(','); 
 
-            document.getElementById('content').innerHTML = `
-                <div>BALANCE: <span class="stat">$${lastData[1]}</span></div>
-                <div>EQUITY: <span class="stat">$${lastData[2]}</span></div>
-                <div>MOOD: <span class="stat">${lastData[3]}</span></div>
-            `;
-            
-            // Jika Mode Sniper Aktif (Saldo < 50%)
-            if(parseFloat(lastData[2]) < (parseFloat(lastData[1]) * 0.5)) {
-                document.getElementById('dashboard').className = 'box gold';
+                // Penyesuaian Kolom (Asumsi: Jam, Balance, Equity, Mood)
+                // Jika masih undefined, kita akan sesuaikan indeks [1], [2] nya
+                document.getElementById('content').innerHTML = `
+                    <div>BALANCE: <span class="stat">$${col[1] || '0'}</span></div>
+                    <div>EQUITY: <span class="stat">$${col[2] || '0'}</span></div>
+                    <div>MOOD: <span class="stat">${col[3] || 'Waiting...'}</span></div>
+                    <div style="font-size:10px; color:#555;">Update: ${col[0] || '-'}</div>
+                `;
+                
+                // Efek Warna Mode Sniper
+                if(parseFloat(col[2]) < (parseFloat(col[1]) * 0.5)) {
+                    document.getElementById('dashboard').className = 'box gold';
+                } else {
+                    document.getElementById('dashboard').className = 'box';
+                }
+            } catch (e) {
+                console.log("Menunggu sinkronisasi DNA...");
             }
         }
-        setInterval(updateStatus, 5000); // Update tiap 5 detik
+        setInterval(updateStatus, 5000); 
         updateStatus();
     </script>
-</body>
-</html>

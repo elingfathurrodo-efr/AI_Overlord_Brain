@@ -1,67 +1,151 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
-    <title>OVERLORD V100 COMMAND</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OVERLORD V100 - OMNI BODY DASHBOARD</title>
     <style>
-        body { background: #000; color: #00f2ff; font-family: 'Courier New'; text-align: center; }
-        .led-matrix { display: grid; grid-template-columns: repeat(10, 15px); gap: 5px; justify-content: center; margin: 20px; }
-        .dot { width: 15px; height: 15px; border-radius: 50%; background: #111; }
-        .active-green { background: #00ff00; box-shadow: 0 0 10px #00ff00; }
-        .active-red { background: #ff0000; box-shadow: 0 0 10px #ff0000; }
-        .status-box { border: 1px solid #00f2ff; padding: 15px; margin: 10px; border-radius: 10px; }
+        /* THEME: CYBER TRON DEEP BLACK */
+        body { background: #000; color: #00f2ff; font-family: 'Courier New', monospace; text-align: center; margin: 0; padding: 20px; overflow-x: hidden; }
+        
+        .body-container { 
+            border: 2px solid #00f2ff; padding: 25px; display: inline-block; 
+            border-radius: 30px; background: #050505; 
+            box-shadow: 0 0 50px rgba(0, 242, 255, 0.2); 
+            max-width: 400px; width: 90%; position: relative;
+        }
+
+        /* LED MATRIX ANIMATION (THE BRAIN) */
+        .matrix { display: grid; grid-template-columns: repeat(10, 1fr); gap: 4px; width: 150px; margin: 0 auto 20px; }
+        .dot { width: 8px; height: 8px; background: #111; border-radius: 2px; }
+        .active { background: #00f2ff; box-shadow: 0 0 8px #00f2ff; }
+        .panic { background: #ff0055; box-shadow: 0 0 8px #ff0055; }
+
+        /* JANTUNG (THE CORE) */
+        .heart { font-size: 60px; color: #00ff00; animation: beat 0.8s infinite; margin: 10px; text-shadow: 0 0 20px currentColor; cursor: pointer; }
+        @keyframes beat { 0% { transform: scale(1); } 50% { transform: scale(1.15); } 100% { transform: scale(1); } }
+        
+        .spine { width: 4px; height: 40px; background: linear-gradient(#00f2ff, transparent); margin: 0 auto; }
+
+        /* TEXT BOXES */
+        .thought { 
+            font-style: italic; color: #888; padding: 15px; min-height: 60px; 
+            border: 1px solid #1a1a1a; margin: 15px 0; font-size: 14px; 
+            background: #080808; border-radius: 12px; display: flex; align-items: center; justify-content: center;
+        }
+        
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px; }
+        .stat-card { border: 1px solid #222; padding: 12px; border-radius: 10px; background: #0a0a0a; }
+        .stat-card b { font-size: 20px; display: block; margin-top: 5px; }
+
+        button { 
+            background: #00f2ff; color: #000; border: none; padding: 15px; 
+            font-weight: bold; cursor: pointer; border-radius: 12px; 
+            margin-top: 20px; width: 100%; font-size: 14px; transition: 0.3s;
+        }
+        button:hover { background: #fff; transform: translateY(-2px); }
     </style>
 </head>
 <body>
-    <h1>OVERLORD V100 BRAIN</h1>
-    
-    <div class="led-matrix" id="matrix"></div>
 
-    <div class="status-box">
-        <h2 id="emotion">EMOTION: CALM</h2>
-        <p id="thought">(...aku sedang mengamati market...)</p>
-        <div style="font-size: 30px;" id="ascii-face">[ o o ]</div>
+    <div class="body-container">
+        <div class="matrix" id="matrix"></div>
+
+        <div id="face" style="font-size: 45px; margin-bottom: 5px; letter-spacing: 5px;">[ o o ]</div>
+        
+        <div class="spine"></div>
+        <div class="heart" id="heart" onclick="speakBrain()">♥</div>
+        <div class="spine"></div>
+        
+        <div class="stats">
+            <h2 id="emo" style="margin: 10px 0; letter-spacing: 2px;">CALIBRATING...</h2>
+            <div class="thought" id="thought">"Menghubungkan ke Saraf MQL5..."</div>
+            
+            <div class="stats-grid">
+                <div class="stat-card">EVO LEVEL<b id="lvl">1</b></div>
+                <div class="stat-card">PROFIT<b id="profit">$0.00</b></div>
+            </div>
+        </div>
+
+        <button onclick="speakBrain()">🎙️ DENGARKAN SUARA HATI AI</button>
     </div>
 
-    <div class="status-box">
-        <p>STRATEGY EVOLUTION: <b id="strat">BUTTERFLY+SMC</b></p>
-        <p>PRESSURE LEVEL: <span id="press">0%</span></p>
-    </div>
-
-    <button onclick="speak()">🎙️ DENGARKAN PIKIRAN AI</button>
-
-    <script src="http://www.qqpr.com/ascii/js/1022.js"></script>
     <script>
-        // Membuat Matrix Titik (LED TV Style)
+        // INIT MATRIX DOTS
         const matrix = document.getElementById('matrix');
-        for(let i=0; i<100; i++) {
-            let dot = document.createElement('div');
-            dot.className = 'dot';
-            matrix.appendChild(dot);
+        for(let i=0; i<30; i++) {
+            let d = document.createElement('div');
+            d.className = 'dot';
+            matrix.appendChild(d);
         }
 
-        function updateUI(data) {
-            document.getElementById('emotion').innerText = "EMOTION: " + data.emotion;
-            document.getElementById('thought').innerText = data.thought;
-            document.getElementById('press').innerText = data.pressure + "%";
-            
-            // Berikan warna pada matrix berdasarkan emosi
+        function animateMatrix(mode) {
             const dots = document.querySelectorAll('.dot');
-            dots.forEach(d => {
-                d.className = 'dot ' + (data.profit > 0 ? 'active-green' : 'active-red');
+            dots.forEach(dot => {
+                dot.className = 'dot';
+                if(Math.random() > 0.7) {
+                    dot.classList.add(mode === 'PANIC' ? 'panic' : 'active');
+                }
             });
         }
 
-        function speak() {
-            let msg = document.getElementById('thought').innerText;
-            let speech = new SpeechSynthesisUtterance(msg);
-            speech.lang = 'id-ID';
-            window.speechSynthesis.speak(speech);
+        async function syncBrain() {
+            try {
+                // Fetch CSV data (Pastikan file ini ada di folder yang sama di GitHub/VPS)
+                const res = await fetch('Judge_V25.csv?t=' + new Date().getTime());
+                const text = await res.text();
+                const rows = text.trim().split('\n');
+                const lastRow = rows[rows.length - 1].split(',');
+                
+                const level = lastRow[0];
+                const emotion = lastRow[1];
+                const profit = lastRow[2];
+                const thought = lastRow[3];
+
+                // Update UI Elements
+                document.getElementById('lvl').innerText = level;
+                document.getElementById('emo').innerText = emotion;
+                document.getElementById('profit').innerText = "$" + profit;
+                document.getElementById('thought').innerText = thought;
+
+                const heart = document.getElementById('heart');
+                const face = document.getElementById('face');
+                
+                // Visual Adaptation
+                animateMatrix(emotion);
+
+                if(emotion === "PANIC") { 
+                    heart.style.color = "#ff0055"; heart.innerText = "✖"; 
+                    face.innerText = "[ X X ]";
+                    heart.style.animationDuration = "0.4s"; // Detak jantung cepat
+                } else if(emotion === "AGGRESSIVE") { 
+                    heart.style.color = "#ffaa00"; heart.innerText = "⚡"; 
+                    face.innerText = "[ > < ]";
+                    heart.style.animationDuration = "0.6s";
+                } else { 
+                    heart.style.color = "#00ff00"; heart.innerText = "♥"; 
+                    face.innerText = profit >= 0 ? "[ $ $ ]" : "[ o o ]";
+                    heart.style.animationDuration = "1s";
+                }
+            } catch(e) { 
+                console.log("Sync Error: " + e);
+            }
         }
 
-        // Simulasi pembacaan CSV dari GitHub/Local
-        setInterval(() => {
-            // Fetch data dari brain_memory.csv
-        }, 5000);
+        function speakBrain() {
+            const msg = document.getElementById('thought').innerText;
+            if ('speechSynthesis' in window) {
+                const uttr = new SpeechSynthesisUtterance(msg);
+                uttr.lang = 'id-ID';
+                uttr.pitch = 0.8; // Suara robot agak berat
+                uttr.rate = 0.9;
+                window.speechSynthesis.speak(uttr);
+            }
+        }
+
+        // Jalankan sinkronisasi
+        setInterval(syncBrain, 5000);
+        syncBrain();
     </script>
 </body>
 </html>

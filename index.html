@@ -1,34 +1,42 @@
-    <script>
-        async function updateStatus() {
-            try {
-                // Menambahkan timestamp agar browser tidak menyimpan cache lama
-                const response = await fetch('Judge_V25.csv?t=' + new Date().getTime());
-                const data = await response.text();
-                const lines = data.trim().split('\n');
-                
-                // Ambil baris paling bawah yang ada isinya
-                const lastLine = lines[lines.length - 1];
-                const col = lastLine.split(','); 
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>OVERLORD V32 MONITOR</title>
+    <style>
+        body { background: #050505; color: #00f2ff; font-family: monospace; text-align: center; }
+        .box { border: 1px solid #00f2ff; margin: 20px; padding: 20px; border-radius: 15px; box-shadow: 0 0 15px #00f2ff44; }
+        .val { font-size: 30px; font-weight: bold; color: #fff; display: block; }
+        #status { color: #00ff00; font-weight: bold; margin: 15px 0; }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h2>LEVEL: <span id="lvl">1</span></h2>
+        <div style="font-size: 50px;">( ^▽^ )</div>
+        <hr style="border: 0.5px solid #222;">
+        <small>EQUITY</small>
+        <span class="val" id="eq">$0.00</span>
+        <div id="status">Syncing DNA...</div>
+        <div id="thought" style="font-size: 10px; color: #888;">(...)</div>
+    </div>
 
-                // Penyesuaian Kolom (Asumsi: Jam, Balance, Equity, Mood)
-                // Jika masih undefined, kita akan sesuaikan indeks [1], [2] nya
-                document.getElementById('content').innerHTML = `
-                    <div>BALANCE: <span class="stat">$${col[1] || '0'}</span></div>
-                    <div>EQUITY: <span class="stat">$${col[2] || '0'}</span></div>
-                    <div>MOOD: <span class="stat">${col[3] || 'Waiting...'}</span></div>
-                    <div style="font-size:10px; color:#555;">Update: ${col[0] || '-'}</div>
-                `;
-                
-                // Efek Warna Mode Sniper
-                if(parseFloat(col[2]) < (parseFloat(col[1]) * 0.5)) {
-                    document.getElementById('dashboard').className = 'box gold';
-                } else {
-                    document.getElementById('dashboard').className = 'box';
-                }
-            } catch (e) {
-                console.log("Menunggu sinkronisasi DNA...");
-            }
+    <script>
+        async function sync() {
+            try {
+                // Mengambil data CSV dari repo elingfathurrodo-efr
+                const res = await fetch('Judge_V25.csv?t=' + new Date().getTime());
+                const text = await res.text();
+                const d = text.trim().split('\n').pop().split(',');
+
+                document.getElementById('eq').innerText = '$' + d[2];
+                document.getElementById('status').innerText = '"' + d[3] + '"';
+                document.getElementById('lvl').innerText = d[4];
+                document.getElementById('thought').innerText = d[5];
+            } catch(e) { console.log("DNA Connecting..."); }
         }
-        setInterval(updateStatus, 5000); 
-        updateStatus();
+        setInterval(sync, 5000);
+        sync();
     </script>
+</body>
+</html>

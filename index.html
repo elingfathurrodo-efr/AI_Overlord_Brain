@@ -3,91 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OVERLORD V100 DASHBOARD</title>
+    <title>Overlord V100 Dashboard</title>
     <style>
-        body { background: #000; color: #00f2ff; font-family: 'Courier New', monospace; text-align: center; margin: 0; padding: 10px; }
-        .container { border: 2px solid #00f2ff; border-radius: 20px; padding: 15px; background: #050505; box-shadow: 0 0 20px #00f2ff33; overflow: hidden; }
-        
-        /* WAJAH NEON DOTS MATRIX */
-        #face-container { height: 180px; display: flex; align-items: center; justify-content: center; font-weight: bold; white-space: pre; font-size: 10px; line-height: 10px; }
-        
-        .thought-box { font-style: italic; color: #888; background: #0a0a0a; padding: 10px; border-radius: 10px; min-height: 40px; border-left: 3px solid #00f2ff; margin: 10px 0; }
-        .page { display: none; }
-        .active-page { display: block; }
-        .nav-btn { background: #00f2ff; color: #000; border: none; padding: 10px; margin: 5px; border-radius: 5px; font-weight: bold; cursor: pointer; }
-        
-        /* LED MATRIX DOTS STYLE */
-        .dot { color: #00f2ff; text-shadow: 0 0 5px #00f2ff; }
-        .panic { color: #ff0055; text-shadow: 0 0 5px #ff0055; animation: shake 0.1s infinite; }
-        @keyframes shake { 0% { transform: translate(1px, 1px); } 50% { transform: translate(-1px, -1px); } 100% { transform: translate(1px, -1px); } }
+        body { background: #0a0a0a; color: #00ff00; font-family: 'Courier New', monospace; padding: 20px; }
+        .card { border: 1px solid #00ff00; padding: 15px; margin-bottom: 10px; border-radius: 5px; box-shadow: 0 0 10px #00ff00; }
+        .emotion { font-size: 2em; font-weight: bold; text-transform: uppercase; }
+        .thought { font-style: italic; color: #00ccff; }
+        .progress-bar { background: #333; height: 20px; width: 100%; border-radius: 10px; overflow: hidden; }
+        .progress-fill { background: #ff0000; height: 100%; transition: width 0.5s; }
     </style>
 </head>
 <body>
-
-<div class="container">
-    <div id="page1" class="page active-page">
-        <div id="face-container"></div>
-        <h2 id="status">SCANNING...</h2>
-        <div class="thought-box" id="thought">"(Menunggu koneksi saraf...)"</div>
-        <p>Profit: <b id="profit">$0.00</b> | Level: <b id="lvl">1</b></p>
+    <h1>SYSTEM: OVERLORD V100</h1>
+    <div class="card">
+        <div>LEVEL EVOLUSI: <span id="level">1</span></div>
+        <div class="emotion" id="emotion">CALM</div>
     </div>
-
-    <div id="page2" class="page">
-        <h3>BIOMETRICS AI</h3>
-        <p>Aggression: <span id="agg">0</span>%</p>
-        <p>Curiosity: <span id="cur">0</span>%</p>
-        <button class="nav-btn" onclick="sayThought()">🎙️ VOICE COMMAND</button>
+    <div class="card">
+        <div>PROFIT: $<span id="profit">0.00</span></div>
+        <div>ACTIVE SEED: <span id="seed">SCANNING</span></div>
     </div>
-
-    <div class="nav-bar">
-        <button class="nav-btn" onclick="showPage(1)">PAGE 1</button>
-        <button class="nav-btn" onclick="showPage(2)">PAGE 2</button>
+    <div class="card">
+        <div>STRESS LEVEL (AGGRESSION)</div>
+        <div class="progress-bar"><div id="aggro-bar" class="progress-fill" style="width: 0%"></div></div>
     </div>
-</div>
+    <div class="card thought" id="thought">"(Inisialisasi memori...)"</div>
 
-<script>
-    const repoURL = "https://raw.githubusercontent.com/elingfathurrodo-efr/AI_Overlord_Brain/main/Judge_V25.csv";
+    <script>
+        async function updateDashboard() {
+            // URL raw GitHub Bos
+            const url = 'https://raw.githubusercontent.com/elingfathurrodo-efr/AI_Overlord_Brain/main/Judge_V25.csv';
+            try {
+                const response = await fetch(url);
+                const data = await response.text();
+                const cols = data.split(',');
 
-    function showPage(num) {
-        document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
-        document.getElementById('page' + num).classList.add('active-page');
-    }
-
-    async function updateDashboard() {
-        try {
-            const response = await fetch(repoURL + "?t=" + new Date().getTime());
-            const data = await response.text();
-            const parts = data.trim().split('\n').pop().split(',');
-
-            document.getElementById('lvl').innerText = parts[0];
-            const emo = parts[1];
-            document.getElementById('status').innerText = "STATUS: " + emo;
-            document.getElementById('profit').innerText = "$" + parts[2];
-            document.getElementById('thought').innerText = parts[3];
-            document.getElementById('agg').innerText = parts[4];
-            document.getElementById('cur').innerText = parts[5];
-
-            updateFace(emo);
-        } catch (e) { console.log("Syncing..."); }
-    }
-
-    function updateFace(emotion) {
-        const face = document.getElementById('face-container');
-        face.className = (emotion === 'PANIC') ? 'panic' : '';
-        let dots = "";
-        for(let i=0; i<10; i++) {
-            dots += "• • • • • • • • • •\n";
+                document.getElementById('level').innerText = cols[0];
+                document.getElementById('emotion').innerText = cols[1];
+                document.getElementById('profit').innerText = cols[2];
+                document.getElementById('thought').innerText = cols[3];
+                document.getElementById('aggro-bar').style.width = cols[4] + '%';
+                document.getElementById('seed').innerText = cols[5];
+            } catch (e) { console.log("Menunggu sinkronisasi..."); }
         }
-        face.innerText = dots;
-    }
-
-    function sayThought() {
-        const msg = new SpeechSynthesisUtterance(document.getElementById('thought').innerText);
-        msg.lang = 'id-ID';
-        window.speechSynthesis.speak(msg);
-    }
-
-    setInterval(updateDashboard, 5000);
-</script>
+        setInterval(updateDashboard, 5000); // Update tiap 5 detik
+    </script>
 </body>
 </html>

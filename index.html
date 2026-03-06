@@ -1,42 +1,67 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>OVERLORD V32 MONITOR</title>
+    <title>OVERLORD V100 COMMAND</title>
     <style>
-        body { background: #050505; color: #00f2ff; font-family: monospace; text-align: center; }
-        .box { border: 1px solid #00f2ff; margin: 20px; padding: 20px; border-radius: 15px; box-shadow: 0 0 15px #00f2ff44; }
-        .val { font-size: 30px; font-weight: bold; color: #fff; display: block; }
-        #status { color: #00ff00; font-weight: bold; margin: 15px 0; }
+        body { background: #000; color: #00f2ff; font-family: 'Courier New'; text-align: center; }
+        .led-matrix { display: grid; grid-template-columns: repeat(10, 15px); gap: 5px; justify-content: center; margin: 20px; }
+        .dot { width: 15px; height: 15px; border-radius: 50%; background: #111; }
+        .active-green { background: #00ff00; box-shadow: 0 0 10px #00ff00; }
+        .active-red { background: #ff0000; box-shadow: 0 0 10px #ff0000; }
+        .status-box { border: 1px solid #00f2ff; padding: 15px; margin: 10px; border-radius: 10px; }
     </style>
 </head>
 <body>
-    <div class="box">
-        <h2>LEVEL: <span id="lvl">1</span></h2>
-        <div style="font-size: 50px;">( ^▽^ )</div>
-        <hr style="border: 0.5px solid #222;">
-        <small>EQUITY</small>
-        <span class="val" id="eq">$0.00</span>
-        <div id="status">Syncing DNA...</div>
-        <div id="thought" style="font-size: 10px; color: #888;">(...)</div>
+    <h1>OVERLORD V100 BRAIN</h1>
+    
+    <div class="led-matrix" id="matrix"></div>
+
+    <div class="status-box">
+        <h2 id="emotion">EMOTION: CALM</h2>
+        <p id="thought">(...aku sedang mengamati market...)</p>
+        <div style="font-size: 30px;" id="ascii-face">[ o o ]</div>
     </div>
 
-    <script>
-        async function sync() {
-            try {
-                // Mengambil data CSV dari repo elingfathurrodo-efr
-                const res = await fetch('Judge_V25.csv?t=' + new Date().getTime());
-                const text = await res.text();
-                const d = text.trim().split('\n').pop().split(',');
+    <div class="status-box">
+        <p>STRATEGY EVOLUTION: <b id="strat">BUTTERFLY+SMC</b></p>
+        <p>PRESSURE LEVEL: <span id="press">0%</span></p>
+    </div>
 
-                document.getElementById('eq').innerText = '$' + d[2];
-                document.getElementById('status').innerText = '"' + d[3] + '"';
-                document.getElementById('lvl').innerText = d[4];
-                document.getElementById('thought').innerText = d[5];
-            } catch(e) { console.log("DNA Connecting..."); }
+    <button onclick="speak()">🎙️ DENGARKAN PIKIRAN AI</button>
+
+    <script src="http://www.qqpr.com/ascii/js/1022.js"></script>
+    <script>
+        // Membuat Matrix Titik (LED TV Style)
+        const matrix = document.getElementById('matrix');
+        for(let i=0; i<100; i++) {
+            let dot = document.createElement('div');
+            dot.className = 'dot';
+            matrix.appendChild(dot);
         }
-        setInterval(sync, 5000);
-        sync();
+
+        function updateUI(data) {
+            document.getElementById('emotion').innerText = "EMOTION: " + data.emotion;
+            document.getElementById('thought').innerText = data.thought;
+            document.getElementById('press').innerText = data.pressure + "%";
+            
+            // Berikan warna pada matrix berdasarkan emosi
+            const dots = document.querySelectorAll('.dot');
+            dots.forEach(d => {
+                d.className = 'dot ' + (data.profit > 0 ? 'active-green' : 'active-red');
+            });
+        }
+
+        function speak() {
+            let msg = document.getElementById('thought').innerText;
+            let speech = new SpeechSynthesisUtterance(msg);
+            speech.lang = 'id-ID';
+            window.speechSynthesis.speak(speech);
+        }
+
+        // Simulasi pembacaan CSV dari GitHub/Local
+        setInterval(() => {
+            // Fetch data dari brain_memory.csv
+        }, 5000);
     </script>
 </body>
 </html>

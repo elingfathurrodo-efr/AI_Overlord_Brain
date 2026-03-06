@@ -3,74 +3,91 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OVERLORD V100 - NEON BRAIN</title>
+    <title>OVERLORD V100 DASHBOARD</title>
     <style>
-        body { background: #000; color: #00f2ff; font-family: 'Courier New', monospace; text-align: center; margin: 0; padding: 20px; }
-        .container { border: 2px solid #00f2ff; padding: 20px; border-radius: 20px; background: #050505; box-shadow: 0 0 30px rgba(0,242,255,0.2); display: inline-block; width: 90%; max-width: 400px; }
+        body { background: #000; color: #00f2ff; font-family: 'Courier New', monospace; text-align: center; margin: 0; padding: 10px; }
+        .container { border: 2px solid #00f2ff; border-radius: 20px; padding: 15px; background: #050505; box-shadow: 0 0 20px #00f2ff33; overflow: hidden; }
         
-        /* WAJAH NEON DOTS */
-        .matrix { display: grid; grid-template-columns: repeat(10, 1fr); gap: 5px; width: 150px; margin: 20px auto; }
-        .dot { width: 10px; height: 10px; background: #111; border-radius: 2px; transition: 0.2s; }
-        .active { background: #00f2ff; box-shadow: 0 0 10px #00f2ff; }
-        .glitch { background: #ff0055; box-shadow: 0 0 10px #ff0055; animation: blink 0.1s infinite; }
-        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0; } 100% { opacity: 1; } }
-
-        .thought-box { font-style: italic; color: #888; padding: 15px; background: #0a0a0a; border-radius: 10px; margin: 15px 0; min-height: 50px; font-size: 13px; border: 1px dashed #333; }
-        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .stat-item { border: 1px solid #222; padding: 10px; border-radius: 8px; background: #080808; }
-        button { background: #00f2ff; color: #000; border: none; padding: 15px; width: 100%; border-radius: 10px; font-weight: bold; margin-top: 10px; cursor: pointer; }
+        /* WAJAH NEON DOTS MATRIX */
+        #face-container { height: 180px; display: flex; align-items: center; justify-content: center; font-weight: bold; white-space: pre; font-size: 10px; line-height: 10px; }
+        
+        .thought-box { font-style: italic; color: #888; background: #0a0a0a; padding: 10px; border-radius: 10px; min-height: 40px; border-left: 3px solid #00f2ff; margin: 10px 0; }
+        .page { display: none; }
+        .active-page { display: block; }
+        .nav-btn { background: #00f2ff; color: #000; border: none; padding: 10px; margin: 5px; border-radius: 5px; font-weight: bold; cursor: pointer; }
+        
+        /* LED MATRIX DOTS STYLE */
+        .dot { color: #00f2ff; text-shadow: 0 0 5px #00f2ff; }
+        .panic { color: #ff0055; text-shadow: 0 0 5px #ff0055; animation: shake 0.1s infinite; }
+        @keyframes shake { 0% { transform: translate(1px, 1px); } 50% { transform: translate(-1px, -1px); } 100% { transform: translate(1px, -1px); } }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="matrix" id="matrix"></div>
+
+<div class="container">
+    <div id="page1" class="page active-page">
+        <div id="face-container"></div>
         <h2 id="status">SCANNING...</h2>
-        <div class="thought-box" id="thought">"Mencoba memulung data dari badan di laptop..."</div>
-        <div class="stat-grid">
-            <div class="stat-item">LVL<br><b id="lvl">1</b></div>
-            <div class="stat-item">PROFIT<br><b id="profit">$0.00</b></div>
-        </div>
-        <button onclick="speak()">🎙️ DENGARKAN PIKIRAN AI</button>
+        <div class="thought-box" id="thought">"(Menunggu koneksi saraf...)"</div>
+        <p>Profit: <b id="profit">$0.00</b> | Level: <b id="lvl">1</b></p>
     </div>
 
-    <script>
-        const matrix = document.getElementById('matrix');
-        for(let i=0; i<30; i++) {
-            let d = document.createElement('div');
-            d.className = 'dot';
-            matrix.appendChild(d);
+    <div id="page2" class="page">
+        <h3>BIOMETRICS AI</h3>
+        <p>Aggression: <span id="agg">0</span>%</p>
+        <p>Curiosity: <span id="cur">0</span>%</p>
+        <button class="nav-btn" onclick="sayThought()">🎙️ VOICE COMMAND</button>
+    </div>
+
+    <div class="nav-bar">
+        <button class="nav-btn" onclick="showPage(1)">PAGE 1</button>
+        <button class="nav-btn" onclick="showPage(2)">PAGE 2</button>
+    </div>
+</div>
+
+<script>
+    const repoURL = "https://raw.githubusercontent.com/elingfathurrodo-efr/AI_Overlord_Brain/main/Judge_V25.csv";
+
+    function showPage(num) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
+        document.getElementById('page' + num).classList.add('active-page');
+    }
+
+    async function updateDashboard() {
+        try {
+            const response = await fetch(repoURL + "?t=" + new Date().getTime());
+            const data = await response.text();
+            const parts = data.trim().split('\n').pop().split(',');
+
+            document.getElementById('lvl').innerText = parts[0];
+            const emo = parts[1];
+            document.getElementById('status').innerText = "STATUS: " + emo;
+            document.getElementById('profit').innerText = "$" + parts[2];
+            document.getElementById('thought').innerText = parts[3];
+            document.getElementById('agg').innerText = parts[4];
+            document.getElementById('cur').innerText = parts[5];
+
+            updateFace(emo);
+        } catch (e) { console.log("Syncing..."); }
+    }
+
+    function updateFace(emotion) {
+        const face = document.getElementById('face-container');
+        face.className = (emotion === 'PANIC') ? 'panic' : '';
+        let dots = "";
+        for(let i=0; i<10; i++) {
+            dots += "• • • • • • • • • •\n";
         }
+        face.innerText = dots;
+    }
 
-        async function updateUI() {
-            try {
-                const res = await fetch('https://raw.githubusercontent.com/elingfathurrodo-efr/AI_Overlord_Brain/main/Judge_V25.csv?t=' + new Date().getTime());
-                const text = await res.text();
-                const d = text.trim().split('\n').pop().split(',');
+    function sayThought() {
+        const msg = new SpeechSynthesisUtterance(document.getElementById('thought').innerText);
+        msg.lang = 'id-ID';
+        window.speechSynthesis.speak(msg);
+    }
 
-                document.getElementById('lvl').innerText = d[0];
-                const emo = d[1];
-                document.getElementById('status').innerText = "STATUS: " + emo;
-                document.getElementById('profit').innerText = "$" + d[2];
-                document.getElementById('thought').innerText = d[3];
-
-                const dots = document.querySelectorAll('.dot');
-                dots.forEach(dot => {
-                    dot.className = 'dot';
-                    if(Math.random() > 0.6) {
-                        dot.classList.add(emo === 'PANIC' ? 'glitch' : 'active');
-                    }
-                });
-            } catch(e) { console.log("Syncing..."); }
-        }
-
-        function speak() {
-            const uttr = new SpeechSynthesisUtterance(document.getElementById('thought').innerText);
-            uttr.lang = 'id-ID';
-            window.speechSynthesis.speak(uttr);
-        }
-
-        setInterval(updateUI, 5000);
-        updateUI();
-    </script>
+    setInterval(updateDashboard, 5000);
+</script>
 </body>
 </html>

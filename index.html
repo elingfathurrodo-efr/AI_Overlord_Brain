@@ -3,50 +3,200 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Overlord V100 Dashboard</title>
+    <title>OVERLORD INTELLIGENCE V25.35</title>
     <style>
-        body { background: #0a0a0a; color: #00ff00; font-family: 'Courier New', monospace; padding: 20px; }
-        .card { border: 1px solid #00ff00; padding: 15px; margin-bottom: 10px; border-radius: 5px; box-shadow: 0 0 10px #00ff00; }
-        .emotion { font-size: 2em; font-weight: bold; text-transform: uppercase; }
-        .thought { font-style: italic; color: #00ccff; }
-        .progress-bar { background: #333; height: 20px; width: 100%; border-radius: 10px; overflow: hidden; }
-        .progress-fill { background: #ff0000; height: 100%; transition: width 0.5s; }
+        /* TEMA TERMINAL ASLI (Sesuai Foto Bos) */
+        body { 
+            background: #0c0f13; 
+            color: #00ffcc; 
+            font-family: 'Courier New', monospace; 
+            padding: 20px; 
+            margin: 0;
+            display: flex;
+            justify-content: center;
+        }
+
+        .terminal { 
+            border: 1px solid #4a4a4a; 
+            background: #05070a; 
+            padding: 30px; 
+            position: relative; 
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 0 30px rgba(0,0,0,0.8);
+        }
+
+        /* TOMBOL HALAMAN (Putih Tegas di Pojok) */
+        .btn-page { 
+            position: absolute; 
+            top: 15px; 
+            right: 15px; 
+            background: transparent; 
+            border: 1px solid #ffffff; 
+            color: #ffffff; 
+            padding: 3px 10px; 
+            font-size: 11px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .header-title {
+            font-size: 12px;
+            letter-spacing: 2px;
+            color: #444;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+        }
+
+        /* WAJAH ASCII ZEN (Lingkaran Sesuai Foto) */
+        .face { 
+            text-align: center; 
+            font-size: 14px; 
+            margin: 30px 0; 
+            color: #00ffcc; 
+            line-height: 1.3; 
+            white-space: pre;
+            font-weight: bold;
+        }
+
+        /* STATUS AI */
+        .ai-status {
+            font-size: 15px;
+            margin-bottom: 30px;
+        }
+
+        .thought {
+            color: #00ffcc;
+        }
+
+        /* DATA LAYOUT (Sejajar Sesuai Foto) */
+        .info-container {
+            margin-top: 20px;
+        }
+
+        .info-row { 
+            display: flex; 
+            margin: 10px 0; 
+            font-size: 16px; 
+            letter-spacing: 1px;
+        }
+
+        .label { 
+            width: 110px; 
+            color: #00ffcc; 
+            font-weight: bold; 
+        }
+
+        .separator { 
+            width: 20px;
+            color: #00ffcc;
+        }
+
+        .value { 
+            color: #ffffff; 
+            font-weight: bold; 
+        }
+
+        /* WARNA KHUSUS FLOATING */
+        .floating-label { color: #00ff00; }
+        .floating-value { color: #00ff00; font-size: 1.2em; }
+
+        .divider {
+            border-top: 1px solid #222;
+            margin: 20px 0;
+        }
+
+        .footer-info {
+            text-align: center;
+            font-size: 10px;
+            color: #333;
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
-    <h1>SYSTEM: OVERLORD V100</h1>
-    <div class="card">
-        <div>LEVEL EVOLUSI: <span id="level">1</span></div>
-        <div class="emotion" id="emotion">CALM</div>
-    </div>
-    <div class="card">
-        <div>PROFIT: $<span id="profit">0.00</span></div>
-        <div>ACTIVE SEED: <span id="seed">SCANNING</span></div>
-    </div>
-    <div class="card">
-        <div>STRESS LEVEL (AGGRESSION)</div>
-        <div class="progress-bar"><div id="aggro-bar" class="progress-fill" style="width: 0%"></div></div>
-    </div>
-    <div class="card thought" id="thought">"(Inisialisasi memori...)"</div>
 
-    <script>
-        async function updateDashboard() {
-            // URL raw GitHub Bos
-            const url = 'https://raw.githubusercontent.com/elingfathurrodo-efr/AI_Overlord_Brain/main/Judge_V25.csv';
-            try {
-                const response = await fetch(url);
-                const data = await response.text();
-                const cols = data.split(',');
+<div class="terminal">
+    <button class="btn-page">HALAMAN ></button>
+    <div class="header-title">OVERLORD INTELLIGENCE V25.35</div>
+    
+    <div class="face" id="ascii-face">
+    . . . . . . . . . . .
+  .                       .
+  .    ( o )     ( o )    .
+  .                       .
+  .          _ _ _        .
+    . . . . . . . . . . .
+    </div>
 
-                document.getElementById('level').innerText = cols[0];
+    <div class="ai-status">
+        AI: <span id="emotion" style="font-weight:bold;">ZEN</span> : <span id="thought" class="thought">Menganalisa getaran...</span>
+    </div>
+
+    <div class="info-container">
+        <div class="info-row">
+            <span class="label">BALANCE</span><span class="separator">:</span><span class="value">$<span id="balance">0.00</span></span>
+        </div>
+        <div class="info-row">
+            <span class="label">EQUITY</span><span class="separator">:</span><span class="value">$<span id="equity">0.00</span></span>
+        </div>
+        <div class="info-row">
+            <span class="label">MARGIN</span><span class="separator">:</span><span class="value">$<span id="margin">0.00</span></span>
+        </div>
+        
+        <div class="divider"></div>
+
+        <div class="info-row">
+            <span class="label floating-label">FLOATING</span><span class="separator">:</span><span class="value floating-value">$<span id="floating">0.00</span></span>
+        </div>
+        
+        <div class="info-row" style="font-size: 12px; margin-top: 20px;">
+            <span class="label" style="color:#666">SPREAD</span><span class="separator">:</span><span class="value" style="color:#ffcc00"><span id="spread">0</span> PTS</span>
+        </div>
+    </div>
+
+    <div class="footer-info">HAL: 1/8 | SC-V100-CORE</div>
+</div>
+
+<script>
+    // Asset Wajah Berdasarkan Emosi
+    const faces = {
+        "ZEN": "    . . . . . . . . . . .\n  .                       .\n  .    ( o )     ( o )    .\n  .                       .\n  .          _ _ _        .\n    . . . . . . . . . . .",
+        "HAPPY": "    . . . . . . . . . . .\n  .                       .\n  .    ( ^ )     ( ^ )    .\n  .                       .\n  .         \\___/         .\n    . . . . . . . . . . .",
+        "AGGRESSIVE": "    . . . . . . . . . . .\n  .                       .\n  .    ( > )     ( < )    .\n  .           !           .\n  .         _____         .\n    . . . . . . . . . . .",
+        "PANIC": "    . . . . . . . . . . .\n  .                       .\n  .    ( X )     ( X )    .\n  .                       .\n  .           O           .\n    . . . . . . . . . . ."
+    };
+
+    async function updateDashboard() {
+        // Source data dari GitHub Bos
+        const url = 'https://raw.githubusercontent.com/elingfathurrodo-efr/AI_Overlord_Brain/main/Judge_V25.csv';
+        
+        try {
+            const response = await fetch(url + '?t=' + new Date().getTime());
+            const data = await response.text();
+            const cols = data.split(',');
+
+            if(cols.length >= 10) {
+                // Mapping Data
                 document.getElementById('emotion').innerText = cols[1];
-                document.getElementById('profit').innerText = cols[2];
+                document.getElementById('floating').innerText = cols[2];
                 document.getElementById('thought').innerText = cols[3];
-                document.getElementById('aggro-bar').style.width = cols[4] + '%';
-                document.getElementById('seed').innerText = cols[5];
-            } catch (e) { console.log("Menunggu sinkronisasi..."); }
-        }
-        setInterval(updateDashboard, 5000); // Update tiap 5 detik
-    </script>
+                document.getElementById('spread').innerText = cols[6];
+                document.getElementById('balance').innerText = cols[7];
+                document.getElementById('equity').innerText = cols[8];
+                document.getElementById('margin').innerText = cols[9];
+                
+                // Update Wajah
+                const emot = cols[1].toUpperCase();
+                document.getElementById('ascii-face').innerText = faces[emot] || faces["ZEN"];
+            }
+        } catch (e) { console.log("Menghubungkan ke Overlord Brain..."); }
+    }
+
+    // Update setiap 3 detik
+    setInterval(updateDashboard, 3000);
+    updateDashboard();
+</script>
+
 </body>
 </html>

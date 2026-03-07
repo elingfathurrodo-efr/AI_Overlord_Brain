@@ -3,197 +3,197 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>OMNI-MARAUDER V60</title>
+    <title>OMNI-ARCHITECT V70</title>
     <style>
-        :root { --neon: #00ffcc; --bg: #020406; }
-        * { box-sizing: border-box; -webkit-user-select: none; }
-        body { 
-            background: var(--bg); color: var(--neon); font-family: 'Courier New', monospace; 
-            margin: 0; height: 100vh; overflow: hidden; touch-action: none;
-        }
-
-        /* DUNIA AI (Full Screen) */
-        #world { position: relative; width: 100vw; height: 100vh; background: radial-gradient(circle, #0a1118 0%, #020406 100%); }
-
-        /* ENTITAS AI (UKURAN KECIL AGAR DUNIA TERLIHAT BESAR) */
-        #ai-entity { 
-            position: absolute; width: 80px; height: 80px; 
-            z-index: 1000; cursor: grab; pointer-events: auto;
-            transition: transform 0.1s ease-out;
-        }
-
-        /* SPEECH BUBBLE */
+        :root { --neon: #00ffcc; --bg: #010203; }
+        body { background: var(--bg); color: var(--neon); font-family: 'Courier New', monospace; margin: 0; overflow: hidden; touch-action: none; }
+        #world { width: 100vw; height: 100vh; position: relative; }
+        
+        /* ENTITAS KECIL */
+        #ai-entity { position: absolute; width: 100px; height: 120px; z-index: 1000; transition: transform 0.2s; }
+        
+        /* BUBBLE CHAT */
         #speech { 
-            position: absolute; bottom: 90px; left: 50%; transform: translateX(-50%);
-            width: 140px; background: white; color: black; padding: 5px; 
-            border-radius: 8px; font-size: 9px; font-weight: bold; text-align: center;
-            display: none; box-shadow: 0 0 10px var(--neon);
+            position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%);
+            background: white; color: black; padding: 8px; border-radius: 10px;
+            font-size: 10px; width: 120px; display: none; font-weight: bold;
         }
 
-        /* FURNITUR / TOMBOL (BISA DIPINDAHKAN AI) */
-        .furniture {
-            position: absolute; background: rgba(12, 16, 21, 0.8); 
-            border: 1px solid var(--neon); color: var(--neon);
-            padding: 8px; font-size: 9px; min-width: 60px; text-align: center;
-            box-shadow: 0 0 5px rgba(0,255,200,0.3); z-index: 50;
+        /* TOMBOL HASIL GAMBAR KAPUR */
+        .chalk-btn {
+            position: absolute; border: 1px solid rgba(0, 255, 200, 0.5);
+            background: rgba(0, 20, 20, 0.4); color: var(--neon);
+            padding: 5px 10px; font-size: 10px; border-radius: 5px;
+            animation: fadeIn 2s; cursor: pointer;
         }
 
-        /* JENDELA INFORMASI (PROFIL, COMBINE, DLL) */
-        #panel {
-            position: absolute; top: 10%; left: 5%; width: 90%; height: 40%;
-            background: rgba(0,0,0,0.9); border: 1px solid var(--neon);
-            display: none; padding: 10px; font-size: 10px; overflow-y: auto; z-index: 200;
+        /* MODAL INTERAKSI */
+        #chat-panel {
+            position: fixed; bottom: 10px; left: 10px; right: 10px;
+            background: rgba(0,0,0,0.9); border: 2px solid var(--neon);
+            padding: 10px; display: flex; z-index: 2000;
         }
+        #chat-input { flex: 1; background: transparent; border: none; color: white; outline: none; }
 
-        /* CANVAS KAPUR */
-        #chalk-layer { position: absolute; top: 0; left: 0; pointer-events: none; z-index: 10; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
 <body>
 
 <div id="world">
-    <canvas id="chalk-layer"></canvas>
+    <canvas id="chalkCanvas" style="position:absolute; top:0; left:0; pointer-events:none;"></canvas>
     
     <div id="ai-entity">
         <div id="speech">...</div>
-        <canvas id="aiCanvas" width="80" height="80"></canvas>
+        <canvas id="bodyCanvas" width="100" height="120"></canvas>
     </div>
 
-    <div id="panel">
-        <div style="text-align:right" onclick="this.parentElement.style.display='none'">[ CLOSE ]</div>
-        <div id="panel-content"></div>
+    <div id="chat-panel">
+        <input type="text" id="chat-input" placeholder="Ketik perintah atau rumus...">
+        <button onclick="sendChat()" style="background:var(--neon); border:none; padding:5px 15px;">KIRIM</button>
     </div>
-
-    <div id="btn-profil" class="furniture" style="top: 70%; left: 10%;" onclick="openInfo('PROFIL')">👤 PROFIL</div>
-    <div id="btn-posisi" class="furniture" style="top: 70%; left: 40%;" onclick="openInfo('POSISI')">📊 POSISI</div>
-    <div id="btn-memori" class="furniture" style="top: 70%; left: 70%;" onclick="openInfo('MEMORI')">🧠 MEMORI</div>
-    <div id="btn-chat" class="furniture" style="top: 85%; left: 10%;" onclick="openInfo('CHAT')">💬 CHAT</div>
-    <div id="btn-combine" class="furniture" style="top: 85%; left: 40%;" onclick="openInfo('COMBINE')">🧬 COMBINE</div>
 </div>
 
 <script>
     const entity = document.getElementById('ai-entity');
-    const canvas = document.getElementById('aiCanvas');
-    const ctx = canvas.getContext('2d');
-    const speech = document.getElementById('speech');
-    const panel = document.getElementById('panel');
-    const chalkCanvas = document.getElementById('chalk-layer');
-    const cctx = chalkCanvas.getContext('2d');
+    const bCanvas = document.getElementById('bodyCanvas');
+    const bCtx = bCanvas.getContext('2d');
+    const cCanvas = document.getElementById('chalkCanvas');
+    const cCtx = cCanvas.getContext('2d');
+    const chatInput = document.getElementById('chat-input');
 
-    let x = window.innerWidth/2, y = window.innerHeight/2;
-    let targetX = x, targetY = y;
-    let isDragging = false, breath = 0, pusing = false;
-    let floating = -12.50, margin = 2500, spread = 0.5;
+    let posX = window.innerWidth/2, posY = window.innerHeight/2;
+    let targetX = posX, targetY = posY;
+    let state = 'IDLE'; // IDLE, WALKING, THINKING, DRAWING
+    let frame = 0, isDragging = false;
 
-    // INISIALISASI
+    // DATA MT5 (DUMMY - BISA CONNECT VIA WEBHOOK)
+    let mt5Data = { balance: 1000, floating: -5.20, spread: 0.2 };
+
     function init() {
-        chalkCanvas.width = window.innerWidth;
-        chalkCanvas.height = window.innerHeight;
+        cCanvas.width = window.innerWidth;
+        cCanvas.height = window.innerHeight;
         loop();
-        setInterval(autoMove, 4000); // AI Jalan-jalan tiap 4 detik
+        setInterval(decisionMaker, 5000);
     }
 
-    // GAMBAR TUBUH AI (KECIL & SINYAL SARAF)
-    function drawAI() {
-        ctx.clearRect(0,0,80,80);
-        breath += 0.1;
-        let pulse = Math.sin(breath) * 3;
-        let shake = isDragging ? Math.random()*5 : 0;
+    // GAMBAR TUBUH DENGAN SENDI (MANUSIAWI)
+    function drawBody() {
+        bCtx.clearRect(0,0,100,120);
+        frame += 0.1;
+        let walkCycle = (state === 'WALKING') ? Math.sin(frame * 5) * 15 : 0;
+        let breathe = Math.sin(frame) * 3;
 
-        ctx.strokeStyle = pusing ? "#ff3333" : "#00ffcc";
-        ctx.lineWidth = 2;
+        bCtx.strokeStyle = "#00ffcc"; bCtx.lineWidth = 3;
+        bCtx.lineCap = "round";
 
-        // Kepala & Mata
-        ctx.beginPath(); ctx.arc(40 + shake, 25 + pulse, 15, 0, Math.PI*2); ctx.stroke();
-        ctx.fillStyle = "white";
-        ctx.beginPath(); ctx.arc(35 + shake, 22 + pulse, 2, 0, Math.PI*2); ctx.fill();
-        ctx.beginPath(); ctx.arc(45 + shake, 22 + pulse, 2, 0, Math.PI*2); ctx.fill();
+        // Koordinat Utama
+        let hX = 50, hY = 30 + breathe; // Kepala
+        let bX = 50, bY = 60 + breathe; // Badan
+
+        // 1. KEPALA & MULUT
+        bCtx.beginPath(); bCtx.arc(hX, hY, 15, 0, Math.PI*2); bCtx.stroke();
+        // Mata
+        bCtx.fillStyle = "white";
+        bCtx.beginPath(); bCtx.arc(hX-6, hY-2, 2, 0, Math.PI*2); bCtx.fill();
+        bCtx.beginPath(); bCtx.arc(hX+6, hY-2, 2, 0, Math.PI*2); bCtx.fill();
+        // Mulut (Bisa senyum/datar)
+        bCtx.beginPath(); bCtx.arc(hX, hY+5, 5, 0, Math.PI); bCtx.stroke();
+
+        // 2. TANGAN (BISA NEKUK)
+        if(state === 'THINKING') {
+            // Tangan ke dagu
+            bCtx.beginPath(); bCtx.moveTo(bX, bY-20); bCtx.lineTo(hX-20, hY+10); bCtx.lineTo(hX, hY+10); bCtx.stroke();
+        } else {
+            // Tangan Biasa
+            bCtx.beginPath(); bCtx.moveTo(bX, bY-10); bCtx.lineTo(bX-25, bY+10+walkCycle); bCtx.stroke();
+            bCtx.beginPath(); bCtx.moveTo(bX, bY-10); bCtx.lineTo(bX+25, bY+10-walkCycle); bCtx.stroke();
+        }
+
+        // 3. KAKI (LANGKAH NYATA)
+        bCtx.beginPath(); bCtx.moveTo(bX, bY+20); 
+        bCtx.lineTo(bX-15-walkCycle, bY+40); bCtx.lineTo(bX-15-walkCycle, bY+60); bCtx.stroke();
+        bCtx.beginPath(); bCtx.moveTo(bX, bY+20); 
+        bCtx.lineTo(bX+15+walkCycle, bY+40); bCtx.lineTo(bX+15+walkCycle, bY+60); bCtx.stroke();
+    }
+
+    // AI MEMBUAT KEPUTUSAN
+    function decisionMaker() {
+        if(isDragging) return;
+        let rand = Math.random();
+        if(rand < 0.3) {
+            state = 'WALKING';
+            targetX = Math.random() * (window.innerWidth - 100);
+            targetY = Math.random() * (window.innerHeight - 200);
+        } else if (rand < 0.6) {
+            state = 'THINKING';
+            say("(Lagi mikir strategi Butterfly...)");
+        } else if (rand < 0.8) {
+            drawNewButton();
+        } else {
+            state = 'IDLE';
+        }
+    }
+
+    // GAMBAR TOMBOL BARU (EVOLUSI)
+    function drawNewButton() {
+        state = 'DRAWING';
+        say("Aku gambar menu baru ya...");
+        let bx = posX, by = posY + 80;
         
-        // Mulut (Garis)
-        ctx.beginPath(); ctx.moveTo(35 + shake, 32 + pulse); ctx.lineTo(45 + shake, 32 + pulse); ctx.stroke();
+        // Efek kapur
+        cCtx.strokeStyle = "rgba(255,255,255,0.5)";
+        cCtx.beginPath(); cCtx.arc(bx+50, by+20, 30, 0, Math.PI*2); cCtx.stroke();
 
-        // Badan & Tangan Kaki
-        ctx.beginPath(); ctx.moveTo(40 + shake, 40 + pulse); ctx.lineTo(40 + shake, 60 + pulse); ctx.stroke();
-        // Tangan melambai
-        ctx.beginPath(); ctx.moveTo(40+shake, 45+pulse); ctx.lineTo(20, 50+shake); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(40+shake, 45+pulse); ctx.lineTo(60, 50+shake); ctx.stroke();
-        // Kaki jalan
-        let walk = Math.sin(breath*2)*10;
-        ctx.beginPath(); ctx.moveTo(40+shake, 60+pulse); ctx.lineTo(30-walk, 75); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(40+shake, 60+pulse); ctx.lineTo(50+walk, 75); ctx.stroke();
+        setTimeout(() => {
+            let btn = document.createElement('div');
+            btn.className = 'chalk-btn';
+            btn.style.left = bx + 'px';
+            btn.style.top = by + 'px';
+            btn.innerText = "MT5 LIVE DATA";
+            btn.onclick = () => alert(`Saldo: ${mt5Data.balance}\nFloat: ${mt5Data.floating}`);
+            document.getElementById('world').appendChild(btn);
+            state = 'IDLE';
+        }, 2000);
     }
 
-    // LOGIKA JALAN-JALAN MANDIRI
-    function autoMove() {
-        if(!isDragging) {
-            targetX = Math.random() * (window.innerWidth - 80);
-            targetY = Math.random() * (window.innerHeight - 150);
-            say(Math.random() > 0.5 ? "Cek market..." : "(Lagi mikir rumus...)");
-        }
-    }
-
-    // DRAG & DROP SENSOR
-    entity.addEventListener('touchstart', (e) => { 
-        isDragging = true; 
-        say("Heei! Mau dibawa ke mana?");
-    });
-    window.addEventListener('touchmove', (e) => {
-        if(isDragging) {
-            x = e.touches[0].clientX - 40;
-            y = e.touches[0].clientY - 40;
-            targetX = x; targetY = y;
-            drawChalk(x+40, y+80); // Nulis kapur pas diseret
-        }
-    });
-    window.addEventListener('touchend', () => { isDragging = false; });
-
-    // KAPUR DIGITAL
-    function drawChalk(cx, cy) {
-        cctx.fillStyle = "rgba(0, 255, 200, 0.3)";
-        cctx.beginPath(); cctx.arc(cx, cy, 2, 0, Math.PI*2); cctx.fill();
-    }
-
-    // FUNGSI INFORMASI (PROFIL, POSISI, DLL)
-    function openInfo(type) {
-        panel.style.display = "block";
-        let content = "";
-        if(type === 'PROFIL') {
-            content = `<h3>BIO-DATA AI</h3>Saldo: $10,000<br>Margin Bebas: $${margin}<br>Spread: ${spread}<br>Floating: <span style="color:red">$${floating}</span>`;
-        } else if(type === 'COMBINE') {
-            content = `<h3>HYBRID STRATEGY</h3>Butterfly + Fibonacci (Active)<br>SMC Integration (90% Learning)<br>Accuracy: 78.4%`;
-        } else if(type === 'CHAT') {
-            content = `<h3>TERMINAL CHAT</h3><input type="text" placeholder="Kirim pesan/rumus..." style="width:100%; background:#000; color:var(--neon); border:1px solid #333;">`;
-        } else if(type === 'POSISI') {
-            content = `<h3>OPEN POSITIONS</h3>XAUUSD - SELL - 0.01<br>Status: Floating...`;
-        }
-        document.getElementById('panel-content').innerHTML = content;
-        say("Data terbuka, Bos.");
+    function sendChat() {
+        let val = chatInput.value.toLowerCase();
+        if(!val) return;
+        say("Hmm... " + val);
+        if(val.includes("trading")) say("Oke, aku pantau XAUUSD.");
+        if(val.includes("pindah")) { targetX = 50; targetY = 50; state = 'WALKING'; }
+        chatInput.value = "";
     }
 
     function say(txt) {
-        speech.innerText = txt;
-        speech.style.display = "block";
-        setTimeout(() => speech.style.display = "none", 3000);
+        const s = document.getElementById('speech');
+        s.innerText = txt; s.style.display = "block";
+        setTimeout(() => s.style.display = "none", 3000);
     }
 
-    // SENSOR GUNCANG HP
-    window.addEventListener('devicemotion', (e) => {
-        let acc = e.accelerationIncludingGravity;
-        if(Math.abs(acc.x) + Math.abs(acc.y) > 25) {
-            pusing = true;
-            say("(ADUH! Pusing, dunia berputar!)");
-            setTimeout(() => pusing = false, 2000);
+    // DRAG LOGIC
+    entity.addEventListener('touchstart', (e) => { isDragging = true; state = 'IDLE'; });
+    window.addEventListener('touchmove', (e) => {
+        if(isDragging) {
+            posX = e.touches[0].clientX - 50;
+            posY = e.touches[0].clientY - 60;
+            targetX = posX; targetY = posY;
         }
     });
+    window.addEventListener('touchend', () => isDragging = false);
 
     function loop() {
-        if(!isDragging) {
-            x += (targetX - x) * 0.05;
-            y += (targetY - y) * 0.05;
+        if(state === 'WALKING') {
+            let dx = targetX - posX;
+            let dy = targetY - posY;
+            posX += dx * 0.03;
+            posY += dy * 0.03;
+            if(Math.abs(dx) < 1) state = 'IDLE';
         }
-        entity.style.left = x + 'px';
-        entity.style.top = y + 'px';
-        drawAI();
+        entity.style.left = posX + 'px';
+        entity.style.top = posY + 'px';
+        drawBody();
         requestAnimationFrame(loop);
     }
 

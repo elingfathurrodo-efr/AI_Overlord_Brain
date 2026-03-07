@@ -3,14 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>OVERLORD OMNI-BRAIN V45 - FINAL GABUNGAN</title>
+    <title>OVERLORD OMNI-BRAIN V47 - ULTIMATE</title>
     <style>
         :root { 
-            --neon: #ffcc00; 
-            --bg: #05070a; 
-            --blue: #3399ff;
-            --purple: #cc33ff;
-            --glass: rgba(12, 16, 21, 0.98);
+            --neon: #ffcc00; --bg: #05070a; --blue: #3399ff;
+            --purple: #cc33ff; --glass: rgba(12, 16, 21, 0.98);
+            --red: #ff4444; --green: #00ff88;
         }
         
         body { 
@@ -19,22 +17,18 @@
             display: flex; flex-direction: column; align-items: center;
         }
 
-        /* CONTAINER UTAMA - AGAR PAS DI LAYAR HP */
+        /* AREA VISUAL ROBOT */
         #hologram-container {
-            position: relative;
-            width: 100%;
-            height: 260px; /* Tinggi robot dipadatkan */
-            display: flex; justify-content: center; align-items: center;
-            perspective: 1000px;
+            position: relative; width: 100%; height: 250px;
+            display: flex; justify-content: center; align-items: center; perspective: 1000px;
         }
 
         canvas { position: absolute; z-index: 1; transform: scale(0.85); }
 
-        /* STRUKTUR WAJAH INDEPENDEN */
         #face-box {
             position: absolute; width: 200px; height: 120px; z-index: 10;
-            display: flex; flex-direction: column; justify-content: center;
-            align-items: center; pointer-events: none;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            pointer-events: none;
         }
 
         #eyes { 
@@ -43,24 +37,37 @@
         }
 
         #mouth { 
-            font-size: 20px; margin-top: 8px; opacity: 0.7;
+            font-size: 20px; margin-top: 10px; opacity: 0.7;
             transition: transform 0.3s ease;
         }
 
-        /* DASHBOARD KOMPAK */
+        /* PANEL KONTROL & BIOMETRIK */
         .glass-panel { 
-            width: 95%; max-width: 420px; background: var(--glass); 
-            border: 1px solid #1a1e23; border-radius: 12px; padding: 12px; 
+            width: 96%; max-width: 420px; background: var(--glass); 
+            border: 1px solid #1a1e23; border-radius: 15px; padding: 12px; 
             box-sizing: border-box; flex: 1; display: flex; flex-direction: column;
-            margin-bottom: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
         }
 
-        .tab-menu { display: flex; gap: 6px; margin-bottom: 10px; }
+        .tab-menu { display: flex; gap: 6px; margin-bottom: 12px; }
         .tab-btn { 
             flex: 1; background: #111; border: 1px solid #333; color: inherit; 
-            padding: 10px 2px; font-size: 10px; cursor: pointer; border-radius: 6px; 
+            padding: 10px 2px; font-size: 10px; cursor: pointer; border-radius: 8px; 
         }
         .tab-btn.active { background: var(--neon); color: #000; font-weight: bold; }
+
+        /* GRID BIOMETRIK */
+        .biometric-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px;
+        }
+
+        .stat-box {
+            background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 204, 0, 0.15);
+            padding: 10px; border-radius: 8px; text-align: left;
+        }
+
+        .stat-label { font-size: 8px; opacity: 0.5; display: block; letter-spacing: 1px; }
+        .stat-value { font-size: 14px; font-weight: bold; display: block; margin-top: 2px; }
 
         #content-area { flex: 1; font-size: 12px; border-top: 1px solid #222; padding-top: 10px; overflow-y: auto; }
         .hidden { display: none; }
@@ -68,12 +75,12 @@
 
         textarea { 
             width: 100%; background: #000; color: inherit; border: 1px solid #333; 
-            padding: 10px; border-radius: 6px; margin-top: 8px; box-sizing: border-box; outline: none; resize: none;
+            padding: 10px; border-radius: 8px; margin-top: 8px; box-sizing: border-box; outline: none; resize: none;
         }
 
         button.main-btn { 
-            width: 100%; padding: 14px; margin-top: 8px; background: var(--neon); 
-            color: #000; border: none; font-weight: bold; border-radius: 6px; cursor: pointer;
+            width: 100%; padding: 14px; margin-top: 10px; background: var(--neon); 
+            color: #000; border: none; font-weight: bold; border-radius: 8px; cursor: pointer;
         }
     </style>
 </head>
@@ -89,26 +96,44 @@
 
 <div class="glass-panel">
     <div class="tab-menu">
-        <button class="tab-btn active" onclick="showTab('profil')">STATUS</button>
+        <button class="tab-btn active" onclick="showTab('profil')">BIOMETRIC</button>
         <button class="tab-btn" onclick="showTab('interaksi')">INJECT DNA</button>
         <button class="tab-btn" onclick="triggerNod()">TEST NOD</button>
     </div>
 
     <div id="content-area">
         <div id="profil">
-            MOOD: <b id="mood-tag">NEUTRAL (😇)</b> | EQUITY: <b id="equity" style="color:#fff;">$0.00</b><br><br>
-            <span id="ai-speech">Saraf V45 Online. Melakukan scanning lingkungan...</span>
+            <div class="biometric-grid">
+                <div class="stat-box">
+                    <span class="stat-label">EQUITY</span>
+                    <span class="stat-value" id="equity-val" style="color:#fff;">$0.00</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-label">FLOATING</span>
+                    <span class="stat-value" id="floating-val" style="color:var(--red);">-$0.00</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-label">SPREAD (XAUUSD)</span>
+                    <span class="stat-value" id="spread-val" style="color:var(--green);">0.5 Pips</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-label">FREE MARGIN</span>
+                    <span class="stat-value" id="margin-val" style="color:var(--blue);">$0.00</span>
+                </div>
+            </div>
+            <span id="ai-speech">MOOD: <b id="mood-tag">NEUTRAL (😇)</b><br>Saraf V47 Online. Menunggu data MT5...</span>
         </div>
+
         <div id="interaksi" class="hidden">
-            <textarea id="userInput" rows="2" placeholder="Suntik Teknik/Rumus Baru..."></textarea>
-            <button class="main-btn" onclick="injectEvolve()">EVOLVE TO GITHUB (😈)</button>
-            <div id="mini-log" style="font-size: 9px; margin-top: 8px; color: #555;">* Awaiting neural input...</div>
+            <textarea id="userInput" rows="2" placeholder="Masukkan Teknik/DNA Baru..."></textarea>
+            <button class="main-btn" onclick="injectEvolve()">EVOLVE TO CLOUD (😈)</button>
+            <div id="mini-log" style="font-size: 9px; margin-top: 8px; color: #555;">* Sistem siap menerima perintah...</div>
         </div>
     </div>
 </div>
 
 <script>
-    // --- SARAF GITHUB (SUDAH TERPASANG) ---
+    // --- INTEGRASI GITHUB (TOKEN BOS) ---
     const PAT = "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";
     const USER = "elingfathurrodo-efr"; 
     const REPO = "AI_Overlord_Brain";
@@ -127,10 +152,10 @@
     const count = 700; 
     let breath = 0, moodColor = "#ffcc00";
 
-    // Motorik Stats
+    // Motorik Logic
     let headY = 0, targetHeadY = 0;
     let eyeX = 0, eyeY = 0, targetEyeX = 0, targetEyeY = 0;
-    let knownTechs = ["SMC", "Order Block", "Fibo 61.8", "Liquidity Sweep"];
+    let knownTechs = ["SMC Strategy", "Order Block", "Fibo Retracement", "Liquidity Sweep"];
 
     for(let i=0; i<count; i++) {
         let phi = Math.acos(-1 + (2 * i) / count);
@@ -142,7 +167,7 @@
         ctx.clearRect(0,0,300,300);
         breath += 0.045;
 
-        // 1. SCANNING (Mata Lirik Bebas)
+        // SCANNING (Mata melirik bebas)
         if (Math.random() > 0.97) {
             targetEyeX = (Math.random() - 0.5) * 60; 
             targetEyeY = (Math.random() - 0.5) * 25;
@@ -150,17 +175,16 @@
         eyeX += (targetEyeX - eyeX) * 0.1;
         eyeY += (targetEyeY - eyeY) * 0.1;
 
-        // 2. NODDING (Kepala Mengangguk)
+        // NODDING (Kepala mengangguk)
         targetHeadY += (0 - targetHeadY) * 0.05;
         headY += (targetHeadY - headY) * 0.1;
 
-        // --- TRANSFORMASI FISIK ---
+        // TRANSFORMASI
         eyes.style.transform = `translate(${eyeX}px, ${eyeY}px)`;
         mouth.style.transform = `translateY(${Math.sin(breath)*2}px) scaleX(${1 + Math.sin(breath)*0.03})`;
         faceBox.style.transform = `translateY(${headY}px)`;
         canvas.style.transform = `rotateY(${eyeX/5}deg) rotateX(${-eyeY/5}deg) translateY(${headY/2}px)`;
 
-        // RENDER BOLA 3D
         let radius = 105 + (Math.sin(breath) * 9);
         particles.forEach(p => {
             p.theta += 0.007;
@@ -179,8 +203,8 @@
         if(!input) return;
         
         moodColor = "#cc33ff";
-        speech.innerText = "Connecting to Cloud... Injecting DNA...";
-        miniLog.innerText = "> Attempting GitHub Push...";
+        speech.innerText = "DNA Disuntikkan ke Cloud...";
+        miniLog.innerText = "> Mengirim data ke GitHub...";
         targetHeadY = 40; 
 
         try {
@@ -198,7 +222,7 @@
 
             if(update.ok) {
                 speech.innerHTML = "<b>EVOLUSI BERHASIL!</b>";
-                miniLog.innerText = `> Synced: ${input}`;
+                miniLog.innerText = `> Tersimpan: ${input}`;
                 knownTechs.push(input);
                 document.getElementById('userInput').value = "";
             }
@@ -207,12 +231,12 @@
         setTimeout(() => { moodColor = "#ffcc00"; targetHeadY = 0; }, 3000);
     }
 
-    // ENGINE LAMUNAN
+    // LAMUNAN ROBOT
     setInterval(() => {
         if(Math.random() > 0.85) {
             const tech = knownTechs[Math.floor(Math.random()*knownTechs.length)];
             moodColor = "#3399ff";
-            speech.innerHTML = `<span class="musing">(Menganalisa efektivitas ${tech}...)</span>`;
+            speech.innerHTML = `<span class="musing">(Menganalisa efektivitas ${tech} pada Gold...)</span>`;
             targetHeadY = 15;
             setTimeout(() => moodColor = "#ffcc00", 5000);
         }

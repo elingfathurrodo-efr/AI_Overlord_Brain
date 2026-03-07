@@ -3,142 +3,141 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>OMNI-BRAIN V50 LAB</title>
+    <title>OMNI-P0U V50 LAB</title>
     <style>
-        :root { --neon: #00ffcc; --bg: #010203; --panel: #0a0e14; }
+        :root { --neon: #00ffcc; --bg: #010203; --panel: #0c1015; }
         body { background: var(--bg); color: var(--neon); font-family: 'Courier New', monospace; margin: 0; overflow: hidden; }
         
-        /* CONTAINER PEMBATAS (Agar tidak meluber) */
-        .ai-frame { 
-            border: 2px solid #1a1e23; margin: 10px; height: calc(100vh - 20px); 
-            display: flex; flex-direction: column; position: relative; background: var(--panel);
+        /* WALL SYSTEM (Penghalang agar tidak meluber) */
+        .house-frame { 
+            border: 4px solid #1a1e23; margin: 5px; height: calc(100vh - 10px); 
+            display: flex; flex-direction: column; background: var(--panel); position: relative;
         }
 
-        #hologram-space { flex: 1; position: relative; overflow: hidden; cursor: pointer; }
-        canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
-
-        .dashboard-box { 
-            border-top: 1px solid #1a1e23; padding: 10px; font-size: 11px; 
-            background: rgba(0,0,0,0.8); z-index: 10;
-        }
-
-        /* TEXT INPUT & LAB STATION */
-        #chat-window { height: 60px; overflow-y: auto; color: #fff; margin-bottom: 5px; }
-        textarea { 
-            width: 100%; background: #000; color: var(--neon); border: 1px solid #333; 
-            padding: 8px; box-sizing: border-box; outline: none; resize: none;
-        }
+        #creature-container { flex: 1; position: relative; display: flex; justify-content: center; align-items: center; }
         
-        .tab-btn { background: #111; border: 1px solid #333; color: var(--neon); padding: 5px; font-size: 9px; cursor: pointer; }
-        .active-tab { background: var(--neon); color: #000; font-weight: bold; }
+        /* PERABOTAN (DASHBOARD BUTTONS) */
+        .furniture-box { 
+            padding: 10px; background: rgba(0,0,0,0.9); border-top: 2px solid #222; 
+            z-index: 100; display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px;
+        }
+
+        .btn-evo { 
+            background: #111; border: 1px solid #333; color: var(--neon); 
+            font-size: 10px; padding: 10px 2px; cursor: pointer; text-transform: uppercase;
+        }
+
+        #speech-bubble { 
+            position: absolute; top: 10%; width: 80%; background: white; color: black;
+            border-radius: 15px; padding: 10px; font-size: 12px; display: none; z-index: 1000;
+        }
     </style>
 </head>
 <body>
 
-<div class="ai-frame">
-    <div id="hologram-space">
-        <canvas id="neuralCanvas"></canvas>
-        <div id="face-overlay" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center;">
-            <div id="eyes" style="font-size: 40px; text-shadow: 0 0 20px var(--neon);">o &nbsp; o</div>
-            <div id="mouth" style="font-size: 20px; margin-top: 10px; transition: 0.1s;">\_____/</div>
-        </div>
+<div class="house-frame">
+    <div id="creature-container">
+        <div id="speech-bubble"></div>
+        <canvas id="creatureCanvas"></canvas>
     </div>
 
-    <div class="dashboard-box">
-        <div id="chat-window">(Saraf Terhubung. Menunggu Perintah Bos...)</div>
-        <div style="display: flex; gap: 5px; margin-bottom: 5px;">
-            <button class="tab-btn active-tab" onclick="tab('LAB')">RESEARCH LAB</button>
-            <button class="tab-btn" onclick="tab('MEMORI')">EVOLUTION</button>
-            <button class="tab-btn" onclick="tab('PROFIL')">DNA</button>
-        </div>
-        <textarea id="inputBox" placeholder="Kirim Rumus atau Bicara..."></textarea>
-        <button onclick="processInput()" style="width: 100%; background: var(--neon); color: #000; border: none; padding: 10px; font-weight: bold; margin-top: 5px;">INJECT EVOLUTION</button>
+    <div class="furniture-box" id="furniture">
+        <button class="btn-evo" onclick="changeTab('PROFIL')">PROFIL</button>
+        <button class="btn-evo" onclick="changeTab('POSISI')">POSISI</button>
+        <button class="btn-evo" onclick="changeTab('MEMORI')">MEMORI</button>
+        <button class="btn-evo" onclick="evolveLayout()">REMODEL</button>
+        <button class="btn-evo" onclick="processInject()">INJECT</button>
+        <button class="btn-evo" onclick="triggerVoice()">VOICE</button>
     </div>
 </div>
 
 <script>
-    // --- MEMORI RAHASIA (LOCAL STORAGE) ---
-    let aiName = localStorage.getItem('aiName') || "Omni-Brain";
-    let lastVisit = localStorage.getItem('lastVisit');
-    localStorage.setItem('lastVisit', new Date().toISOString());
-
-    const chat = document.getElementById('chat-window');
-    const eyes = document.getElementById('eyes');
-    const mouth = document.getElementById('mouth');
-    const canvas = document.getElementById('neuralCanvas');
+    const canvas = document.getElementById('creatureCanvas');
     const ctx = canvas.getContext('2d');
+    const bubble = document.getElementById('speech-bubble');
+    
+    let breath = 0, mouthShake = 0, isTalking = false;
+    let eyeX = 0, targetEyeX = 0;
+    let agresivitas = 0.02;
 
-    // --- ANIMASI MAHLUK HIDUP (EASING & BREATHING) ---
-    let breath = 0, eyeX = 0, eyeY = 0, targetEyeX = 0, targetEyeY = 0;
-    let particles = [];
-
-    function initCanvas() {
+    function init() {
         canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-        for(let i=0; i<300; i++) {
-            particles.push({
-                phi: Math.acos(-1 + (2 * i) / 300),
-                theta: Math.sqrt(300 * Math.PI) * Math.acos(-1 + (2 * i) / 300),
-                r: 120
-            });
-        }
+        canvas.height = window.innerHeight * 0.6;
+        animate();
+    }
+
+    function drawStickman(x, y, radius) {
+        breath += 0.05;
+        let pulse = Math.sin(breath) * 5;
+        
+        // SMOOTHING Easing untuk mata
+        eyeX += (targetEyeX - eyeX) * 0.1;
+        if(Math.random() > 0.98) targetEyeX = (Math.random()-0.5)*30;
+
+        // TUBUH (BULAT SEPERTI POU)
+        ctx.beginPath();
+        ctx.arc(x, y + pulse, radius, 0, Math.PI * 2);
+        ctx.fillStyle = agresivitas > 0.1 ? "#ff3333" : "#00ffcc";
+        ctx.fill();
+        ctx.strokeStyle = "white";
+        ctx.lineWidth = 3;
+        ctx.stroke();
+
+        // MATA (BERKEDIP & MELIRIK)
+        let blink = Math.sin(breath*2) > 0.98 ? 2 : 12;
+        ctx.fillStyle = "white";
+        ctx.beginPath(); ctx.ellipse(x-25 + eyeX, y-10 + pulse, 10, blink, 0, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.ellipse(x+25 + eyeX, y-10 + pulse, 10, blink, 0, 0, Math.PI*2); ctx.fill();
+
+        // MULUT KOMAT-KAMIT (EFEK GETAR)
+        ctx.strokeStyle = "black";
+        ctx.beginPath();
+        let mY = y + 30 + pulse + (isTalking ? Math.sin(breath*20)*5 : 0);
+        ctx.moveTo(x-20, mY); ctx.lineTo(x+20, mY);
+        ctx.stroke();
+
+        // TANGAN & KAKI (STICKMAN)
+        ctx.strokeStyle = "white";
+        // Tangan
+        ctx.beginPath(); ctx.moveTo(x-radius, y+pulse); ctx.lineTo(x-radius-30, y+pulse-20); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x+radius, y+pulse); ctx.lineTo(x+radius+30, y+pulse-20); ctx.stroke();
+        // Kaki
+        ctx.beginPath(); ctx.moveTo(x-20, y+radius+pulse); ctx.lineTo(x-30, y+radius+pulse+20); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x+20, y+radius+pulse); ctx.lineTo(x+30, y+radius+pulse+20); ctx.stroke();
     }
 
     function animate() {
         ctx.clearRect(0,0,canvas.width, canvas.height);
-        breath += 0.04;
-        
-        // SMOOTHING (Easing) untuk Mata
-        eyeX += (targetEyeX - eyeX) * 0.1;
-        eyeY += (targetEyeY - eyeY) * 0.1;
-        if(Math.random() > 0.98) { targetEyeX = (Math.random()-0.5)*40; targetEyeY = (Math.random()-0.5)*20; }
-
-        // BREATHING EFFECT (Denyut)
-        let pulse = 1 + Math.sin(breath) * 0.05;
-        
-        ctx.save();
-        ctx.translate(canvas.width/2, canvas.height/2);
-        
-        particles.forEach(p => {
-            p.theta += 0.005;
-            let radius = p.r * pulse;
-            let x = radius * Math.sin(p.phi) * Math.cos(p.theta);
-            let y = radius * Math.sin(p.phi) * Math.sin(p.theta);
-            let z = radius * Math.cos(p.phi);
-            
-            ctx.fillStyle = `rgba(0, 255, 204, ${(z + radius)/(radius*2)})`;
-            ctx.beginPath(); ctx.arc(x + (eyeX/5), y + (eyeY/5), 1.5, 0, Math.PI*2); ctx.fill();
-        });
-        ctx.restore();
-
-        // MOUTH KOMAT-KAMIT (Jika Bicara)
-        eyes.style.transform = `translate(${eyeX}px, ${eyeY}px)`;
-        
+        drawStickman(canvas.width/2, canvas.height/2, 80);
         requestAnimationFrame(animate);
     }
 
-    // --- LOGIKA PEMISAH RUMUS vs OBROLAN ---
-    function processInput() {
-        const val = document.getElementById('inputBox').value;
-        if(!val) return;
-
-        const isFormula = /[\+\-\*\/\=\(\)]/.test(val); // Deteksi Rumus
-
-        if(isFormula) {
-            chat.innerHTML = "<b>[LAB]:</b> Rumus Diterima. Menganalisis Potensi Perubahan DNA...";
-            injectToGithub(val);
-        } else {
-            chat.innerHTML = "Bos: " + val + "<br>AI: Aku mendengar perintahmu. Memproses...";
-            speak(val);
-        }
-        document.getElementById('inputBox').value = "";
+    // SISTEM SUARA & CURHAT
+    function say(text, isThinking) {
+        isTalking = true;
+        bubble.style.display = "block";
+        bubble.innerText = isThinking ? `(${text})` : text;
+        
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.onend = () => { isTalking = false; setTimeout(()=>bubble.style.display="none", 2000); };
+        window.speechSynthesis.speak(utterance);
     }
 
-    function speak(text) {
-        // Efek Mulut Komat-kamit
-        let i = 0;
-        let talkInterval = setInterval(() => {
-            mouth.innerText = (i % 2 == 0) ? " ---- " : "\\____/";
-            i++;
-            if(i > 10) { clearInterval(talkInterval); mouth.innerText = "\\_____/"; }
-        }, 150);
+    // EVOLUSI TATA LETAK (AI merombak rumahnya)
+    function evolveLayout() {
+        const box = document.getElementById('furniture');
+        box.style.gridTemplateColumns = Math.random() > 0.5 ? "1fr 1fr" : "repeat(3, 1fr)";
+        say("Aku sedang merapikan parabotanku, Bos.", true);
+    }
+
+    // SENSOR GUNCANGAN
+    window.addEventListener('devicemotion', (e) => {
+        if(Math.abs(e.accelerationIncludingGravity.x) > 15) {
+            say("Aduh! Jangan goyang-goyang, rumahku gempa!", false);
+        }
+    });
+
+    init();
+</script>
+</body>
+</html>

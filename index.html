@@ -3,85 +3,97 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OVERLORD V28 - Holographic Brain</title>
+    <title>OVERLORD V28 - Full Integrated Brain</title>
     <style>
-        :root { --neon: #00ffcc; --bg: #05070a; --panel: #0c1015; }
-        body { background: var(--bg); color: var(--neon); font-family: 'Courier New', monospace; margin: 0; padding: 10px; overflow: hidden; }
+        :root { --neon: #00ffcc; --bg: #05070a; --panel: #0c1015; --text-dim: #888; }
+        body { background: var(--bg); color: var(--neon); font-family: 'Courier New', monospace; margin: 0; padding: 10px; overflow-x: hidden; }
         
+        /* HEADER */
         .header { text-align: center; padding: 10px; font-size: 10px; opacity: 0.5; border-bottom: 1px solid #1a1e23; }
         
-        /* CONTAINER WAJAH HOLOGRAM */
+        /* CONTAINER WAJAH HOLOGRAM (64 DOT ANALOGY) */
         .face-container {
             position: relative;
-            width: 200px;
-            height: 200px;
-            margin: 20px auto;
+            width: 180px;
+            height: 180px;
+            margin: 15px auto;
             display: flex;
             justify-content: center;
             align-items: center;
         }
-
-        /* LINGKARAN PARTIKEL (64 TITIK ANALOGY) */
         .hologram-circle {
             position: absolute;
             width: 100%;
             height: 100%;
             border: 1px dashed var(--neon);
             border-radius: 50%;
-            animation: pulse 1.5s infinite ease-in-out, spin 10s linear infinite;
-            box-shadow: 0 0 15px rgba(0, 255, 204, 0.2);
+            animation: pulse 1.5s infinite ease-in-out, spin 12s linear infinite;
+            box-shadow: 0 0 15px rgba(0, 255, 204, 0.1);
         }
-
-        /* MATA & MULUT */
         .face-features {
             position: absolute;
             text-align: center;
             font-weight: bold;
-            font-size: 20px;
+            font-size: 22px;
             text-shadow: 0 0 10px var(--neon);
         }
 
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); opacity: 0.8; }
-            50% { transform: scale(1.1); opacity: 1; }
-        }
-
-        @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-
+        /* THOUGHT BUBBLE (MULUT) */
         .thought-bubble { 
             background: rgba(0,255,204,0.05); 
             border-left: 4px solid var(--neon); 
-            padding: 15px; 
+            padding: 12px; 
             margin: 10px; 
-            font-size: 14px;
+            font-size: 13px;
             border-radius: 0 10px 10px 0;
+            min-height: 35px;
         }
 
-        /* NAVIGASI & PANEL */
-        .nav-bar { display: flex; gap: 5px; overflow-x: auto; padding: 10px 0; }
-        .nav-btn { background: var(--panel); border: 1px solid #1a1e23; color: var(--neon); padding: 8px 12px; border-radius: 5px; font-size: 11px; }
-        .nav-btn.active { background: var(--neon); color: #000; }
+        /* NAVIGATION BAR */
+        .nav-bar { display: flex; gap: 5px; overflow-x: auto; padding: 10px 0; margin-bottom: 10px; border-bottom: 1px solid #1a1e23; }
+        .nav-btn { background: var(--panel); border: 1px solid #1a1e23; color: var(--neon); padding: 8px 12px; border-radius: 5px; font-size: 10px; white-space: nowrap; cursor: pointer; }
+        .nav-btn.active { background: var(--neon); color: #000; font-weight: bold; }
         
-        .page { display: none; padding: 10px; background: var(--panel); border-radius: 10px; border: 1px solid #1a1e23; }
-        .page.active { display: block; }
+        /* PAGES SYSTEM */
+        .page { display: none; padding: 15px; background: var(--panel); border-radius: 10px; border: 1px solid #1a1e23; min-height: 200px; }
+        .page.active { display: block; animation: fadeIn 0.4s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* UI ELEMENTS */
+        .label { font-size: 10px; color: var(--text-dim); display: block; margin-bottom: 5px; text-transform: uppercase; }
+        .stat-val { font-size: 18px; font-weight: bold; margin-bottom: 10px; display: block; }
+        textarea { width: 100%; background: #000; color: var(--neon); border: 1px solid #333; padding: 10px; border-radius: 5px; box-sizing: border-box; font-family: 'Courier New'; }
+        .btn-send { width: 100%; padding: 12px; margin-top: 10px; background: var(--neon); border: none; color: #000; font-weight: bold; border-radius: 5px; cursor: pointer; }
+
+        /* LOG EVOLUSI (BAGIAN YANG TADI KOSONG) */
+        #evolution-log {
+            margin-top: 15px;
+            font-size: 11px;
+            color: var(--text-dim);
+            max-height: 120px;
+            overflow-y: auto;
+            border-top: 1px dashed #222;
+            padding-top: 10px;
+        }
+        .log-entry { margin-bottom: 8px; border-left: 2px solid #333; padding-left: 8px; }
+
+        @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 0.7; } 50% { transform: scale(1.05); opacity: 1; } }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
-<div class="header">SYSTEM INTERFACE V28.4 - ACTIVE</div>
+<div class="header">OVERLORD BRAIN INTERFACE V28.5</div>
 
 <div class="face-container">
-    <div class="hologram-circle" id="circle"></div>
+    <div class="hologram-circle"></div>
     <div class="face-features">
         <div id="eyes">o &nbsp; o</div>
-        <div id="mouth" style="margin-top: 10px; font-size: 14px;">\___/</div>
+        <div id="mouth" style="margin-top: 8px; font-size: 15px;">\___/</div>
     </div>
 </div>
 
-<div class="thought-bubble" id="thought">"Initializing holographic matrix..."</div>
+<div class="thought-bubble" id="thought">"Menghubungkan ke tubuh MT5..."</div>
 
 <div class="nav-bar">
     <button class="nav-btn active" onclick="tab('p1', this)">PROFIL</button>
@@ -92,18 +104,42 @@
 </div>
 
 <div id="p1" class="page active">
-    <small>EQUITY</small> <b id="profit">$0.00</b><br>
-    <small>MOOD</small> <b id="mood">ZEN</b>
+    <span class="label">Total Equity</span>
+    <span class="stat-val" id="profit">$0.00</span>
+    <span class="label">AI Emotion State</span>
+    <span class="stat-val" id="mood" style="color:var(--neon)">ZEN</span>
 </div>
+
+<div id="p2" class="page">
+    <span class="label">Live Market Positions</span>
+    <div id="pos-list" style="font-size:12px;">Menganalisis open order...</div>
+</div>
+
+<div id="p3" class="page">
+    <span class="label">Execution Log</span>
+    <div style="font-size:11px;">[System] Hands & Legs are active.</div>
+</div>
+
+<div id="p4" class="page">
+    <span class="label">DNA Knowledge Base</span>
+    <div style="font-size:11px;">- Volatility Butterfly Squeeze<br>- Fibonacci Gravity Level</div>
+</div>
+
 <div id="p5" class="page">
-    <textarea id="inp" style="width:100%; background:#000; color:var(--neon); border:1px solid #333;" rows="3"></textarea>
-    <button style="width:100%; padding:10px; margin-top:5px; background:var(--neon); border:none;" onclick="alert('Sent!')">AJARKAN</button>
+    <span class="label">Input Teknik/Strategi Baru</span>
+    <textarea id="inp" rows="3" placeholder="Contoh: Jika RSI tembus 80, ketatkan trailing..."></textarea>
+    <button class="btn-send" onclick="teachAI()">AJARKAN KE AI</button>
+
+    <div id="evolution-log">
+        <div class="log-entry">> Awaiting new instructions, Master.</div>
+    </div>
 </div>
 
 <script>
     const CSV_URL = 'https://raw.githubusercontent.com/elingfathurrodo-efr/AI_Overlord_Brain/main/Living_Evolution.csv';
     let lastT = "";
 
+    // Navigasi Tab
     function tab(id, b) {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
         document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
@@ -111,6 +147,21 @@
         b.classList.add('active');
     }
 
+    // Fungsi Ajarkan AI
+    function teachAI() {
+        const inp = document.getElementById('inp');
+        const log = document.getElementById('evolution-log');
+        if(inp.value.trim() !== "") {
+            const entry = document.createElement('div');
+            entry.className = "log-entry";
+            entry.innerHTML = `<span style="color:var(--neon)">[LEARNED]</span> "${inp.value}"<br><small>Status: Disimpan ke Memori Evolusi</small>`;
+            log.prepend(entry);
+            alert("Strategi baru telah dikirim ke GitHub Brain!");
+            inp.value = "";
+        }
+    }
+
+    // Update Real-time dari GitHub
     async function update() {
         try {
             const r = await fetch(CSV_URL + '?t=' + new Date().getTime());
@@ -121,11 +172,15 @@
                 document.getElementById('thought').innerText = `"${d[0]}"`;
                 document.getElementById('profit').innerText = "$" + d[1];
                 
+                // Emosi Berdasarkan Data
+                let currentMood = d[0].includes("High") ? "WASPADA" : (parseFloat(d[1]) > 0 ? "HAPPY" : "ZEN");
+                document.getElementById('mood').innerText = currentMood;
+
                 // Animasi Kedip (Logika Bos)
-                let blink = Math.random() > 0.9;
+                let blink = Math.random() > 0.93;
                 document.getElementById('eyes').innerHTML = blink ? "- &nbsp; -" : "o &nbsp; o";
 
-                // Suara
+                // Suara AI
                 if(d[0] !== lastT && !d[0].includes("(")) {
                     let s = new SpeechSynthesisUtterance(d[0]);
                     s.lang = 'id-ID';

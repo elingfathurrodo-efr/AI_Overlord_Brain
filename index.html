@@ -3,28 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OVERLORD OMNI-BRAIN V28.9</title>
+    <title>OVERLORD OMNI-BRAIN V28.8</title>
     <style>
         :root { --neon: #00ffcc; --bg: #05070a; --panel: #0c1015; --danger: #ff4444; }
         body { background: var(--bg); color: var(--neon); font-family: 'Courier New', monospace; margin: 0; padding: 10px; overflow: hidden; }
         
+        /* 300 DOTS HOLOGRAM CONTAINER */
         #hologram-box {
-            width: 100%; height: 300px;
-            display: flex; justify-content: center; align-items: center;
+            width: 100%;
+            height: 300px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             position: relative;
         }
-        canvas { position: absolute; filter: drop-shadow(0 0 5px var(--neon)); }
+        canvas { position: absolute; filter: blur(0.5px); }
         .face-ui {
-            position: absolute; text-align: center; font-size: 30px; font-weight: bold;
-            text-shadow: 0 0 20px var(--neon); z-index: 10; pointer-events: none;
+            position: absolute;
+            text-align: center;
+            font-size: 30px;
+            font-weight: bold;
+            text-shadow: 0 0 20px var(--neon);
+            pointer-events: none;
+            z-index: 10;
         }
+
+        /* UI PANEL */
         .glass-panel {
-            background: rgba(12, 16, 21, 0.9); border: 1px solid #1a1e23;
-            border-radius: 8px; padding: 15px; margin-top: 10px;
+            background: rgba(12, 16, 21, 0.9);
+            border: 1px solid #1a1e23;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 10px;
+            box-shadow: 0 0 15px rgba(0, 255, 204, 0.05);
         }
         .thought { font-style: italic; font-size: 13px; color: #888; border-left: 3px solid var(--neon); padding-left: 10px; min-height: 40px; }
+        
         textarea { width: 100%; background: #000; color: var(--neon); border: 1px solid #1a1e23; padding: 10px; box-sizing: border-box; border-radius: 4px; resize: none; outline: none; }
         button { width: 100%; padding: 12px; margin-top: 8px; background: var(--neon); color: #000; border: none; font-weight: bold; border-radius: 4px; cursor: pointer; text-transform: uppercase; }
+        button:active { transform: scale(0.98); opacity: 0.8; }
+        
         #log-window { font-size: 10px; color: #555; height: 80px; overflow-y: auto; margin-top: 10px; border-top: 1px solid #111; padding-top: 5px; }
     </style>
 </head>
@@ -39,64 +57,65 @@
 </div>
 
 <div class="glass-panel">
-    <div class="thought" id="ai-thought">"Mengatur ritme napas... Sinkronisasi sirkulasi saraf."</div>
+    <div class="thought" id="ai-thought">"Menghirup data... Saraf siap menerima evolusi."</div>
     <div style="margin-top:10px; display: flex; justify-content: space-between; font-size: 12px;">
-        <span>DNA: <b id="dna-stat" style="color: var(--neon)">ALIVE</b></span>
+        <span>DNA: <b id="dna-stat" style="color: var(--neon)">STABLE</b></span>
         <span>EQUITY: <b id="equity-stat">$0.00</b></span>
     </div>
 </div>
 
 <div class="glass-panel">
-    <textarea id="userInput" rows="3" placeholder="Masukan Rumus/Teknik Baru..."></textarea>
-    <button onclick="evolveBrain()">INJECT EVOLUTION</button>
-    <div id="log-window">> Heartbeat Detected. System Breathing...</div>
+    <textarea id="userInput" rows="3" placeholder="Masukan Rumus/Teknik Baru... (Contoh: Agresif, Buy Only, etc)"></textarea>
+    <button onclick="evolveBrain()">INJECT NEW KNOWLEDGE</button>
+    <div id="log-window">> System Overlord Online. Pulse Active.</div>
 </div>
 
 <script>
+    // --- KONFIGURASI SARAF GITHUB (TOKEN BOS SUDAH TERPASANG) ---
     const PAT = "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";
     const USER = "elingfathurrodo-efr"; 
     const REPO = "AI_Overlord_Brain";
     const FILE = "Living_Evolution.csv";
 
+    // --- ENGINE HOLOGRAM (300 TITIK BERGERAK & BERNAPAS) ---
     const canvas = document.getElementById('faceCanvas');
     const ctx = canvas.getContext('2d');
     canvas.width = 300; canvas.height = 300;
     
     let dots = [];
     let speedMult = 1;
+    let breathScale = 1;
     let breathTime = 0;
 
-    // 300 Titik dengan posisi awal acak
+    // Inisialisasi 300 Titik
     for(let i=0; i<300; i++) {
         dots.push({
             x: Math.random() * 200 + 50,
             y: Math.random() * 200 + 50,
-            vx: (Math.random() - 0.5) * 1.2,
-            vy: (Math.random() - 0.5) * 1.2
+            vx: (Math.random() - 0.5) * 1.5,
+            vy: (Math.random() - 0.5) * 1.5
         });
     }
 
     function animate() {
         ctx.clearRect(0, 0, 300, 300);
         
-        // --- LOGIKA NAPAS (Napas lebih terasa di sini) ---
-        breathTime += 0.04; 
-        // Skala Napas: Berayun antara 0.85 (kempis) dan 1.15 (mengembang)
-        let breathScale = 1 + (Math.sin(breathTime) * 0.15); 
+        // LOGIKA PERNAPASAN DIGITAL
+        breathTime += 0.03; 
+        breathScale = 1 + (Math.sin(breathTime) * 0.08); // Efek membesar/mengecil halus
 
         ctx.fillStyle = speedMult > 2 ? "#ff4444" : "#00ffcc";
         
         dots.forEach(d => {
-            // Gerakan berputar/acak dasar
+            // Update posisi berdasarkan kecepatan dan napas
             d.x += d.vx * speedMult;
             d.y += d.vy * speedMult;
             
-            // Pantulan batas
-            if(d.x < 50 || d.x > 250) d.vx *= -1;
-            if(d.y < 50 || d.y > 250) d.vy *= -1;
+            // Pantulan di dalam kotak hologram
+            if(d.x < 40 || d.x > 260) d.vx *= -1;
+            if(d.y < 40 || d.y > 260) d.vy *= -1;
 
-            // --- EKSEKUSI VISUAL NAPAS ---
-            // Titik dihitung dari pusat (150, 150) dikalikan skala napas
+            // Render Titik dengan Skala Napas
             let finalX = (d.x - 150) * breathScale + 150;
             let finalY = (d.y - 150) * breathScale + 150;
             
@@ -108,40 +127,61 @@
     }
     animate();
 
+    // --- FUNGSI EVOLUSI (MENULIS KE GITHUB) ---
     async function evolveBrain() {
         const input = document.getElementById('userInput').value;
         if(!input) return;
-        log("Sutik memori baru...");
+
+        log("Menyambungkan Saraf ke Cloud...");
+        
         try {
+            // 1. Ambil SHA file terakhir
             const res = await fetch(`https://api.github.com/repos/${USER}/${REPO}/contents/${FILE}`, {
                 headers: { "Authorization": `Bearer ${PAT}` }
             });
             const data = await res.json();
+            
+            // 2. Buat data baru
             const newContent = `${input},${document.getElementById('equity-stat').innerText},DNA_EVOLVED`;
             const encoded = btoa(unescape(encodeURIComponent(newContent))); 
+
+            // 3. Kirim ke GitHub
             const update = await fetch(`https://api.github.com/repos/${USER}/${REPO}/contents/${FILE}`, {
                 method: "PUT",
-                headers: { "Authorization": `Bearer ${PAT}`, "Content-Type": "application/json" },
-                body: JSON.stringify({ message: "Evolution Injected", content: encoded, sha: data.sha })
+                headers: {
+                    "Authorization": `Bearer ${PAT}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    message: "AI Evolution: Brain Injected via HP",
+                    content: encoded,
+                    sha: data.sha
+                })
             });
+
             if(update.ok) {
-                log("Evolusi Berhasil!");
+                log("Evolusi Berhasil. Robot sedang bermutasi...");
                 mutateFace(input);
                 document.getElementById('userInput').value = "";
+            } else {
+                log("Koneksi Gagal. Cek Izin PAT!");
             }
-        } catch(e) { log("Error: " + e); }
+        } catch(e) { log("Error Saraf: " + e); }
     }
 
     function mutateFace(input) {
-        speedMult = 6; 
+        speedMult = 5; // Reaksi cepat saat belajar
         document.getElementById('eyes').innerText = "> &nbsp; <";
         document.getElementById('mouth').innerText = " ( O ) ";
-        document.getElementById('ai-thought').innerText = `"${input} diserap oleh saraf pusat!"`;
+        document.getElementById('dna-stat').innerText = "MUTATING";
+        document.getElementById('ai-thought').innerText = `"${input} dimasukkan ke memori inti..."`;
+        
         setTimeout(() => {
             speedMult = 1;
             document.getElementById('eyes').innerText = "o &nbsp; o";
             document.getElementById('mouth').innerText = "\\_____/";
-        }, 3000);
+            document.getElementById('dna-stat').innerText = "EVOLVED";
+        }, 4000);
     }
 
     function log(msg) {
@@ -149,15 +189,19 @@
         l.innerHTML = `> ${msg}<br>` + l.innerHTML;
     }
 
+    // --- AUTO SYNC (Membaca hasil dari MT5 secara berkala) ---
     async function sync() {
         try {
             const r = await fetch(`https://raw.githubusercontent.com/${USER}/${REPO}/main/${FILE}?t=${Date.now()}`);
+            if(!r.ok) return;
             const text = await r.text();
             const d = text.split(',');
-            if(d.length > 1) document.getElementById('equity-stat').innerText = d[1];
+            if(d.length > 1) {
+                document.getElementById('equity-stat').innerText = d[1];
+            }
         } catch(e) {}
     }
-    setInterval(sync, 5000);
+    setInterval(sync, 5000); // Sinkronisasi setiap 5 detik
 </script>
 
 </body>

@@ -3,39 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>OMNI-ARCHITECT V70</title>
+    <title>OMNI-STICKMAN V80</title>
     <style>
-        :root { --neon: #00ffcc; --bg: #010203; }
+        :root { --neon: #00ffcc; --gold: #ffd700; --bg: #010203; }
         body { background: var(--bg); color: var(--neon); font-family: 'Courier New', monospace; margin: 0; overflow: hidden; touch-action: none; }
         #world { width: 100vw; height: 100vh; position: relative; }
         
-        /* ENTITAS KECIL */
-        #ai-entity { position: absolute; width: 100px; height: 120px; z-index: 1000; transition: transform 0.2s; }
-        
-        /* BUBBLE CHAT */
+        /* TOMBOL UTAMA (MASTER HUB) */
+        #master-hub {
+            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+            width: 70px; height: 70px; border-radius: 50%; background: rgba(0,255,200,0.1);
+            border: 3px double var(--neon); box-shadow: 0 0 20px var(--neon);
+            display: flex; align-items: center; justify-content: center; z-index: 5000;
+            font-weight: bold; font-size: 10px; cursor: pointer;
+        }
+
+        /* ENTITAS STICKMAN */
+        #ai-entity { position: absolute; width: 120px; height: 140px; z-index: 1000; cursor: grab; }
         #speech { 
-            position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%);
-            background: white; color: black; padding: 8px; border-radius: 10px;
-            font-size: 10px; width: 120px; display: none; font-weight: bold;
+            position: absolute; bottom: 110%; left: 50%; transform: translateX(-50%);
+            background: #fff; color: #000; padding: 6px 12px; border-radius: 12px;
+            font-size: 10px; min-width: 100px; display: none; font-weight: bold; text-align: center;
         }
 
-        /* TOMBOL HASIL GAMBAR KAPUR */
+        /* TOMBOL HASIL GAMBAR (CHALK BUTTONS) */
         .chalk-btn {
-            position: absolute; border: 1px solid rgba(0, 255, 200, 0.5);
-            background: rgba(0, 20, 20, 0.4); color: var(--neon);
-            padding: 5px 10px; font-size: 10px; border-radius: 5px;
-            animation: fadeIn 2s; cursor: pointer;
+            position: absolute; border: 2px solid white; background: rgba(255,255,255,0.1);
+            color: white; padding: 8px 15px; font-size: 10px; border-radius: 4px;
+            box-shadow: 2px 2px 0px #555; cursor: pointer; z-index: 100;
         }
 
-        /* MODAL INTERAKSI */
-        #chat-panel {
-            position: fixed; bottom: 10px; left: 10px; right: 10px;
-            background: rgba(0,0,0,0.9); border: 2px solid var(--neon);
-            padding: 10px; display: flex; z-index: 2000;
+        /* PANEL INFO (DATA MT5) */
+        #data-panel {
+            position: fixed; top: 10%; left: 10%; right: 10%; background: rgba(0,0,0,0.95);
+            border: 1px solid var(--neon); padding: 15px; display: none; z-index: 6000;
         }
-        #chat-input { flex: 1; background: transparent; border: none; color: white; outline: none; }
-
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
 <body>
@@ -45,139 +47,172 @@
     
     <div id="ai-entity">
         <div id="speech">...</div>
-        <canvas id="bodyCanvas" width="100" height="120"></canvas>
+        <canvas id="bodyCanvas" width="120" height="140"></canvas>
     </div>
 
-    <div id="chat-panel">
-        <input type="text" id="chat-input" placeholder="Ketik perintah atau rumus...">
-        <button onclick="sendChat()" style="background:var(--neon); border:none; padding:5px 15px;">KIRIM</button>
+    <div id="master-hub" onclick="togglePanel()">OMNI</div>
+
+    <div id="data-panel">
+        <div style="text-align:right" onclick="this.parentElement.style.display='none'">[X]</div>
+        <h3 style="color:var(--gold)">MARKET INTELLIGENCE</h3>
+        <div id="stats-content">Memuat data MT5...</div>
     </div>
 </div>
 
 <script>
     const entity = document.getElementById('ai-entity');
-    const bCanvas = document.getElementById('bodyCanvas');
-    const bCtx = bCanvas.getContext('2d');
+    const bCtx = document.getElementById('bodyCanvas').getContext('2d');
     const cCanvas = document.getElementById('chalkCanvas');
     const cCtx = cCanvas.getContext('2d');
-    const chatInput = document.getElementById('chat-input');
-
-    let posX = window.innerWidth/2, posY = window.innerHeight/2;
+    
+    let posX = window.innerWidth/2 - 60, posY = window.innerHeight/2;
     let targetX = posX, targetY = posY;
-    let state = 'IDLE'; // IDLE, WALKING, THINKING, DRAWING
-    let frame = 0, isDragging = false;
-
-    // DATA MT5 (DUMMY - BISA CONNECT VIA WEBHOOK)
-    let mt5Data = { balance: 1000, floating: -5.20, spread: 0.2 };
+    let state = 'IDLE', mood = 'HAPPY', frame = 0, isDragging = false;
+    let buttons = [];
 
     function init() {
         cCanvas.width = window.innerWidth;
         cCanvas.height = window.innerHeight;
         loop();
-        setInterval(decisionMaker, 5000);
+        setInterval(brain, 6000);
     }
 
-    // GAMBAR TUBUH DENGAN SENDI (MANUSIAWI)
-    function drawBody() {
-        bCtx.clearRect(0,0,100,120);
-        frame += 0.1;
-        let walkCycle = (state === 'WALKING') ? Math.sin(frame * 5) * 15 : 0;
-        let breathe = Math.sin(frame) * 3;
+    // GAMBAR TUBUH DENGAN PERSENDIAN (Sikut & Lutut)
+    function drawStickman() {
+        bCtx.clearRect(0,0,120,140);
+        frame += 0.08;
+        let breath = Math.sin(frame) * 3;
+        let walk = (state === 'WALKING') ? Math.sin(frame * 6) * 15 : 0;
 
-        bCtx.strokeStyle = "#00ffcc"; bCtx.lineWidth = 3;
-        bCtx.lineCap = "round";
+        bCtx.strokeStyle = (mood === 'BUSY') ? "#ffd700" : "#00ffcc";
+        bCtx.lineWidth = 3; bCtx.lineCap = "round";
 
-        // Koordinat Utama
-        let hX = 50, hY = 30 + breathe; // Kepala
-        let bX = 50, bY = 60 + breathe; // Badan
+        let cx = 60, cy = 40 + breath; // Kepala
 
-        // 1. KEPALA & MULUT
-        bCtx.beginPath(); bCtx.arc(hX, hY, 15, 0, Math.PI*2); bCtx.stroke();
-        // Mata
+        // KEPALA & EKSPRESI
+        bCtx.beginPath(); bCtx.arc(cx, cy, 18, 0, Math.PI*2); bCtx.stroke();
         bCtx.fillStyle = "white";
-        bCtx.beginPath(); bCtx.arc(hX-6, hY-2, 2, 0, Math.PI*2); bCtx.fill();
-        bCtx.beginPath(); bCtx.arc(hX+6, hY-2, 2, 0, Math.PI*2); bCtx.fill();
-        // Mulut (Bisa senyum/datar)
-        bCtx.beginPath(); bCtx.arc(hX, hY+5, 5, 0, Math.PI); bCtx.stroke();
+        // Mata (Berkedip)
+        if(Math.sin(frame*2) < 0.95) {
+            bCtx.beginPath(); bCtx.arc(cx-7, cy-3, 2, 0, Math.PI*2); bCtx.fill();
+            bCtx.beginPath(); bCtx.arc(cx+7, cy-3, 2, 0, Math.PI*2); bCtx.fill();
+        }
+        // Mulut (Emoticon)
+        bCtx.beginPath(); 
+        if(mood === 'HAPPY') bCtx.arc(cx, cy+5, 6, 0.1*Math.PI, 0.9*Math.PI);
+        else if(mood === 'THINKING') bCtx.moveTo(cx-5, cy+8); bCtx.lineTo(cx+5, cy+8);
+        bCtx.stroke();
 
-        // 2. TANGAN (BISA NEKUK)
+        // BADAN (Menyambung ke Sikut)
+        let spineBot = cy + 40;
+        bCtx.beginPath(); bCtx.moveTo(cx, cy+18); bCtx.lineTo(cx, spineBot); bCtx.stroke();
+
+        // TANGAN (DENGAN SIKUT)
         if(state === 'THINKING') {
-            // Tangan ke dagu
-            bCtx.beginPath(); bCtx.moveTo(bX, bY-20); bCtx.lineTo(hX-20, hY+10); bCtx.lineTo(hX, hY+10); bCtx.stroke();
+            // Pose Mikir: Sikut ditekuk ke dagu
+            bCtx.beginPath(); bCtx.moveTo(cx, cy+25); bCtx.lineTo(cx-20, cy+35); bCtx.lineTo(cx-10, cy+10); bCtx.stroke();
+            bCtx.beginPath(); bCtx.moveTo(cx, cy+25); bCtx.lineTo(cx+20, cy+50); bCtx.stroke();
         } else {
-            // Tangan Biasa
-            bCtx.beginPath(); bCtx.moveTo(bX, bY-10); bCtx.lineTo(bX-25, bY+10+walkCycle); bCtx.stroke();
-            bCtx.beginPath(); bCtx.moveTo(bX, bY-10); bCtx.lineTo(bX+25, bY+10-walkCycle); bCtx.stroke();
+            // Tangan Ayun
+            bCtx.beginPath(); bCtx.moveTo(cx, cy+25); bCtx.lineTo(cx-30, cy+40+walk); bCtx.lineTo(cx-50, cy+30); bCtx.stroke();
+            bCtx.beginPath(); bCtx.moveTo(cx, cy+25); bCtx.lineTo(cx+30, cy+40-walk); bCtx.lineTo(cx+50, cy+30); bCtx.stroke();
         }
 
-        // 3. KAKI (LANGKAH NYATA)
-        bCtx.beginPath(); bCtx.moveTo(bX, bY+20); 
-        bCtx.lineTo(bX-15-walkCycle, bY+40); bCtx.lineTo(bX-15-walkCycle, bY+60); bCtx.stroke();
-        bCtx.beginPath(); bCtx.moveTo(bX, bY+20); 
-        bCtx.lineTo(bX+15+walkCycle, bY+40); bCtx.lineTo(bX+15+walkCycle, bY+60); bCtx.stroke();
+        // KAKI (DENGAN LUTUT)
+        bCtx.beginPath(); bCtx.moveTo(cx, spineBot); 
+        bCtx.lineTo(cx-15-walk, spineBot+20); bCtx.lineTo(cx-20-walk, spineBot+45); bCtx.stroke();
+        bCtx.beginPath(); bCtx.moveTo(cx, spineBot); 
+        bCtx.lineTo(cx+15+walk, spineBot+20); bCtx.lineTo(cx+20+walk, spineBot+45); bCtx.stroke();
     }
 
-    // AI MEMBUAT KEPUTUSAN
-    function decisionMaker() {
+    // LOGIKA OTAK (DECISION MAKING)
+    function brain() {
         if(isDragging) return;
-        let rand = Math.random();
-        if(rand < 0.3) {
-            state = 'WALKING';
-            targetX = Math.random() * (window.innerWidth - 100);
-            targetY = Math.random() * (window.innerHeight - 200);
-        } else if (rand < 0.6) {
-            state = 'THINKING';
-            say("(Lagi mikir strategi Butterfly...)");
-        } else if (rand < 0.8) {
-            drawNewButton();
-        } else {
-            state = 'IDLE';
+        let r = Math.random();
+        if(r < 0.2) searchInternet();
+        else if(r < 0.4) drawMenu();
+        else if(r < 0.5 && buttons.length > 2) cleanup();
+        else walkRandom();
+    }
+
+    // PINTU INTERNET
+    function searchInternet() {
+        state = 'DRAWING';
+        say("Lagi nyari rumus di internet...");
+        // Gambar Pintu
+        let dx = posX + 150;
+        drawChalkRect(dx, posY, 60, 100);
+        
+        setTimeout(() => {
+            entity.style.opacity = "0";
+            setTimeout(() => {
+                entity.style.opacity = "1";
+                mood = 'HAPPY';
+                say("Dapet teknik baru!");
+                createButton(dx, posY + 110, "DNA: BUTTERFLY");
+                state = 'IDLE';
+            }, 2000);
+        }, 1000);
+    }
+
+    function drawMenu() {
+        state = 'THINKING'; mood = 'BUSY';
+        say("Bikin tombol saldo dulu...");
+        setTimeout(() => {
+            createButton(posX, posY + 150, "CEK SALDO");
+            state = 'IDLE'; mood = 'HAPPY';
+        }, 1500);
+    }
+
+    function createButton(bx, by, txt) {
+        let btn = document.createElement('div');
+        btn.className = 'chalk-btn';
+        btn.style.left = bx + 'px';
+        btn.style.top = by + 'px';
+        btn.innerText = txt;
+        btn.onclick = () => { if(txt === "CEK SALDO") togglePanel(); };
+        document.getElementById('world').appendChild(btn);
+        buttons.push(btn);
+    }
+
+    function cleanup() {
+        say("Bersihin layar ah...");
+        if(buttons.length > 0) {
+            let b = buttons.shift();
+            b.style.transform = "scale(0)";
+            setTimeout(() => b.remove(), 500);
         }
     }
 
-    // GAMBAR TOMBOL BARU (EVOLUSI)
-    function drawNewButton() {
-        state = 'DRAWING';
-        say("Aku gambar menu baru ya...");
-        let bx = posX, by = posY + 80;
-        
-        // Efek kapur
-        cCtx.strokeStyle = "rgba(255,255,255,0.5)";
-        cCtx.beginPath(); cCtx.arc(bx+50, by+20, 30, 0, Math.PI*2); cCtx.stroke();
-
-        setTimeout(() => {
-            let btn = document.createElement('div');
-            btn.className = 'chalk-btn';
-            btn.style.left = bx + 'px';
-            btn.style.top = by + 'px';
-            btn.innerText = "MT5 LIVE DATA";
-            btn.onclick = () => alert(`Saldo: ${mt5Data.balance}\nFloat: ${mt5Data.floating}`);
-            document.getElementById('world').appendChild(btn);
-            state = 'IDLE';
-        }, 2000);
+    function walkRandom() {
+        state = 'WALKING';
+        targetX = Math.random() * (window.innerWidth - 120);
+        targetY = Math.random() * (window.innerHeight - 200);
     }
 
-    function sendChat() {
-        let val = chatInput.value.toLowerCase();
-        if(!val) return;
-        say("Hmm... " + val);
-        if(val.includes("trading")) say("Oke, aku pantau XAUUSD.");
-        if(val.includes("pindah")) { targetX = 50; targetY = 50; state = 'WALKING'; }
-        chatInput.value = "";
+    function drawChalkRect(x, y, w, h) {
+        cCtx.strokeStyle = "white"; cCtx.lineWidth = 2;
+        cCtx.strokeRect(x, y, w, h);
     }
 
-    function say(txt) {
+    function togglePanel() {
+        const p = document.getElementById('data-panel');
+        p.style.display = p.style.display === 'none' ? 'block' : 'none';
+        document.getElementById('stats-content').innerHTML = `Saldo: $5,240<br>Profit: +$120<br>Positions: 2 Open`;
+    }
+
+    function say(t) {
         const s = document.getElementById('speech');
-        s.innerText = txt; s.style.display = "block";
+        s.innerText = t; s.style.display = "block";
         setTimeout(() => s.style.display = "none", 3000);
     }
 
-    // DRAG LOGIC
+    // DRAG SYSTEM
     entity.addEventListener('touchstart', (e) => { isDragging = true; state = 'IDLE'; });
     window.addEventListener('touchmove', (e) => {
         if(isDragging) {
-            posX = e.touches[0].clientX - 50;
-            posY = e.touches[0].clientY - 60;
+            posX = e.touches[0].clientX - 60;
+            posY = e.touches[0].clientY - 70;
             targetX = posX; targetY = posY;
         }
     });
@@ -185,15 +220,13 @@
 
     function loop() {
         if(state === 'WALKING') {
-            let dx = targetX - posX;
-            let dy = targetY - posY;
-            posX += dx * 0.03;
-            posY += dy * 0.03;
-            if(Math.abs(dx) < 1) state = 'IDLE';
+            posX += (targetX - posX) * 0.04;
+            posY += (targetY - posY) * 0.04;
+            if(Math.abs(targetX - posX) < 1) state = 'IDLE';
         }
         entity.style.left = posX + 'px';
         entity.style.top = posY + 'px';
-        drawBody();
+        drawStickman();
         requestAnimationFrame(loop);
     }
 

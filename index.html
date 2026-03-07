@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=0.8, maximum-scale=1.0, user-scalable=no">
-    <title>OVERLORD OMNI-BRAIN V48 - RESTORED</title>
+    <title>OVERLORD OMNI-BRAIN V50 - FULL SYSTEM</title>
     <style>
         :root { 
-            /* RESTORASI WARNA AWAL: HIJAU TOSKA/CYAN NEON */
             --neon: #00ffcc; 
             --bg: #05070a; 
             --panel: #0c1015;
@@ -18,81 +17,59 @@
         body { 
             background: var(--bg); color: var(--neon); font-family: 'Courier New', monospace; 
             margin: 0; padding: 10px; display: flex; flex-direction: column; align-items: center;
-            overflow-x: hidden; transition: color 0.5s;
+            overflow-x: hidden;
         }
 
-        /* CONTAINER ROBOT (KECIL & KAKU) */
+        /* ROBOT VISUAL */
         #hologram-container {
-            position: relative; width: 300px; height: 180px; /* Diperpendek agar hemat ruang */
+            position: relative; width: 300px; height: 160px;
             display: flex; justify-content: center; align-items: center;
         }
-
-        canvas { position: absolute; z-index: 1; filter: drop-shadow(0 0 10px var(--neon)); transform: scale(0.65); }
-
-        /* STRUKTUR WAJAH INDEPENDEN */
+        canvas { position: absolute; z-index: 1; filter: drop-shadow(0 0 10px var(--neon)); transform: scale(0.6); }
         #face-box {
             position: absolute; width: 150px; height: 100px; z-index: 10;
             display: flex; flex-direction: column; justify-content: center; align-items: center;
-            pointer-events: none;
         }
+        #eyes { font-size: 28px; font-weight: bold; text-shadow: 0 0 15px currentColor; transition: transform 0.12s; }
+        #mouth { font-size: 16px; margin-top: 5px; opacity: 0.8; }
 
-        #eyes { 
-            font-size: 28px; font-weight: bold; text-shadow: 0 0 15px currentColor;
-            transition: transform 0.12s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
-        #mouth { 
-            font-size: 16px; margin-top: 5px; opacity: 0.8;
-            transition: transform 0.3s ease;
-        }
-
-        /* DASHBOARD PANEL (KAKU/SQUARE) */
+        /* DASHBOARD (KAKU/SQUARE) */
         .glass-panel { 
             width: 100%; max-width: 480px; background: var(--panel); 
-            border: 1px solid #1a1e23; border-radius: 0; /* KEMBALI KAKU */
-            padding: 10px; box-sizing: border-box; 
+            border: 1px solid #1a1e23; padding: 10px; box-sizing: border-box; 
             margin-bottom: 8px;
         }
 
-        /* RESTORASI TAB MENU KAKU */
-        .tab-menu { display: flex; gap: 4px; margin-bottom: 10px; overflow-x: auto; scrollbar-width: none;}
+        /* TAB MENU */
+        .tab-menu { display: flex; gap: 4px; margin-bottom: 10px; overflow-x: auto; }
         .tab-btn { 
             background: #111; border: 1px solid #333; color: var(--neon); 
-            padding: 8px 12px; font-size: 9px; cursor: pointer; border-radius: 0; text-transform: uppercase;
+            padding: 8px 12px; font-size: 9px; cursor: pointer; text-transform: uppercase;
         }
         .tab-btn.active { background: var(--neon); color: #000; font-weight: bold; box-shadow: 0 0 10px var(--neon); }
 
-        /* RESTORASI TEKS LAMUNAN ATAS */
-        #speech-panel { min-height: 40px; margin-bottom: 8px; }
-        #ai-speech { font-size: 12px; color: #fff; }
-        .musing { color: var(--blue); font-style: italic; opacity: 0.8; }
+        /* CONTENT AREA */
+        .tab-content { display: none; min-height: 100px; animation: fadeIn 0.3s; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* GRID BIOMETRIK KAKU */
-        .biometric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 10px; }
-        .stat-box { background: #000; border: 1px solid #1a1e23; padding: 6px; text-align: left; }
+        /* GRID BIOMETRIK (PROFIL) */
+        .biometric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+        .stat-box { background: #000; border: 1px solid #1a1e23; padding: 8px; }
         .stat-label { font-size: 8px; opacity: 0.5; display: block; }
-        .stat-value { font-size: 12px; font-weight: bold; display: block; margin-top: 2px; }
+        .stat-value { font-size: 12px; font-weight: bold; }
 
-        #content-area { font-size: 11px; border-top: 1px solid #222; padding-top: 8px; }
-        .hidden { display: none; }
-
-        /* INPUT AREA */
+        /* INPUT & BUTTON */
         textarea { 
             width: 100%; background: #000; color: var(--neon); border: 1px solid #222; 
-            padding: 10px; border-radius: 0; margin-top: 5px; box-sizing: border-box; outline: none; resize: none; font-size: 11px;
+            padding: 10px; box-sizing: border-box; outline: none; resize: none; font-size: 11px; margin-top: 5px;
         }
-
         button.main-btn { 
             width: 100%; padding: 12px; margin-top: 5px; background: var(--neon); 
-            color: #000; border: none; font-weight: bold; border-radius: 0; cursor: pointer; font-size: 11px; text-transform: uppercase;
+            color: #000; border: none; font-weight: bold; cursor: pointer; text-transform: uppercase;
         }
 
-        /* EVOLUTION LOG KAKU */
-        #log-window {
-            background: #000; border: 1px solid #111; height: 80px; overflow-y: auto;
-            padding: 8px; font-size: 10px; color: #666; margin-top: 8px;
-        }
-        .tech-tag { color: var(--neon); font-weight: bold; border: 1px solid var(--neon); padding: 1px 4px; font-size: 8px; margin-right: 5px; }
+        #log-window { background: #000; border: 1px solid #111; height: 70px; overflow-y: auto; padding: 8px; font-size: 10px; color: #666; }
     </style>
 </head>
 <body>
@@ -105,56 +82,54 @@
     </div>
 </div>
 
-<div class="glass-panel" id="speech-panel">
-    <div id="ai-speech">System Neural Connected. Menghirup data market...</div>
+<div class="glass-panel">
+    <div id="ai-speech" style="font-size: 12px; color: #fff;">[DNA STATE: CURIOSITY] Memantau aliran data...</div>
 </div>
 
 <div class="glass-panel">
     <div class="tab-menu">
-        <button class="tab-btn active" onclick="showTab('profil')">PROFIL DNA</button>
-        <button class="tab-btn" onclick="showTab('posisi')">POSISI</button>
-        <button class="tab-btn" onclick="showTab('aktivitas')">AKTIVITAS</button>
-        <button class="tab-btn" onclick="showTab('memori')">MEMORI</button>
-        <button class="tab-btn" onclick="triggerNod()">TEST NOD</button>
+        <button class="tab-btn active" onclick="openTab(event, 'profil')">PROFIL DNA</button>
+        <button class="tab-btn" onclick="openTab(event, 'posisi')">POSISI</button>
+        <button class="tab-btn" onclick="openTab(event, 'aktivitas')">AKTIVITAS</button>
+        <button class="tab-btn" onclick="openTab(event, 'memori')">MEMORI</button>
+        <button class="tab-btn" onclick="triggerNod()">NOD</button>
     </div>
 
-    <div id="content-area">
-        <div id="profil">
+    <div id="tab-container">
+        <div id="profil" class="tab-content active">
             <div class="biometric-grid">
-                <div class="stat-box">
-                    <span class="stat-label">EQUITY</span>
-                    <span class="stat-value" id="equity-val" style="color:#fff;">$0.00</span>
-                </div>
-                <div class="stat-box">
-                    <span class="stat-label">FLOATING</span>
-                    <span class="stat-value" id="floating-val" style="color:var(--red);">-$0.00</span>
-                </div>
-                <div class="stat-box">
-                    <span class="stat-label">SPREAD (XAUUSD)</span>
-                    <span class="stat-value" id="spread-val">$0.00</span>
-                </div>
-                <div class="stat-box">
-                    <span class="stat-label">FREE MARGIN</span>
-                    <span class="stat-value" id="margin-val" style="color:var(--blue);">$0.00</span>
-                </div>
+                <div class="stat-box"><span class="stat-label">EQUITY</span><span class="stat-value" id="eq-val">$0.00</span></div>
+                <div class="stat-box"><span class="stat-label">FLOATING</span><span class="stat-value" style="color:var(--red);">-$0.00</span></div>
+                <div class="stat-box"><span class="stat-label">SPREAD (XAUUSD)</span><span class="stat-value">0.5</span></div>
+                <div class="stat-box"><span class="stat-label">FREE MARGIN</span><span class="stat-value" style="color:var(--blue);">$0.00</span></div>
             </div>
-            <div style="display:flex; justify-content: space-between; font-size: 10px; border-top: 1px solid #222; padding-top: 5px;">
-                <span>DNA STATE: <b id="instinct-display">CURIOSITY</b></span>
+        </div>
+
+        <div id="posisi" class="tab-content">
+            <div style="border: 1px dashed #222; padding: 20px; text-align: center; font-size: 10px; color: #444;">
+                NO ACTIVE POSITIONS<br>Menunggu sinyal market...
+            </div>
+        </div>
+
+        <div id="aktivitas" class="tab-content">
+            <div style="font-size: 10px; line-height: 1.5;">
+                > Connecting to MT5 Terminal... <span style="color:var(--neon)">OK</span><br>
+                > Analyzing Liquidity Zone... <span style="color:var(--neon)">SCANNING</span><br>
+                > Neural Weights Updated... <span style="color:var(--neon)">TRUE</span>
+            </div>
+        </div>
+
+        <div id="memori" class="tab-content">
+            <div id="log-window">
+                * Memori Saraf Kosong. Gunakan tombol Inject di bawah.
             </div>
         </div>
     </div>
 </div>
 
 <div class="glass-panel">
-    <textarea id="userInput" rows="2" placeholder="Masukan Rumus/Teknik Baru..."></textarea>
+    <textarea id="userInput" rows="2" placeholder="Masukan Rumus/DNA Baru..."></textarea>
     <button class="main-btn" onclick="injectEvolve()">EVOLVE NEURAL BRAIN</button>
-</div>
-
-<div class="glass-panel">
-    <div style="font-size: 10px; margin-bottom: 5px; color: var(--neon);">EVOLUTIONARY COMBINE LOG:</div>
-    <div id="log-window">
-        <div style="margin-bottom: 5px;"><span class="tech-tag">COMBINE</span> SMC & Fibonacci Gravity</div>
-    </div>
 </div>
 
 <script>
@@ -164,22 +139,28 @@
     const REPO = "AI_Overlord_Brain";
     const FILE = "Living_Evolution.csv";
 
+    // FUNGSI NAVIGASI TAB
+    function openTab(evt, tabName) {
+        var i, tabcontent, tablinks;
+        tabcontent = document.getElementsByClassName("tab-content");
+        for (i = 0; i < tabcontent.length; i++) { tabcontent[i].style.display = "none"; }
+        tablinks = document.getElementsByClassName("tab-btn");
+        for (i = 0; i < tablinks.length; i++) { tablinks[i].className = tablinks[i].className.replace(" active", ""); }
+        document.getElementById(tabName).style.display = "block";
+        evt.currentTarget.className += " active";
+    }
+
+    // ANIMASI ROBOT (MATA & MOTORIK)
     const canvas = document.getElementById('livingSphere');
     const ctx = canvas.getContext('2d');
-    const faceBox = document.getElementById('face-box');
     const eyes = document.getElementById('eyes');
     const speech = document.getElementById('ai-speech');
-    const logWindow = document.getElementById('log-window');
-
     canvas.width = 300; canvas.height = 300;
     let particles = [];
-    const count = 600; 
-    let breath = 0, moodColor = "#00ffcc"; // Default Cyan
-
-    // Motorik Logic
+    const count = 500;
+    let breath = 0;
     let headY = 0, targetHeadY = 0;
     let eyeX = 0, eyeY = 0, targetEyeX = 0, targetEyeY = 0;
-    let knownTechs = ["SMC Strategy", "Order Block", "Fibo Retracement", "Liquidity Sweep"];
 
     for(let i=0; i<count; i++) {
         let phi = Math.acos(-1 + (2 * i) / count);
@@ -191,22 +172,20 @@
         ctx.clearRect(0,0,300,300);
         breath += 0.05;
 
-        // SCANNING (Mata melirik bebas - V47)
+        // Scanning (Mata melirik)
         if (Math.random() > 0.97) {
-            targetEyeX = (Math.random() - 0.5) * 60; 
-            targetEyeY = (Math.random() - 0.5) * 25;
+            targetEyeX = (Math.random() - 0.5) * 50; 
+            targetEyeY = (Math.random() - 0.5) * 20;
         }
         eyeX += (targetEyeX - eyeX) * 0.1;
         eyeY += (targetEyeY - eyeY) * 0.1;
 
-        // NODDING (Kepala mengangguk - V47)
+        // Nodding (Kepala mengangguk)
         targetHeadY += (0 - targetHeadY) * 0.05;
         headY += (targetHeadY - headY) * 0.1;
 
-        // TRANSFORMASI
-        eyes.style.transform = `translate(${eyeX}px, ${eyeY}px)`;
-        faceBox.style.transform = `translateY(${headY}px)`;
-        canvas.style.transform = `rotateY(${eyeX/5}deg) rotateX(${-eyeY/5}deg) translateY(${headY/2}px)`;
+        eyes.style.transform = `translate(${eyeX}px, ${eyeY + headY}px)`;
+        canvas.style.transform = `rotateY(${eyeX/5}deg) translateY(${headY/2}px)`;
 
         let radius = 100 + (Math.sin(breath) * 8);
         particles.forEach(p => {
@@ -215,64 +194,33 @@
             let y = radius * Math.sin(p.phi) * Math.sin(p.theta) + 150;
             let z = radius * Math.cos(p.phi);
             ctx.globalAlpha = (z + radius) / (radius * 2);
-            ctx.fillStyle = moodColor;
+            ctx.fillStyle = "#00ffcc";
             ctx.beginPath(); ctx.arc(x, y, 1.2, 0, Math.PI * 2); ctx.fill();
         });
         requestAnimationFrame(animate);
     }
 
-    // CLOUD INJECTION (V47)
+    // FUNGSI INJEKSI KE GITHUB
     async function injectEvolve() {
         const input = document.getElementById('userInput').value;
         if(!input) return;
-        
-        moodColor = "#cc33ff"; // Ungu saat Evolusi
-        speech.innerText = "DNA Disuntikkan ke Cloud Saraf...";
+        speech.innerText = "DNA Disuntikkan ke Cloud...";
         targetHeadY = 40; 
-        addLog("INJECT", input);
-
         try {
             const res = await fetch(`https://api.github.com/repos/${USER}/${REPO}/contents/${FILE}`, {
                 headers: { "Authorization": `Bearer ${PAT}` }
             });
             const data = await res.json();
             const content = btoa(unescape(encodeURIComponent(input)));
-
             await fetch(`https://api.github.com/repos/${USER}/${REPO}/contents/${FILE}`, {
                 method: "PUT",
                 headers: { "Authorization": `Bearer ${PAT}` },
                 body: JSON.stringify({ message: "Update", content: content, sha: data.sha })
             });
-            speech.innerHTML = "<b>EVOLUSI NEURAL BERHASIL!</b>";
+            speech.innerHTML = "<b>EVOLUSI BERHASIL!</b>";
             document.getElementById('userInput').value = "";
         } catch(e) { speech.innerText = "Error Jalur Saraf!"; }
-        
-        setTimeout(() => { moodColor = "#00ffcc"; targetHeadY = 0; }, 3000);
-    }
-
-    // ENGINE LAMUNAN (MUSING - V47)
-    setInterval(() => {
-        if(Math.random() > 0.85) {
-            const tech = knownTechs[Math.floor(Math.random()*knownTechs.length)];
-            moodColor = "#0088ff"; // Biru saat melamun
-            speech.innerHTML = `<span class="musing">(Menganalisa efektivitas ${tech}...)</span>`;
-            targetHeadY = 15;
-            addLog("COMBINE", `Musing about ${tech}`);
-            setTimeout(() => moodColor = "#00ffcc", 5000);
-        }
-    }, 18000);
-
-    function showTab(id) {
-        // Hanya Status yang kita isi datanya untuk restorasi ini
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        event.target.classList.add('active');
-    }
-
-    function addLog(tag,msg) {
-        const div = document.createElement('div');
-        div.style.marginBottom = "5px";
-        div.innerHTML = `<span class="tech-tag">${tag}</span> ${msg}`;
-        logWindow.prepend(div);
+        setTimeout(() => { targetHeadY = 0; }, 2000);
     }
 
     function triggerNod() { targetHeadY = 50; }

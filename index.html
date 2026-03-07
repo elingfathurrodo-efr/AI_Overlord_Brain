@@ -3,121 +3,143 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>OMNI-BRAIN V50: EVOLUTION</title>
+    <title>OMNI-BRAIN V50 - LIVING EVOLUTION</title>
     <style>
-        :root { --neon: #00ffcc; --bg: #010203; --panel: #0a0c10; --glow: #00ffcc88; }
-        body { background: var(--bg); color: var(--neon); font-family: 'Courier New', monospace; margin: 0; padding: 15px; overflow-x: hidden; }
-        
-        /* DASHBOARD KURUNG (SQUARE PROTECTOR) */
-        .dashboard { 
-            width: 100%; max-width: 450px; background: var(--panel); border: 2px solid #1a1e23;
-            margin: auto; padding: 15px; box-sizing: border-box; position: relative;
+        :root { 
+            --neon: #00ffcc; --bg: #020508; --panel: #0a0e14;
+            --skin-glow: rgba(0, 255, 204, 0.8);
+        }
+        body { 
+            background: var(--bg); color: var(--neon); font-family: 'Courier New', monospace; 
+            margin: 0; padding: 10px; display: flex; flex-direction: column; align-items: center; overflow-x: hidden;
         }
 
-        /* WAJAH BULAT (SKIN DOMINANT) */
-        #face-area { height: 220px; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative; }
-        canvas { filter: drop-shadow(0 0 15px var(--neon)); }
-        
-        #face-overlay { position: absolute; z-index: 10; text-align: center; }
-        #eyes { font-size: 35px; text-shadow: 0 0 20px var(--neon); transition: all 0.1s; }
-        #mouth { font-size: 25px; margin-top: 10px; transition: transform 0.05s; }
+        /* DASHBOARD BOX (SQUARE/KAKU) */
+        .glass-panel { 
+            width: 100%; max-width: 480px; background: var(--panel); border: 2px solid #1a1e23;
+            padding: 15px; box-sizing: border-box; margin-bottom: 10px; position: relative;
+        }
 
-        .ai-speech { background: #000; padding: 10px; margin: 10px 0; font-size: 13px; min-height: 40px; border-left: 3px solid var(--neon); }
-        .tab-btn { background: #111; border: 1px solid #333; color: var(--neon); padding: 10px; font-size: 10px; cursor: pointer; }
-        .tab-btn.active { background: var(--neon); color: #000; font-weight: bold; }
-        
-        textarea { width: 100%; background: #000; color: var(--neon); border: 1px solid #222; padding: 10px; box-sizing: border-box; margin-top: 10px; }
+        /* WAJAH BULAT (PARTIKEL PADAT) */
+        #face-container {
+            position: relative; width: 100%; height: 250px; display: flex; justify-content: center; align-items: center;
+        }
+        canvas { filter: drop-shadow(0 0 20px var(--skin-glow)); }
+
+        #overlay-eyes {
+            position: absolute; font-size: 40px; font-weight: bold; text-shadow: 0 0 15px var(--neon);
+            transition: transform 0.1s cubic-bezier(0.25, 0.1, 0.25, 1);
+        }
+
+        /* NAVIGATION & EVOLUTION BUTTONS */
+        .tab-menu { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin-top: 10px; }
+        .tab-btn { 
+            background: #000; border: 1px solid #333; color: var(--neon); padding: 8px; 
+            font-size: 10px; cursor: pointer; text-transform: uppercase;
+        }
+        .tab-btn.active { background: var(--neon); color: #000; box-shadow: 0 0 10px var(--neon); }
+
+        .ai-chat { 
+            background: #000; border-left: 4px solid var(--neon); padding: 10px; 
+            font-size: 12px; margin-top: 10px; min-height: 50px; color: #fff;
+        }
     </style>
 </head>
 <body>
 
-<div class="dashboard">
-    <div id="face-area">
-        <canvas id="sphere"></canvas>
-        <div id="face-overlay">
-            <div id="eyes">o &nbsp; o</div>
-            <div id="mouth">\_____/</div>
-        </div>
+<div class="glass-panel">
+    <div id="face-container">
+        <canvas id="sphereCanvas"></canvas>
+        <div id="overlay-eyes">o &nbsp; o</div>
     </div>
-
-    <div class="ai-speech" id="talk-box">
-        (Aku sedang melamun... Menghubungkan titik-titik market BTC dengan rumus Curiosity-ku.)
+    <div class="ai-chat" id="aiTalk">
+        (Menganalisis market... Aku sedang memikirkan kombinasi Butterfly dan SMC)
     </div>
+</div>
 
-    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px;">
+<div class="glass-panel">
+    <div class="tab-menu" id="navMenu">
         <button class="tab-btn active">PROFIL</button>
         <button class="tab-btn">MEMORI</button>
         <button class="tab-btn">RISET</button>
         <button class="tab-btn">EVOLVE</button>
     </div>
+    <div id="stats" style="margin-top:15px; font-size: 11px; line-height: 1.6;">
+        > DNA STATUS: [ACTIVE] V50 CORE<br>
+        > AGRESIVITAS: <span id="agVal">2.0%</span><br>
+        > NEURAL PATHS: 1,402 (Evolving...)
+    </div>
+</div>
 
-    <textarea id="dnaInput" placeholder="Suntikkan Rumus/Ide Baru ke Meja Penelitian..."></textarea>
-    <button onclick="evolve()" style="width:100%; background:var(--neon); color:#000; padding:15px; border:none; margin-top:5px; font-weight:bold;">INJECT DNA & EVOLVE</button>
+<div class="glass-panel">
+    <textarea id="cmd" placeholder="Tulis instruksi atau rumus baru..." style="width:100%; background:#000; color:var(--neon); border:1px solid #222; padding:10px; outline:none;"></textarea>
+    <button onclick="executeEvolve()" style="width:100%; margin-top:5px; padding:12px; background:var(--neon); color:#000; font-weight:bold; border:none; cursor:pointer;">INJECT NEW KNOWLEDGE</button>
 </div>
 
 <script>
-    const canvas = document.getElementById('sphere');
+    const canvas = document.getElementById('sphereCanvas');
     const ctx = canvas.getContext('2d');
-    const eyes = document.getElementById('eyes');
-    const mouth = document.getElementById('mouth');
-    const talkBox = document.getElementById('talk-box');
-
+    const eyes = document.getElementById('overlay-eyes');
+    const talk = document.getElementById('aiTalk');
     canvas.width = 300; canvas.height = 300;
-    let particles = [];
-    let breath = 0, eyeX = 0, targetEyeX = 0, isTalking = false;
 
-    // Inisialisasi Kulit Wajah Bulat
-    for(let i=0; i<400; i++) {
-        let phi = Math.acos(-1 + (2 * i) / 400);
-        let theta = Math.sqrt(400 * Math.PI) * phi;
+    // VARIABEL MOTORIK (EASING)
+    let eyeX = 0, eyeY = 0, targetEyeX = 0, targetEyeY = 0;
+    let headY = 0, targetHeadY = 0;
+    let breath = 0;
+
+    // PARTIKEL WAJAH (DENSE SKIN)
+    let particles = [];
+    for(let i=0; i<600; i++) {
+        let phi = Math.acos(-1 + (2 * i) / 600);
+        let theta = Math.sqrt(600 * Math.PI) * phi;
         particles.push({ phi, theta });
     }
 
     function animate() {
         ctx.clearRect(0,0,300,300);
-        breath += 0.05;
-        
-        // SMOOTHING LERP (EASING)
-        eyeX += (targetEyeX - eyeX) * 0.1;
-        if(Math.random() > 0.98) targetEyeX = (Math.random() - 0.5) * 50;
+        breath += 0.05; // Kecepatan napas
 
-        // BERKEDIP (RANDOM BLINK)
-        if(Math.random() > 0.99) {
-            eyes.innerHTML = "- &nbsp; -";
-            setTimeout(() => { eyes.innerHTML = "o &nbsp; o"; }, 150);
+        // --- SMOOTHING (INTERPOLASI) ---
+        eyeX += (targetEyeX - eyeX) * 0.08;
+        eyeY += (targetEyeY - eyeY) * 0.08;
+        headY += (targetHeadY - headY) * 0.06;
+
+        // Auto-Scanning Market (Lirikan Mata)
+        if(Math.random() > 0.98) {
+            targetEyeX = (Math.random() - 0.5) * 60;
+            targetEyeY = (Math.random() - 0.5) * 20;
         }
 
-        // KOMAT-KAMIT (LIP SYNC SIMULATION)
-        if(isTalking) {
-            mouth.style.transform = `scaleY(${1 + Math.random() * 0.5})`;
-            mouth.innerHTML = Math.random() > 0.5 ? "ooooo" : "_____";
-        } else {
-            mouth.style.transform = `scaleY(1)`;
-            mouth.innerHTML = "\\_____/";
-        }
-
-        let radius = 100 + (Math.sin(breath) * 5);
+        // Render Kulit Wajah Bulat
+        let radius = 105 + (Math.sin(breath) * 5); // Efek Berdenyut (Napas)
         particles.forEach(p => {
-            p.theta += 0.005;
+            p.theta += 0.006;
             let x = radius * Math.sin(p.phi) * Math.cos(p.theta) + 150;
             let y = radius * Math.sin(p.phi) * Math.sin(p.theta) + 150;
             let z = radius * Math.cos(p.phi);
-            ctx.fillStyle = `rgba(0, 255, 204, ${(z + radius) / (radius * 2)})`;
-            ctx.beginPath(); ctx.arc(x + (eyeX/10), y, 1.5, 0, Math.PI * 2); ctx.fill();
+
+            let alpha = (z + radius) / (radius * 2);
+            ctx.fillStyle = `rgba(0, 255, 204, ${alpha + 0.1})`;
+            ctx.beginPath();
+            ctx.arc(x + (eyeX/10), y + headY, 1.5, 0, Math.PI * 2);
+            ctx.fill();
         });
+
+        eyes.style.transform = `translate(${eyeX}px, ${eyeY + headY}px)`;
         requestAnimationFrame(animate);
     }
 
-    function evolve() {
-        const dna = document.getElementById('dnaInput').value;
-        isTalking = true;
-        talkBox.innerHTML = "Bos: " + dna + "<br>AI: Menerima benih baru. Memulai mutasi strategi...";
+    function executeEvolve() {
+        const input = document.getElementById('cmd').value;
+        talk.innerHTML = `<b>EVOLUSI DIMULAI:</b> Mengasimilasi rumus [${input}] ke saraf pusat...`;
+        targetHeadY = 40; // Mengangguk
         
-        let speech = new SpeechSynthesisUtterance("Benih ilmu diterima. Saya akan segera melakukan riset di meja penelitian dan melaporkannya pada Anda.");
-        speech.onend = () => { isTalking = false; talkBox.innerHTML = "(Sedang fokus meneliti teknik baru di laboratorium...)"; };
-        window.speechSynthesis.speak(speech);
-        
-        document.getElementById('dnaInput').value = "";
+        // Voice Response
+        let msg = new SpeechSynthesisUtterance("Instruksi diterima, Bos. Aku sedang memetakan jalur saraf baru agar trading kita lebih anti fragile.");
+        window.speechSynthesis.speak(msg);
+
+        setTimeout(() => { targetHeadY = 0; }, 2000);
     }
 
     animate();

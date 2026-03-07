@@ -3,141 +3,140 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OVERLORD V28 - Brain Dashboard</title>
+    <title>OVERLORD V28 - Holographic Brain</title>
     <style>
         :root { --neon: #00ffcc; --bg: #05070a; --panel: #0c1015; }
-        body { background: var(--bg); color: var(--neon); font-family: 'Courier New', monospace; margin: 0; padding: 10px; overflow-x: hidden; }
+        body { background: var(--bg); color: var(--neon); font-family: 'Courier New', monospace; margin: 0; padding: 10px; overflow: hidden; }
         
-        /* HEADER & NAVIGATION */
-        .header { text-align: center; padding: 10px; border-bottom: 1px solid #1a1e23; margin-bottom: 15px; }
-        .nav-bar { display: flex; overflow-x: auto; gap: 10px; padding-bottom: 10px; margin-bottom: 15px; }
-        .nav-btn { background: var(--panel); border: 1px solid #1a1e23; color: var(--neon); padding: 8px 15px; border-radius: 5px; white-space: nowrap; cursor: pointer; font-size: 12px; }
-        .nav-btn.active { background: var(--neon); color: #000; font-weight: bold; }
+        .header { text-align: center; padding: 10px; font-size: 10px; opacity: 0.5; border-bottom: 1px solid #1a1e23; }
+        
+        /* CONTAINER WAJAH HOLOGRAM */
+        .face-container {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            margin: 20px auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
 
-        /* HUD & FACE */
-        .hud-panel { border: 2px solid #1a1e23; border-radius: 15px; padding: 15px; background: rgba(0,255,204,0.02); }
-        .face-box { height: 120px; text-align: center; margin: 15px 0; font-size: 10px; display: flex; flex-direction: column; justify-content: center; text-shadow: 0 0 10px var(--neon); }
-        .thought-bubble { background: rgba(0,255,204,0.05); border-left: 4px solid var(--neon); padding: 12px; margin: 10px 0; font-size: 14px; min-height: 40px; }
+        /* LINGKARAN PARTIKEL (64 TITIK ANALOGY) */
+        .hologram-circle {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 1px dashed var(--neon);
+            border-radius: 50%;
+            animation: pulse 1.5s infinite ease-in-out, spin 10s linear infinite;
+            box-shadow: 0 0 15px rgba(0, 255, 204, 0.2);
+        }
 
-        /* PAGES */
-        .page { display: none; }
-        .page.active { display: block; animation: fadeIn 0.5s; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        /* MATA & MULUT */
+        .face-features {
+            position: absolute;
+            text-align: center;
+            font-weight: bold;
+            font-size: 20px;
+            text-shadow: 0 0 10px var(--neon);
+        }
 
-        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
-        .stat-card { background: var(--panel); padding: 10px; border-radius: 8px; border: 1px solid #1a1e23; }
-        .label { font-size: 10px; color: #555; display: block; margin-bottom: 5px; }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.1); opacity: 1; }
+        }
 
-        textarea { width: 100%; background: #000; border: 1px solid #1a1e23; color: var(--neon); padding: 10px; border-radius: 8px; box-sizing: border-box; margin-top: 10px; }
-        .btn-send { width: 100%; background: var(--neon); color: #000; border: none; padding: 12px; margin-top: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .thought-bubble { 
+            background: rgba(0,255,204,0.05); 
+            border-left: 4px solid var(--neon); 
+            padding: 15px; 
+            margin: 10px; 
+            font-size: 14px;
+            border-radius: 0 10px 10px 0;
+        }
+
+        /* NAVIGASI & PANEL */
+        .nav-bar { display: flex; gap: 5px; overflow-x: auto; padding: 10px 0; }
+        .nav-btn { background: var(--panel); border: 1px solid #1a1e23; color: var(--neon); padding: 8px 12px; border-radius: 5px; font-size: 11px; }
+        .nav-btn.active { background: var(--neon); color: #000; }
+        
+        .page { display: none; padding: 10px; background: var(--panel); border-radius: 10px; border: 1px solid #1a1e23; }
+        .page.active { display: block; }
     </style>
 </head>
 <body>
 
-<div class="header">
-    <div style="font-size: 10px; opacity: 0.5;">LIVING EVOLUTION AI - V28</div>
+<div class="header">SYSTEM INTERFACE V28.4 - ACTIVE</div>
+
+<div class="face-container">
+    <div class="hologram-circle" id="circle"></div>
+    <div class="face-features">
+        <div id="eyes">o &nbsp; o</div>
+        <div id="mouth" style="margin-top: 10px; font-size: 14px;">\___/</div>
+    </div>
 </div>
+
+<div class="thought-bubble" id="thought">"Initializing holographic matrix..."</div>
 
 <div class="nav-bar">
-    <button class="nav-btn active" onclick="openPage('profil', this)">PROFIL</button>
-    <button class="nav-btn" onclick="openPage('posisi', this)">POSISI</button>
-    <button class="nav-btn" onclick="openPage('aktivitas', this)">AKTIVITAS</button>
-    <button class="nav-btn" onclick="openPage('memori', this)">MEMORI</button>
-    <button class="nav-btn" onclick="openPage('interaksi', this)">INTERAKSI</button>
+    <button class="nav-btn active" onclick="tab('p1', this)">PROFIL</button>
+    <button class="nav-btn" onclick="tab('p2', this)">POSISI</button>
+    <button class="nav-btn" onclick="tab('p3', this)">AKTIVITAS</button>
+    <button class="nav-btn" onclick="tab('p4', this)">MEMORI</button>
+    <button class="nav-btn" onclick="tab('p5', this)">INTERAKSI</button>
 </div>
 
-<div class="hud-panel">
-    <div class="face-box" id="ai-face">
-        ( o _ o )<br>
-        . . . . . . .
-    </div>
-    <div class="thought-bubble" id="ai-thought">"Mengamati panorama market..."</div>
+<div id="p1" class="page active">
+    <small>EQUITY</small> <b id="profit">$0.00</b><br>
+    <small>MOOD</small> <b id="mood">ZEN</b>
 </div>
-
-<div id="profil" class="page active">
-    <div class="stat-grid">
-        <div class="stat-card"><span class="label">EQUITY</span><b id="equity">$0.00</b></div>
-        <div class="stat-card"><span class="label">STATUS</span><b id="status">ZEN</b></div>
-        <div class="stat-card"><span class="label">DNA CURIOSITY</span><b>50.0%</b></div>
-        <div class="stat-card"><span class="label">AGRESSION</span><b>25.0%</b></div>
-    </div>
-</div>
-
-<div id="posisi" class="page">
-    <div class="stat-card" style="margin-top:10px;">
-        <span class="label">ACTIVE POSITIONS</span>
-        <div id="pos-list" style="font-size:12px;">Tidak ada posisi aktif.</div>
-    </div>
-</div>
-
-<div id="aktivitas" class="page">
-    <div class="stat-card" style="margin-top:10px;">
-        <span class="label">RECENT ACTIVITY LOG</span>
-        <div id="activity-log" style="font-size:11px; color:#888;">AI sedang menginisialisasi kaki dan tangan...</div>
-    </div>
-</div>
-
-<div id="memori" class="page">
-    <div class="stat-card" style="margin-top:10px;">
-        <span class="label">EVOLUTIONARY MEMORY</span>
-        <div id="memory-list" style="font-size:12px;">Mengenali pola: Volatility Squeeze (Fibonacci Level 61.8)</div>
-    </div>
-</div>
-
-<div id="interaksi" class="page">
-    <div class="stat-card" style="margin-top:10px;">
-        <span class="label">INTERAKSI MANUSIA & AI</span>
-        <textarea id="user-input" rows="4" placeholder="Ketik instruksi atau teknik baru untuk diajarkan..."></textarea>
-        <button class="btn-send" onclick="sendToBrain()">AJARKAN KE OTAK AI</button>
-    </div>
+<div id="p5" class="page">
+    <textarea id="inp" style="width:100%; background:#000; color:var(--neon); border:1px solid #333;" rows="3"></textarea>
+    <button style="width:100%; padding:10px; margin-top:5px; background:var(--neon); border:none;" onclick="alert('Sent!')">AJARKAN</button>
 </div>
 
 <script>
-    // URL CSV DARI GITHUB BOS
     const CSV_URL = 'https://raw.githubusercontent.com/elingfathurrodo-efr/AI_Overlord_Brain/main/Living_Evolution.csv';
-    let lastThought = "";
+    let lastT = "";
 
-    // Navigasi Halaman
-    function openPage(pageId, btn) {
+    function tab(id, b) {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-        document.getElementById(pageId).classList.add('active');
-        btn.classList.add('active');
+        document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        b.classList.add('active');
     }
 
-    // Update Data Real-time
-    async function sync() {
+    async function update() {
         try {
             const r = await fetch(CSV_URL + '?t=' + new Date().getTime());
             const text = await r.text();
             const d = text.split(',');
 
             if(d.length > 1) {
-                document.getElementById('ai-thought').innerText = `"${d[0]}"`;
-                document.getElementById('status').innerText = d[2].replace("PAGE_",""); // Contoh parsing
-                document.getElementById('equity').innerText = "$" + d[1];
+                document.getElementById('thought').innerText = `"${d[0]}"`;
+                document.getElementById('profit').innerText = "$" + d[1];
                 
-                // Suara AI
-                if(d[0] !== lastThought && !d[0].includes("(")) {
-                    let speech = new SpeechSynthesisUtterance(d[0]);
-                    speech.lang = 'id-ID';
-                    window.speechSynthesis.speak(speech);
-                    lastThought = d[0];
+                // Animasi Kedip (Logika Bos)
+                let blink = Math.random() > 0.9;
+                document.getElementById('eyes').innerHTML = blink ? "- &nbsp; -" : "o &nbsp; o";
+
+                // Suara
+                if(d[0] !== lastT && !d[0].includes("(")) {
+                    let s = new SpeechSynthesisUtterance(d[0]);
+                    s.lang = 'id-ID';
+                    window.speechSynthesis.speak(s);
+                    lastT = d[0];
                 }
             }
-        } catch(e) { console.log("Sync failed..."); }
+        } catch(e) {}
     }
 
-    function sendToBrain() {
-        const input = document.getElementById('user-input').value;
-        if(input) {
-            alert("Memori Dikirim! AI akan menganalisis teknik: " + input);
-            document.getElementById('user-input').value = "";
-        }
-    }
-
-    setInterval(sync, 3000); // Sinkronisasi tiap 3 detik
+    setInterval(update, 3000);
 </script>
-
 </body>
 </html>

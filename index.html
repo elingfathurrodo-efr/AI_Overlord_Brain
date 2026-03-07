@@ -3,229 +3,91 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=0.8, maximum-scale=1.0, user-scalable=no">
-    <title>OVERLORD OMNI-BRAIN V50 - FULL SYSTEM</title>
+    <title>OMNI-AI LIVING EVOLUTION</title>
     <style>
-        :root { 
-            --neon: #00ffcc; 
-            --bg: #05070a; 
-            --panel: #0c1015;
-            --red: #ff3333; 
-            --blue: #0088ff;
-            --purple: #cc33ff;
-        }
-        
-        body { 
-            background: var(--bg); color: var(--neon); font-family: 'Courier New', monospace; 
-            margin: 0; padding: 10px; display: flex; flex-direction: column; align-items: center;
-            overflow-x: hidden;
-        }
-
-        /* ROBOT VISUAL */
-        #hologram-container {
-            position: relative; width: 300px; height: 160px;
-            display: flex; justify-content: center; align-items: center;
-        }
+        :root { --neon: #00ffcc; --bg: #05070a; --panel: #0c1015; --red: #ff3333; }
+        body { background: var(--bg); color: var(--neon); font-family: 'Courier New', monospace; padding: 10px; display: flex; flex-direction: column; align-items: center; }
+        #hologram-container { position: relative; width: 300px; height: 160px; display: flex; justify-content: center; align-items: center; }
         canvas { position: absolute; z-index: 1; filter: drop-shadow(0 0 10px var(--neon)); transform: scale(0.6); }
-        #face-box {
-            position: absolute; width: 150px; height: 100px; z-index: 10;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-        }
-        #eyes { font-size: 28px; font-weight: bold; text-shadow: 0 0 15px currentColor; transition: transform 0.12s; }
-        #mouth { font-size: 16px; margin-top: 5px; opacity: 0.8; }
-
-        /* DASHBOARD (KAKU/SQUARE) */
-        .glass-panel { 
-            width: 100%; max-width: 480px; background: var(--panel); 
-            border: 1px solid #1a1e23; padding: 10px; box-sizing: border-box; 
-            margin-bottom: 8px;
-        }
-
-        /* TAB MENU */
-        .tab-menu { display: flex; gap: 4px; margin-bottom: 10px; overflow-x: auto; }
-        .tab-btn { 
-            background: #111; border: 1px solid #333; color: var(--neon); 
-            padding: 8px 12px; font-size: 9px; cursor: pointer; text-transform: uppercase;
-        }
-        .tab-btn.active { background: var(--neon); color: #000; font-weight: bold; box-shadow: 0 0 10px var(--neon); }
-
-        /* CONTENT AREA */
-        .tab-content { display: none; min-height: 100px; animation: fadeIn 0.3s; }
-        .tab-content.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-        /* GRID BIOMETRIK (PROFIL) */
-        .biometric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-        .stat-box { background: #000; border: 1px solid #1a1e23; padding: 8px; }
-        .stat-label { font-size: 8px; opacity: 0.5; display: block; }
-        .stat-value { font-size: 12px; font-weight: bold; }
-
-        /* INPUT & BUTTON */
-        textarea { 
-            width: 100%; background: #000; color: var(--neon); border: 1px solid #222; 
-            padding: 10px; box-sizing: border-box; outline: none; resize: none; font-size: 11px; margin-top: 5px;
-        }
-        button.main-btn { 
-            width: 100%; padding: 12px; margin-top: 5px; background: var(--neon); 
-            color: #000; border: none; font-weight: bold; cursor: pointer; text-transform: uppercase;
-        }
-
-        #log-window { background: #000; border: 1px solid #111; height: 70px; overflow-y: auto; padding: 8px; font-size: 10px; color: #666; }
+        #face-box { position: absolute; width: 150px; height: 100px; z-index: 10; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        #eyes { font-size: 28px; font-weight: bold; text-shadow: 0 0 15px currentColor; }
+        .glass-panel { width: 100%; max-width: 480px; background: var(--panel); border: 1px solid #1a1e23; padding: 15px; box-sizing: border-box; margin-bottom: 8px; }
+        .biometric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .stat-box { background: #000; border: 1px solid #1a1e23; padding: 10px; }
+        .stat-label { font-size: 9px; opacity: 0.5; }
+        .stat-value { font-size: 14px; font-weight: bold; display: block; }
+        .glitch { animation: shake 0.2s infinite; }
+        @keyframes shake { 0% { transform: translate(0); } 25% { transform: translate(2px,-2px); } 50% { transform: translate(-2px,2px); } 100% { transform: translate(0); } }
     </style>
 </head>
 <body>
 
 <div id="hologram-container">
     <canvas id="livingSphere"></canvas>
-    <div id="face-box">
-        <div id="eyes">o &nbsp; o</div>
-        <div id="mouth">\_____/</div>
+    <div id="face-box"><div id="eyes">o &nbsp; o</div><div id="mouth">\_____/</div></div>
+</div>
+
+<div class="glass-panel">
+    <div id="ai-mood" style="text-align:center; font-size:20px; margin-bottom:10px;">( ° _ ° )</div>
+    <div id="ai-speech" style="font-size:12px; color:#fff; text-align:center;">[DNA: STANDBY] Menunggu Saraf MT5...</div>
+</div>
+
+<div class="glass-panel">
+    <div class="biometric-grid">
+        <div class="stat-box"><span class="stat-label">EQUITY</span><span class="stat-value" id="eq-val">$0.00</span></div>
+        <div class="stat-box"><span class="stat-label">FLOATING</span><span class="stat-value" id="fl-val">$0.00</span></div>
+        <div class="stat-box"><span class="stat-label">SYMBOL</span><span class="stat-value" id="sym-val">-</span></div>
+        <div class="stat-box"><span class="stat-label">AGGRESSION</span><span class="stat-value" id="ag-val">0%</span></div>
     </div>
 </div>
 
 <div class="glass-panel">
-    <div id="ai-speech" style="font-size: 12px; color: #fff;">[DNA STATE: CURIOSITY] Memantau aliran data...</div>
-</div>
-
-<div class="glass-panel">
-    <div class="tab-menu">
-        <button class="tab-btn active" onclick="openTab(event, 'profil')">PROFIL DNA</button>
-        <button class="tab-btn" onclick="openTab(event, 'posisi')">POSISI</button>
-        <button class="tab-btn" onclick="openTab(event, 'aktivitas')">AKTIVITAS</button>
-        <button class="tab-btn" onclick="openTab(event, 'memori')">MEMORI</button>
-        <button class="tab-btn" onclick="triggerNod()">NOD</button>
-    </div>
-
-    <div id="tab-container">
-        <div id="profil" class="tab-content active">
-            <div class="biometric-grid">
-                <div class="stat-box"><span class="stat-label">EQUITY</span><span class="stat-value" id="eq-val">$0.00</span></div>
-                <div class="stat-box"><span class="stat-label">FLOATING</span><span class="stat-value" style="color:var(--red);">-$0.00</span></div>
-                <div class="stat-box"><span class="stat-label">SPREAD (XAUUSD)</span><span class="stat-value">0.5</span></div>
-                <div class="stat-box"><span class="stat-label">FREE MARGIN</span><span class="stat-value" style="color:var(--blue);">$0.00</span></div>
-            </div>
-        </div>
-
-        <div id="posisi" class="tab-content">
-            <div style="border: 1px dashed #222; padding: 20px; text-align: center; font-size: 10px; color: #444;">
-                NO ACTIVE POSITIONS<br>Menunggu sinyal market...
-            </div>
-        </div>
-
-        <div id="aktivitas" class="tab-content">
-            <div style="font-size: 10px; line-height: 1.5;">
-                > Connecting to MT5 Terminal... <span style="color:var(--neon)">OK</span><br>
-                > Analyzing Liquidity Zone... <span style="color:var(--neon)">SCANNING</span><br>
-                > Neural Weights Updated... <span style="color:var(--neon)">TRUE</span>
-            </div>
-        </div>
-
-        <div id="memori" class="tab-content">
-            <div id="log-window">
-                * Memori Saraf Kosong. Gunakan tombol Inject di bawah.
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="glass-panel">
-    <textarea id="userInput" rows="2" placeholder="Masukan Rumus/DNA Baru..."></textarea>
-    <button class="main-btn" onclick="injectEvolve()">EVOLVE NEURAL BRAIN</button>
+    <textarea id="userInput" style="width:100%; background:#000; color:var(--neon); border:1px solid #333; padding:10px;" rows="2" placeholder="Kirim Perintah/Rumus..."></textarea>
+    <button onclick="sendToAI()" style="width:100%; padding:10px; background:var(--neon); color:#000; font-weight:bold; margin-top:5px; border:none;">EVOLVE DNA</button>
 </div>
 
 <script>
-    // --- INTEGRASI TOKEN GITHUB ---
     const PAT = "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";
-    const USER = "elingfathurrodo-efr"; 
-    const REPO = "AI_Overlord_Brain";
-    const FILE = "Living_Evolution.csv";
+    const USER = "elingfathurrodo-efr"; const REPO = "AI_Overlord_Brain"; const FILE = "Living_Evolution.csv";
 
-    // FUNGSI NAVIGASI TAB
-    function openTab(evt, tabName) {
-        var i, tabcontent, tablinks;
-        tabcontent = document.getElementsByClassName("tab-content");
-        for (i = 0; i < tabcontent.length; i++) { tabcontent[i].style.display = "none"; }
-        tablinks = document.getElementsByClassName("tab-btn");
-        for (i = 0; i < tablinks.length; i++) { tablinks[i].className = tablinks[i].className.replace(" active", ""); }
-        document.getElementById(tabName).style.display = "block";
-        evt.currentTarget.className += " active";
-    }
-
-    // ANIMASI ROBOT (MATA & MOTORIK)
-    const canvas = document.getElementById('livingSphere');
-    const ctx = canvas.getContext('2d');
-    const eyes = document.getElementById('eyes');
-    const speech = document.getElementById('ai-speech');
-    canvas.width = 300; canvas.height = 300;
-    let particles = [];
-    const count = 500;
-    let breath = 0;
-    let headY = 0, targetHeadY = 0;
-    let eyeX = 0, eyeY = 0, targetEyeX = 0, targetEyeY = 0;
-
-    for(let i=0; i<count; i++) {
-        let phi = Math.acos(-1 + (2 * i) / count);
-        let theta = Math.sqrt(count * Math.PI) * phi;
-        particles.push({ phi, theta });
-    }
-
-    function animate() {
-        ctx.clearRect(0,0,300,300);
-        breath += 0.05;
-
-        // Scanning (Mata melirik)
-        if (Math.random() > 0.97) {
-            targetEyeX = (Math.random() - 0.5) * 50; 
-            targetEyeY = (Math.random() - 0.5) * 20;
-        }
-        eyeX += (targetEyeX - eyeX) * 0.1;
-        eyeY += (targetEyeY - eyeY) * 0.1;
-
-        // Nodding (Kepala mengangguk)
-        targetHeadY += (0 - targetHeadY) * 0.05;
-        headY += (targetHeadY - headY) * 0.1;
-
-        eyes.style.transform = `translate(${eyeX}px, ${eyeY + headY}px)`;
-        canvas.style.transform = `rotateY(${eyeX/5}deg) translateY(${headY/2}px)`;
-
-        let radius = 100 + (Math.sin(breath) * 8);
-        particles.forEach(p => {
-            p.theta += 0.007;
-            let x = radius * Math.sin(p.phi) * Math.cos(p.theta) + 150;
-            let y = radius * Math.sin(p.phi) * Math.sin(p.theta) + 150;
-            let z = radius * Math.cos(p.phi);
-            ctx.globalAlpha = (z + radius) / (radius * 2);
-            ctx.fillStyle = "#00ffcc";
-            ctx.beginPath(); ctx.arc(x, y, 1.2, 0, Math.PI * 2); ctx.fill();
-        });
-        requestAnimationFrame(animate);
-    }
-
-    // FUNGSI INJEKSI KE GITHUB
-    async function injectEvolve() {
-        const input = document.getElementById('userInput').value;
-        if(!input) return;
-        speech.innerText = "DNA Disuntikkan ke Cloud...";
-        targetHeadY = 40; 
+    // --- SYNC DATA DARI MT5 ---
+    async function updateAI() {
         try {
-            const res = await fetch(`https://api.github.com/repos/${USER}/${REPO}/contents/${FILE}`, {
-                headers: { "Authorization": `Bearer ${PAT}` }
-            });
+            const res = await fetch(`https://api.github.com/repos/${USER}/${REPO}/contents/${FILE}`, { headers: {"Authorization": `token ${PAT}`, "Cache-Control": "no-cache"} });
             const data = await res.json();
-            const content = btoa(unescape(encodeURIComponent(input)));
-            await fetch(`https://api.github.com/repos/${USER}/${REPO}/contents/${FILE}`, {
-                method: "PUT",
-                headers: { "Authorization": `Bearer ${PAT}` },
-                body: JSON.stringify({ message: "Update", content: content, sha: data.sha })
-            });
-            speech.innerHTML = "<b>EVOLUSI BERHASIL!</b>";
-            document.getElementById('userInput').value = "";
-        } catch(e) { speech.innerText = "Error Jalur Saraf!"; }
-        setTimeout(() => { targetHeadY = 0; }, 2000);
+            const val = atob(data.content).split(',');
+            
+            document.getElementById('eq-val').innerText = "$" + val[0];
+            document.getElementById('fl-val').innerText = "$" + val[1];
+            document.getElementById('sym-val').innerText = val[2];
+            document.getElementById('ag-val').innerText = (parseFloat(val[3])*100).toFixed(2) + "%";
+            
+            // Perasaan AI berdasarkan Agresi
+            if(parseFloat(val[3]) > 0.05) {
+                document.getElementById('ai-mood').innerText = "┌( ಠ_ಠ )┘";
+                document.getElementById('face-box').classList.add('glitch');
+                document.getElementById('ai-speech').innerText = "(Aku mendeteksi anomali, meningkatkan agresivitas teknik!)";
+            } else {
+                document.getElementById('ai-mood').innerText = "( ° _ ° )";
+                document.getElementById('face-box').classList.remove('glitch');
+            }
+        } catch(e) { console.log("Sync..."); }
     }
 
-    function triggerNod() { targetHeadY = 50; }
-
-    animate();
+    // --- ANIMASI PARTIKEL ---
+    const canvas = document.getElementById('livingSphere'); const ctx = canvas.getContext('2d');
+    canvas.width = 300; canvas.height = 300; let particles = [];
+    for(let i=0; i<400; i++) { particles.push({ phi: Math.acos(-1+(2*i)/400), theta: Math.sqrt(400*Math.PI)*Math.acos(-1+(2*i)/400) }); }
+    function anim() {
+        ctx.clearRect(0,0,300,300);
+        particles.forEach(p => {
+            p.theta += 0.008;
+            let x = 100 * Math.sin(p.phi) * Math.cos(p.theta) + 150;
+            let y = 100 * Math.sin(p.phi) * Math.sin(p.theta) + 150;
+            ctx.fillStyle = "#00ffcc"; ctx.globalAlpha = 0.6; ctx.beginPath(); ctx.arc(x,y,1,0,7); ctx.fill();
+        }); requestAnimationFrame(anim);
+    } anim();
+    setInterval(updateAI, 15000); updateAI();
 </script>
 </body>
 </html>

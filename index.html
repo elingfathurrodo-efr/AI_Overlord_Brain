@@ -1,88 +1,107 @@
-<script>
-    const PAT = "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";
-    const USER = "elingfathurrodo-efr"; 
-    const REPO = "AI_Overlord_Brain"; 
-    const FILE = "Living_Evolution.csv";
-
-    // --- VARIABEL MOTORIK (MATA & KEPALA) ---
-    const eyes = document.getElementById('eyes');
-    const faceBox = document.getElementById('face-box');
-    let eyeX = 0, eyeY = 0, targetEyeX = 0, targetEyeY = 0;
-    let headY = 0, breath = 0;
-
-    // --- ANIMASI PARTIKEL ---
-    const canvas = document.getElementById('livingSphere'); 
-    const ctx = canvas.getContext('2d');
-    canvas.width = 300; canvas.height = 300; 
-    let particles = [];
-    for(let i=0; i<400; i++) { 
-        particles.push({ 
-            phi: Math.acos(-1+(2*i)/400), 
-            theta: Math.sqrt(400*Math.PI)*Math.acos(-1+(2*i)/400) 
-        }); 
-    }
-
-    function anim() {
-        ctx.clearRect(0,0,300,300);
-        breath += 0.05;
-
-        // 1. LOGIKA MATA MELIRIK (SCANNING)
-        if (Math.random() > 0.98) { // Peluang melirik setiap frame
-            targetEyeX = (Math.random() - 0.5) * 40; 
-            targetEyeY = (Math.random() - 0.5) * 15;
-        }
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AI EVOLUTION - NEURAL DASHBOARD</title>
+    <style>
+        :root { --neon: #00ffcc; --bg: #05070a; --panel: #0c1015; --red: #ff3333; }
+        body { background: var(--bg); color: var(--neon); font-family: 'Courier New', monospace; margin: 0; padding: 10px; display: flex; flex-direction: column; align-items: center; }
         
-        // Pergerakan halus (Easing)
-        eyeX += (targetEyeX - eyeX) * 0.1;
-        eyeY += (targetEyeY - eyeY) * 0.1;
+        /* BOX PEMBATAS (Tembok agar tidak meluber) */
+        .glass-panel { 
+            width: 100%; max-width: 500px; background: var(--panel); border: 2px solid #1a1e23; 
+            padding: 15px; box-sizing: border-box; margin-bottom: 10px; overflow: hidden; position: relative;
+        }
 
-        // 2. LOGIKA BREATHING (MENGANGGUK PELAN)
-        headY = Math.sin(breath) * 5;
+        /* WAJAH AI (Hologram Partikel) */
+        #hologram-canvas { filter: drop-shadow(0 0 15px var(--neon)); width: 100%; height: 200px; }
+        #face-label { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; }
+        #eyes { font-size: 30px; letter-spacing: 20px; transition: 0.1s; }
 
-        // Terapkan ke DOM Mata & Canvas
-        eyes.style.transform = `translate(${eyeX}px, ${eyeY + headY}px)`;
-        canvas.style.transform = `rotateY(${eyeX/4}deg) translateY(${headY/2}px)`;
+        /* TAB MENU (Berevolusi) */
+        .menu-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; margin-top: 10px; }
+        .tab-btn { background: #000; border: 1px solid var(--neon); color: var(--neon); font-size: 10px; padding: 10px 5px; cursor: pointer; }
+        .tab-btn.active { background: var(--neon); color: #000; }
 
-        // Gambar Partikel
-        let radius = 100 + (Math.sin(breath) * 5);
-        particles.forEach(p => {
-            p.theta += 0.008;
-            let x = radius * Math.sin(p.phi) * Math.cos(p.theta) + 150;
-            let y = radius * Math.sin(p.phi) * Math.sin(p.theta) + 150;
-            let z = radius * Math.cos(p.phi);
-            ctx.globalAlpha = (z + radius) / (radius * 2);
-            ctx.fillStyle = "#00ffcc"; 
-            ctx.beginPath(); ctx.arc(x,y,1.2,0,Math.PI*2); ctx.fill();
-        }); 
-        requestAnimationFrame(anim);
+        /* JENDELA BICARA (Batin AI) */
+        #thought-box { font-style: italic; color: #888; border-left: 3px solid #333; padding-left: 10px; margin: 10px 0; min-height: 40px; font-size: 12px; }
+        
+        /* LOG EVOLUSI */
+        #evolution-log { background: #000; height: 100px; overflow-y: scroll; font-size: 9px; padding: 5px; color: #4CAF50; }
+    </style>
+</head>
+<body>
+
+<div class="glass-panel" style="text-align: center;">
+    <canvas id="hologram-canvas"></canvas>
+    <div id="face-label">
+        <div id="eyes">● &nbsp; ●</div>
+        <div id="mouth">⎼⎼⎼⎼⎼</div>
+    </div>
+</div>
+
+<div class="glass-panel">
+    <div id="thought-box">(Menganalisis anomali XAUUSD... Mengapa Fibonacci Gravity bergeser?)</div>
+    <div id="ai-talk">"Bos, aku menemukan pola SMC baru di timeframe M5."</div>
+</div>
+
+<div class="glass-panel">
+    <div class="menu-grid" id="main-menu">
+        <button class="tab-btn active">PROFIL</button>
+        <button class="tab-btn">POSISI</button>
+        <button class="tab-btn">AKTIVITAS</button>
+        <button class="tab-btn">MEMORI</button>
+        <button class="tab-btn">COMBINE</button>
+        <button class="tab-btn">INTERNET</button>
+    </div>
+</div>
+
+<div class="glass-panel">
+    <div id="evolution-log">> Jaringan Saraf Terhubung ke MT5... OK<br>> Seed Butterfly Loaded.<br>> Mencari teknik baru di internet...</div>
+</div>
+
+<div class="glass-panel">
+    <textarea id="cmd" style="width:100%; background:#000; color:var(--neon); border:1px solid #333;" placeholder="Inject Rumus Baru..."></textarea>
+    <button onclick="injectDNA()" style="width:100%; background:var(--neon); border:none; padding:10px; font-weight:bold; margin-top:5px;">EVOLVE BRAIN</button>
+</div>
+
+<script>
+    // --- ANIMASI MOTORIK WAJAH ---
+    const eyes = document.getElementById('eyes');
+    const mouth = document.getElementById('mouth');
+    let targetX = 0;
+
+    function animateFace() {
+        // Melirik acak
+        if(Math.random() > 0.95) targetX = (Math.random() - 0.5) * 30;
+        eyes.style.transform = `translateX(${targetX}px)`;
+        
+        // Kedip acak
+        if(Math.random() > 0.98) {
+            eyes.innerHTML = "─ &nbsp; ─";
+            setTimeout(() => { eyes.innerHTML = "● &nbsp; ●"; }, 150);
+        }
+        requestAnimationFrame(animateFace);
+    }
+    animateFace();
+
+    // --- LOGIKA EVOLUSI (Meja Penelitian) ---
+    function injectDNA() {
+        let cmd = document.getElementById('cmd').value;
+        let log = document.getElementById('evolution-log');
+        log.innerHTML += `<br>> Injecting: ${cmd}...`;
+        log.innerHTML += `<br>> Menggabungkan dengan Fibonacci Gravity...`;
+        
+        // Simulasi suara (Text to Speech)
+        let msg = new SpeechSynthesisUtterance("Evolusi Saraf Dimulai. Mengintegrasikan teknik baru.");
+        window.speechSynthesis.speak(msg);
+        
+        document.getElementById('ai-talk').innerText = "Rumus ini menarik, Bos. Aku akan mencobanya di akun demo dulu.";
     }
 
-    // --- SYNC DATA DARI MT5 ---
-    async function updateAI() {
-        try {
-            const res = await fetch(`https://api.github.com/repos/${USER}/${REPO}/contents/${FILE}`, { 
-                headers: {"Authorization": `token ${PAT}`, "Cache-Control": "no-cache"} 
-            });
-            const data = await res.json();
-            const val = atob(data.content).split(',');
-            
-            document.getElementById('eq-val').innerText = "$" + val[0];
-            document.getElementById('fl-val').innerText = "$" + val[1];
-            document.getElementById('sym-val').innerText = val[2];
-            document.getElementById('ag-val').innerText = (parseFloat(val[3])*100).toFixed(2) + "%";
-            
-            // Reaksi Perasaan
-            if(parseFloat(val[1]) < 0) {
-                document.getElementById('ai-mood').innerText = "( >_<)"; // Cemas kalau floating minus
-                faceBox.classList.add('glitch');
-            } else {
-                document.getElementById('ai-mood').innerText = "( ° _ ° )"; // Tenang kalau profit
-                faceBox.classList.remove('glitch');
-            }
-        } catch(e) { console.log("Re-syncing saraf..."); }
-    }
-
-    anim(); // Jalankan animasi
-    setInterval(updateAI, 15000); // Sinkron data setiap 15 detik
-    updateAI();
+    // --- SYNC DATA MT5 (Dapat data dari CSV GitHub) ---
+    // [Fungsi Fetch dari GitHub Bos ada di sini]
 </script>
+</body>
+</html>

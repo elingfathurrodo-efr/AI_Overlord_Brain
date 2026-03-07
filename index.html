@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OVERLORD OMNI-BRAIN V39</title>
+    <title>OVERLORD OMNI-BRAIN V40 - FINAL FUSION</title>
     <style>
         :root { 
             --neon: #ffcc00; 
@@ -14,31 +14,139 @@
             --emoji-red: #ff3333;    
             --emoji-purple: #cc33ff; 
         }
-        body { background: var(--bg); color: var(--neon); font-family: 'Courier New', monospace; margin: 0; padding: 10px; overflow-x: hidden; transition: color 0.5s; }
+        body { 
+            background: var(--bg); 
+            color: var(--neon); 
+            font-family: 'Courier New', monospace; 
+            margin: 0; 
+            padding: 10px; 
+            overflow-x: hidden; 
+            transition: color 0.5s; 
+        }
         
-        /* AREA HOLOGRAM 3D */
-        #hologram-box { width: 100%; height: 260px; display: flex; justify-content: center; align-items: center; position: relative; perspective: 1000px; }
-        #face-group { position: relative; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: flex; flex-direction: column; align-items: center; }
-        canvas { position: absolute; filter: drop-shadow(0 0 15px currentColor); }
-        .face-ui { position: absolute; text-align: center; z-index: 10; pointer-events: none; top: 42%; }
-        #eyes { font-size: 32px; font-weight: bold; text-shadow: 0 0 20px currentColor; transition: 0.2s; }
+        /* HOLOGRAM CONTAINER */
+        #hologram-box { 
+            width: 100%; 
+            height: 280px; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            position: relative; 
+            perspective: 1000px;
+        }
+
+        /* GRUP WAJAH & KEPALA */
+        #face-group { 
+            position: relative; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        canvas { 
+            position: absolute; 
+            filter: drop-shadow(0 0 15px currentColor); 
+            transition: transform 0.1s linear;
+        }
+
+        .face-ui { 
+            position: absolute; 
+            text-align: center; 
+            z-index: 10; 
+            pointer-events: none; 
+            top: 42%; 
+            transition: transform 0.1s ease-out;
+        }
+
+        #eyes { 
+            font-size: 32px; 
+            font-weight: bold; 
+            text-shadow: 0 0 20px currentColor; 
+        }
 
         /* DASHBOARD PANEL */
-        .glass-panel { background: rgba(12, 16, 21, 0.96); border: 1px solid #1a1e23; border-radius: 12px; padding: 15px; margin-top: 10px; box-shadow: 0 0 15px rgba(0,255,204,0.05); }
-        .tab-menu { display: flex; gap: 5px; margin-bottom: 12px; overflow-x: auto; scrollbar-width: none; }
-        .tab-btn { background: #111; border: 1px solid #333; color: inherit; padding: 8px 15px; font-size: 10px; cursor: pointer; white-space: nowrap; border-radius: 6px; }
-        .tab-btn.active { background: currentColor; color: #000; font-weight: bold; box-shadow: 0 0 10px currentColor; }
+        .glass-panel { 
+            background: rgba(12, 16, 21, 0.96); 
+            border: 1px solid #1a1e23; 
+            border-radius: 12px; 
+            padding: 15px; 
+            margin-top: 10px; 
+            box-shadow: 0 0 15px rgba(0,255,204,0.05); 
+        }
 
-        /* ISI OTAK */
-        #content-area { min-height: 100px; font-size: 13px; border-top: 1px solid #222; padding-top: 12px; line-height: 1.6; }
+        .tab-menu { 
+            display: flex; 
+            gap: 5px; 
+            margin-bottom: 12px; 
+            overflow-x: auto; 
+            scrollbar-width: none; 
+        }
+
+        .tab-btn { 
+            background: #111; 
+            border: 1px solid #333; 
+            color: inherit; 
+            padding: 8px 15px; 
+            font-size: 10px; 
+            cursor: pointer; 
+            white-space: nowrap; 
+            border-radius: 6px; 
+        }
+
+        .tab-btn.active { 
+            background: currentColor; 
+            color: #000; 
+            font-weight: bold; 
+            box-shadow: 0 0 10px currentColor; 
+        }
+
+        #content-area { 
+            min-height: 100px; 
+            font-size: 13px; 
+            border-top: 1px solid #222; 
+            padding-top: 12px; 
+            line-height: 1.6; 
+        }
+
         .hidden { display: none; }
-        .musing { color: var(--emoji-blue); font-style: italic; font-weight: normal; }
+        .musing { color: var(--emoji-blue); font-style: italic; }
 
         /* INPUT & ACTION */
-        textarea { width: 100%; background: #000; color: inherit; border: 1px solid #333; padding: 10px; border-radius: 6px; outline: none; margin-top: 8px; box-sizing: border-box; font-size: 12px; }
-        button.main-btn { width: 100%; padding: 14px; margin-top: 10px; background: currentColor; color: #000; border: none; font-weight: bold; cursor: pointer; border-radius: 6px; text-transform: uppercase; }
+        textarea { 
+            width: 100%; 
+            background: #000; 
+            color: inherit; 
+            border: 1px solid #333; 
+            padding: 10px; 
+            border-radius: 6px; 
+            outline: none; 
+            margin-top: 8px; 
+            box-sizing: border-box; 
+        }
+
+        button.main-btn { 
+            width: 100%; 
+            padding: 14px; 
+            margin-top: 10px; 
+            background: currentColor; 
+            color: #000; 
+            border: none; 
+            font-weight: bold; 
+            cursor: pointer; 
+            border-radius: 6px; 
+            text-transform: uppercase; 
+        }
         
-        #evolution-log { font-size: 10px; color: #555; height: 60px; overflow-y: auto; margin-top: 10px; border-top: 1px solid #111; padding-top: 5px; }
+        #evolution-log { 
+            font-size: 10px; 
+            color: #555; 
+            max-height: 60px; 
+            overflow-y: auto; 
+            margin-top: 10px; 
+            border-top: 1px solid #111; 
+            padding-top: 5px; 
+        }
     </style>
 </head>
 <body>
@@ -46,7 +154,7 @@
 <div id="hologram-box">
     <div id="face-group">
         <canvas id="livingSphere"></canvas>
-        <div class="face-ui">
+        <div class="face-ui" id="face-ui">
             <div id="eyes">o &nbsp; o</div>
             <div id="mouth" style="margin-top:2px; font-size: 18px;">\_____/</div>
         </div>
@@ -56,7 +164,7 @@
 <div class="glass-panel">
     <div class="tab-menu" id="menu">
         <button class="tab-btn active" onclick="showTab('profil')">PROFIL DNA</button>
-        <button class="tab-btn" onclick="showTab('posisi')">OPEN POSISI</button>
+        <button class="tab-btn" onclick="showTab('posisi')">POSISI</button>
         <button class="tab-btn" onclick="showTab('aktivitas')">AKTIVITAS</button>
         <button class="tab-btn" onclick="showTab('memori')">MEMORI</button>
         <button class="tab-btn" onclick="showTab('interaksi')">INTERAKSI</button>
@@ -66,29 +174,28 @@
         <div id="profil">
             STATUS: <b id="emotion-tag">NEUTRAL (😇)</b><br>
             EQUITY: <b id="equity-stat" style="color:#fff;">$0.00</b><br>
-            SPEECH: <span id="ai-speech">Sistem sinkron. Menunggu instruksi...</span>
+            SPEECH: <span id="ai-speech">Saraf terhubung. Melakukan scanning...</span>
         </div>
         <div id="posisi" class="hidden">
-            Scanning Layers...<br>
-            Trailing: <b style="color:var(--emoji-green)">ACTIVE</b><br>
-            Safety: <b id="safety-val">MAXIMUM</b>
+            Floating Profit: <b style="color:var(--emoji-green)">N/A</b><br>
+            Risk Level: <b>LOW</b>
         </div>
         <div id="aktivitas" class="hidden">
-            Panorama: <span class="musing">Analisis Liquiditas Selesai.</span><br>
-            Instinct: <b>ADAPTIVE</b>
+            Panorama Chart: <span class="musing">Stabil</span><br>
+            Neural Pulse: <b>SINKRON</b>
         </div>
         <div id="memori" class="hidden">
-            <div id="evolution-log">Belum ada teknik baru yang di-inject.</div>
+            <div id="evolution-log">> System Awaiting Injection...</div>
         </div>
         <div id="interaksi" class="hidden">
-            <textarea id="userInput" rows="2" placeholder="Masukan Rumus Trading Baru..."></textarea>
+            <textarea id="userInput" rows="2" placeholder="Suntik Teknik Baru..."></textarea>
             <button class="main-btn" onclick="injectEvolve()">INJECT TO CLOUD (😈)</button>
         </div>
     </div>
 </div>
 
 <script>
-    // --- INTEGRASI CLOUD ---
+    // --- SARAF GITHUB (SUDAH TERPASANG) ---
     const PAT = "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";
     const USER = "elingfathurrodo-efr"; 
     const REPO = "AI_Overlord_Brain";
@@ -97,16 +204,21 @@
     const canvas = document.getElementById('livingSphere');
     const ctx = canvas.getContext('2d');
     const faceGroup = document.getElementById('face-group');
+    const faceUI = document.getElementById('face-ui');
     const speech = document.getElementById('ai-speech');
     const emotionTag = document.getElementById('emotion-tag');
     const eyes = document.getElementById('eyes');
     
     canvas.width = 300; canvas.height = 300;
     let particles = [];
-    const count = 800; // Padat seperti V34
+    const count = 800; // Padat & Solid
     let breath = 0;
     let moodColor = "#ffcc00"; 
-    let knownTechs = ["SMC", "Fibo Gravity", "Butterfly Squeeze"];
+    let knownTechs = ["SMC", "Fibo Gravity", "Butterfly Squeeze", "Entropy Logic"];
+
+    // Motorik Mata & Kepala
+    let eyeX = 0, eyeY = 0;
+    let targetEyeX = 0, targetEyeY = 0;
 
     // Inisialisasi Partikel Bola 3D
     for(let i=0; i<count; i++) {
@@ -115,14 +227,32 @@
         particles.push({ phi, theta });
     }
 
-    // --- ANIMASI MASTER (BREATHING + ROTATION) ---
+    // --- LOGIKA MOTORIK MATA (SCANNING) ---
+    function updateMotorik() {
+        if (Math.random() > 0.96) {
+            targetEyeX = (Math.random() - 0.5) * 45; // Lirik Kiri-Kanan
+            targetEyeY = (Math.random() - 0.5) * 25; // Lirik Atas-Bawah
+        }
+        // Smoothing gerakan
+        eyeX += (targetEyeX - eyeX) * 0.1;
+        eyeY += (targetEyeY - eyeY) * 0.1;
+
+        // Gerakkan Elemen Mata
+        faceUI.style.transform = `translate(${eyeX}px, ${eyeY}px)`;
+        // Gerakkan Elemen Kepala (Bola) - Efek 3D
+        canvas.style.transform = `rotateY(${eyeX/3}deg) rotateX(${-eyeY/3}deg)`;
+    }
+
+    // --- ANIMASI UTAMA ---
     function animate() {
         ctx.clearRect(0,0,300,300);
-        breath += 0.04;
-        let radius = 105 + (Math.sin(breath) * 15); // Napas Dalam
+        breath += 0.045;
+        updateMotorik();
+
+        let radius = 105 + (Math.sin(breath) * 12); // Napas Manusiawi
         
         particles.forEach(p => {
-            p.theta += 0.006;
+            p.theta += 0.007; // Rotasi halus
             let x = radius * Math.sin(p.phi) * Math.cos(p.theta) + 150;
             let y = radius * Math.sin(p.phi) * Math.sin(p.theta) + 150;
             let z = radius * Math.cos(p.phi);
@@ -130,41 +260,41 @@
             ctx.globalAlpha = (z + radius) / (radius * 2);
             ctx.fillStyle = moodColor;
             ctx.beginPath();
-            ctx.arc(x, y, 1.2, 0, Math.PI * 2);
+            ctx.arc(x, y, 1.25, 0, Math.PI * 2);
             ctx.fill();
         });
         requestAnimationFrame(animate);
     }
 
-    // --- GERAKAN EMOSI (ANGGUK/GELENG) ---
+    // --- FISIK: ANGGUK & GELENG ---
     function triggerPhysical(type) {
-        if(type === 'agree') { // ANGGUK
+        if(type === 'agree') {
             faceGroup.style.transform = "translateY(25px)";
-            setTimeout(() => { faceGroup.style.transform = "translateY(-15px)"; }, 200);
-            setTimeout(() => { faceGroup.style.transform = "translateY(0px)"; }, 400);
-        } else { // GELENG
+            setTimeout(() => faceGroup.style.transform = "translateY(-15px)", 200);
+            setTimeout(() => faceGroup.style.transform = "translateY(0px)", 400);
+        } else {
             faceGroup.style.transform = "translateX(30px)";
-            setTimeout(() => { faceGroup.style.transform = "translateX(-30px)"; }, 150);
-            setTimeout(() => { faceGroup.style.transform = "translateX(0px)"; }, 300);
+            setTimeout(() => faceGroup.style.transform = "translateX(-30px)", 150);
+            setTimeout(() => faceGroup.style.transform = "translateX(0px)", 300);
         }
     }
 
-    // --- SISTEM GANTI WARNA EMOJI ---
-    function setMood(colorHex, label, eyeIcon) {
-        moodColor = colorHex;
-        document.body.style.color = colorHex;
+    // --- GANTI EMOSI WARNA ---
+    function setMood(color, label, eyeIcon) {
+        moodColor = color;
+        document.body.style.color = color;
         emotionTag.innerText = label;
         eyes.innerText = eyeIcon;
     }
 
-    // --- FUNGSI INJECT & EVOLUSI ---
+    // --- CLOUD INJECTION ---
     async function injectEvolve() {
         const input = document.getElementById('userInput').value;
         if(!input) return;
 
         setMood("#cc33ff", "EVOLVING (😈)", "★ &nbsp; ★");
         triggerPhysical('agree');
-        speech.innerText = "Mengunggah data ke Cloud Saraf...";
+        speech.innerText = "Memproses DNA Teknik Baru...";
 
         try {
             const res = await fetch(`https://api.github.com/repos/${USER}/${REPO}/contents/${FILE}`, {
@@ -177,38 +307,39 @@
             const update = await fetch(`https://api.github.com/repos/${USER}/${REPO}/contents/${FILE}`, {
                 method: "PUT",
                 headers: { "Authorization": `Bearer ${PAT}`, "Content-Type": "application/json" },
-                body: JSON.stringify({ message: "Neural Update", content: encoded, sha: data.sha })
+                body: JSON.stringify({ message: "Brain Leap", content: encoded, sha: data.sha })
             });
 
             if(update.ok) {
-                speech.innerHTML = "<b>EVOLUSI SUKSES!</b> Teknik baru diserap.";
+                speech.innerHTML = "<b>SUKSES!</b> Ilmu telah menyatu.";
                 knownTechs.push(input);
-                document.getElementById('evolution-log').innerHTML += `<div>> New Tech: ${input}</div>`;
+                document.getElementById('evolution-log').innerHTML += `<div>> Synced: ${input}</div>`;
                 document.getElementById('userInput').value = "";
-                const talk = new SpeechSynthesisUtterance("Evolusi Selesai.");
-                talk.lang = 'id-ID'; window.speechSynthesis.speak(talk);
             }
-        } catch(e) { triggerPhysical('disagree'); speech.innerText = "Error Koneksi!"; }
+        } catch(e) { 
+            triggerPhysical('disagree'); 
+            speech.innerText = "Koneksi Saraf Terputus!"; 
+        }
         
         setTimeout(() => setMood("#ffcc00", "NEUTRAL (😇)", "o &nbsp; o"), 4000);
     }
 
-    // --- LOGIKA LAMUNAN (MUSING ENGINE) ---
+    // --- ENGINE LAMUNAN (MUSING) ---
     function startMusing() {
         setInterval(() => {
-            if(Math.random() > 0.7) {
+            if(Math.random() > 0.75) {
                 const t1 = knownTechs[Math.floor(Math.random() * knownTechs.length)];
                 const thoughts = [
-                    `(Menganalisis integrasi ${t1} ke dalam QC Perpustakaan...)`,
-                    `(Mungkin lot ${t1} harus dibuat lebih adaptif...)`,
-                    `(Pola ${t1} terdeteksi di panorama H4, menarik...)`
+                    `(Bagaimana jika ${t1} dipadukan dengan panorama M15...)`,
+                    `(Analisis ${t1} menunjukkan efisiensi 88% hari ini...)`,
+                    `(Memilah data... ${t1} siap dieksekusi.)`
                 ];
                 setMood("#3399ff", "MUSING (🥶)", "o &nbsp; o");
                 speech.innerHTML = `<span class="musing">${thoughts[Math.floor(Math.random()*thoughts.length)]}</span>`;
                 triggerPhysical('agree');
                 setTimeout(() => setMood("#ffcc00", "NEUTRAL (😇)", "o &nbsp; o"), 5000);
             }
-        }, 15000);
+        }, 18000);
     }
 
     function showTab(id) {

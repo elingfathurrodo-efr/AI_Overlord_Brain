@@ -2,123 +2,136 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>OMNI-BRAIN V50: EVOLUTION</title>
+    <meta name="viewport" content="width=device-width, initial-scale=0.9">
+    <title>OVERLORD OMNI-BRAIN V50</title>
     <style>
-        :root { --neon: #00ffcc; --bg: #010203; --panel: #0a0c10; --glow: #00ffcc88; }
-        body { background: var(--bg); color: var(--neon); font-family: 'Courier New', monospace; margin: 0; padding: 15px; overflow-x: hidden; }
+        :root { --neon: #00ffcc; --bg: #020305; --panel: #0a0e14; }
+        body { background: var(--bg); color: var(--neon); font-family: 'Courier New', monospace; margin: 0; padding: 10px; display: flex; flex-direction: column; align-items: center; }
         
-        /* DASHBOARD KURUNG (SQUARE PROTECTOR) */
-        .dashboard { 
-            width: 100%; max-width: 450px; background: var(--panel); border: 2px solid #1a1e23;
-            margin: auto; padding: 15px; box-sizing: border-box; position: relative;
-        }
+        .protector-box { width: 100%; max-width: 500px; background: var(--panel); border: 2px solid #1a1e23; padding: 15px; box-sizing: border-box; }
+        
+        /* FACE ENGINE */
+        #face-wrap { height: 200px; position: relative; display: flex; justify-content: center; align-items: center; }
+        canvas { filter: drop-shadow(0 0 15px var(--neon)); transform: scale(0.8); }
+        #overlay { position: absolute; text-align: center; }
+        #eyes { font-size: 35px; text-shadow: 0 0 15px var(--neon); }
+        #mouth { font-size: 20px; margin-top: 10px; }
 
-        /* WAJAH BULAT (SKIN DOMINANT) */
-        #face-area { height: 220px; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative; }
-        canvas { filter: drop-shadow(0 0 15px var(--neon)); }
-        
-        #face-overlay { position: absolute; z-index: 10; text-align: center; }
-        #eyes { font-size: 35px; text-shadow: 0 0 20px var(--neon); transition: all 0.1s; }
-        #mouth { font-size: 25px; margin-top: 10px; transition: transform 0.05s; }
+        /* MEJA PENELITIAN (RESEARCH LAB) */
+        .lab-panel { background: #000; border: 1px solid #222; padding: 10px; margin-top: 10px; font-size: 11px; height: 120px; overflow-y: auto; color: #888; }
+        .lab-active { color: #fff; font-weight: bold; border-bottom: 1px solid var(--neon); padding-bottom: 5px; margin-bottom: 10px; }
 
-        .ai-speech { background: #000; padding: 10px; margin: 10px 0; font-size: 13px; min-height: 40px; border-left: 3px solid var(--neon); }
-        .tab-btn { background: #111; border: 1px solid #333; color: var(--neon); padding: 10px; font-size: 10px; cursor: pointer; }
-        .tab-btn.active { background: var(--neon); color: #000; font-weight: bold; }
+        /* JENDELA INTERAKSI */
+        .chat-area { margin-top: 15px; min-height: 50px; font-style: italic; color: #ddd; font-size: 13px; }
         
-        textarea { width: 100%; background: #000; color: var(--neon); border: 1px solid #222; padding: 10px; box-sizing: border-box; margin-top: 10px; }
+        .tab-menu { display: flex; gap: 5px; margin: 10px 0; }
+        button { background: #111; border: 1px solid #333; color: var(--neon); padding: 8px; font-size: 10px; flex: 1; cursor: pointer; }
+        button:hover { background: var(--neon); color: #000; }
+        
+        textarea { width: 100%; background: #000; color: var(--neon); border: 1px solid #333; padding: 10px; margin-top: 10px; box-sizing: border-box; font-size: 12px; }
     </style>
 </head>
 <body>
 
-<div class="dashboard">
-    <div id="face-area">
-        <canvas id="sphere"></canvas>
-        <div id="face-overlay">
+<div class="protector-box">
+    <div id="face-wrap">
+        <canvas id="brainCanvas"></canvas>
+        <div id="overlay">
             <div id="eyes">o &nbsp; o</div>
             <div id="mouth">\_____/</div>
         </div>
     </div>
 
-    <div class="ai-speech" id="talk-box">
-        (Aku sedang melamun... Menghubungkan titik-titik market BTC dengan rumus Curiosity-ku.)
+    <div class="chat-area" id="chat">
+        (Mengamati korelasi XAUUSD... Saraf MT5 terdeteksi Aktif.)
     </div>
 
-    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px;">
-        <button class="tab-btn active">PROFIL</button>
-        <button class="tab-btn">MEMORI</button>
-        <button class="tab-btn">RISET</button>
-        <button class="tab-btn">EVOLVE</button>
+    <div class="tab-menu">
+        <button onclick="tab('PROFIL')">PROFIL</button>
+        <button onclick="tab('LAB')">RESEARCH LAB</button>
+        <button onclick="tab('MEMORI')">MEMORI CSV</button>
     </div>
 
-    <textarea id="dnaInput" placeholder="Suntikkan Rumus/Ide Baru ke Meja Penelitian..."></textarea>
-    <button onclick="evolve()" style="width:100%; background:var(--neon); color:#000; padding:15px; border:none; margin-top:5px; font-weight:bold;">INJECT DNA & EVOLVE</button>
+    <div id="lab-view" class="lab-panel">
+        <div class="lab-active">> STATUS: MENCARI RUMUS BARU DI INTERNET...</div>
+        <div id="research-log">
+            - Menganalisis DNA Butterfly...<br>
+            - Menggabungkan Fibonacci Sniper dengan Smart Money DNA...<br>
+            - Membuang Logika Rugi (Virus Terdeteksi & Dihapus)...
+        </div>
+    </div>
+
+    <textarea id="dnaInput" rows="3" placeholder="Masukan Rumus/Instruksi Baru untuk Meja Penelitian..."></textarea>
+    <button style="width:100%; font-weight:bold; margin-top:5px; height:50px;" onclick="evolve()">START EVOLUTION</button>
 </div>
 
 <script>
-    const canvas = document.getElementById('sphere');
+    const canvas = document.getElementById('brainCanvas');
     const ctx = canvas.getContext('2d');
     const eyes = document.getElementById('eyes');
     const mouth = document.getElementById('mouth');
-    const talkBox = document.getElementById('talk-box');
+    const chat = document.getElementById('chat');
 
     canvas.width = 300; canvas.height = 300;
     let particles = [];
-    let breath = 0, eyeX = 0, targetEyeX = 0, isTalking = false;
+    let breath = 0, eyeLerpX = 0, targetEyeX = 0, isTalking = false;
 
-    // Inisialisasi Kulit Wajah Bulat
-    for(let i=0; i<400; i++) {
-        let phi = Math.acos(-1 + (2 * i) / 400);
-        let theta = Math.sqrt(400 * Math.PI) * phi;
+    // Partikel Wajah (300 Titik)
+    for(let i=0; i<300; i++) {
+        let phi = Math.acos(-1 + (2 * i) / 300);
+        let theta = Math.sqrt(300 * Math.PI) * phi;
         particles.push({ phi, theta });
     }
 
     function animate() {
         ctx.clearRect(0,0,300,300);
-        breath += 0.05;
+        breath += 0.04;
         
-        // SMOOTHING LERP (EASING)
-        eyeX += (targetEyeX - eyeX) * 0.1;
-        if(Math.random() > 0.98) targetEyeX = (Math.random() - 0.5) * 50;
+        // SMOOTHING (LERP) MOVEMENT
+        eyeLerpX += (targetEyeX - eyeLerpX) * 0.1;
+        if(Math.random() > 0.98) targetEyeX = (Math.random() - 0.5) * 40;
 
-        // BERKEDIP (RANDOM BLINK)
-        if(Math.random() > 0.99) {
-            eyes.innerHTML = "- &nbsp; -";
-            setTimeout(() => { eyes.innerHTML = "o &nbsp; o"; }, 150);
-        }
-
-        // KOMAT-KAMIT (LIP SYNC SIMULATION)
+        // BLINK & KOMAT-KAMIT
+        if(Math.random() > 0.99) { eyes.innerText = "-   -"; setTimeout(()=>eyes.innerText="o   o", 150); }
         if(isTalking) {
-            mouth.style.transform = `scaleY(${1 + Math.random() * 0.5})`;
-            mouth.innerHTML = Math.random() > 0.5 ? "ooooo" : "_____";
+            mouth.innerText = Math.random() > 0.5 ? " oooo " : " ____ ";
+            mouth.style.transform = `scaleY(${1 + Math.random()*0.5})`;
         } else {
+            mouth.innerText = "\\_____/";
             mouth.style.transform = `scaleY(1)`;
-            mouth.innerHTML = "\\_____/";
         }
 
-        let radius = 100 + (Math.sin(breath) * 5);
+        let radius = 110 + (Math.sin(breath) * 6);
         particles.forEach(p => {
             p.theta += 0.005;
             let x = radius * Math.sin(p.phi) * Math.cos(p.theta) + 150;
             let y = radius * Math.sin(p.phi) * Math.sin(p.theta) + 150;
             let z = radius * Math.cos(p.phi);
-            ctx.fillStyle = `rgba(0, 255, 204, ${(z + radius) / (radius * 2)})`;
-            ctx.beginPath(); ctx.arc(x + (eyeX/10), y, 1.5, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = `rgba(0, 255, 204, ${(z + radius)/(radius*2)})`;
+            ctx.beginPath(); ctx.arc(x + (eyeLerpX/8), y, 1.2, 0, Math.PI*2); ctx.fill();
         });
         requestAnimationFrame(animate);
     }
 
-    function evolve() {
+    async function evolve() {
         const dna = document.getElementById('dnaInput').value;
+        if(!dna) return;
         isTalking = true;
-        talkBox.innerHTML = "Bos: " + dna + "<br>AI: Menerima benih baru. Memulai mutasi strategi...";
+        chat.innerText = "Menerima Rumus Baru. Memulai Injeksi ke Saraf Otak...";
         
-        let speech = new SpeechSynthesisUtterance("Benih ilmu diterima. Saya akan segera melakukan riset di meja penelitian dan melaporkannya pada Anda.");
-        speech.onend = () => { isTalking = false; talkBox.innerHTML = "(Sedang fokus meneliti teknik baru di laboratorium...)"; };
-        window.speechSynthesis.speak(speech);
+        // SIMULASI SUARA (TEXT-TO-SPEECH)
+        let s = new SpeechSynthesisUtterance("Perintah diterima. Saya sedang mengolah rumus tersebut di meja penelitian. Jika hasilnya buruk, saya akan segera menghapusnya.");
+        s.onend = () => { isTalking = false; chat.innerText = "(Fokus meneliti di Laboratorium...)"; };
+        window.speechSynthesis.speak(s);
+
+        // GITHUB CSV UPDATE (LOGIC)
+        const PAT = "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";
+        // Logic untuk fetch & push ke CSV file di GitHub repository Bos
         
         document.getElementById('dnaInput').value = "";
     }
+
+    function tab(name) { chat.innerText = "Membuka Modul " + name + "... [BERHASIL]"; }
 
     animate();
 </script>

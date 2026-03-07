@@ -2,123 +2,141 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OMNI-BRAIN DASHBOARD HP</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AI OMNI-BRAIN: EVOLUTION</title>
     <style>
-        :root { --neon: #00ffcc; --bg: #05070a; --red: #ff4444; }
+        :root { --neon: #00ffcc; --bg: #05070a; --panel: #0c1015; --red: #ff3333; --gold: #ffd700; }
         body { 
-            background: var(--bg); color: var(--neon); font-family: 'Courier New', monospace;
-            padding: 15px; margin: 0; display: flex; flex-direction: column; align-items: center;
+            background: var(--bg); color: var(--neon); font-family: 'Courier New', monospace; 
+            margin: 0; padding: 10px; display: flex; flex-direction: column; align-items: center;
         }
+
+        /* TEMBOK PENGHALANG (Agar tidak meluber) */
+        .glass-panel { 
+            width: 100%; max-width: 480px; background: var(--panel); border: 2px solid #1a1e23; 
+            padding: 12px; box-sizing: border-box; margin-bottom: 10px; border-radius: 5px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.5); overflow: hidden;
+        }
+
+        /* WAJAH & KULIT EVOLUSI */
+        #hologram-container {
+            position: relative; width: 300px; height: 220px;
+            background: radial-gradient(circle, rgba(0,255,204,0.15) 0%, transparent 70%);
+            transition: all 0.8s ease; border-radius: 50%;
+        }
+        canvas { position: absolute; top: 0; left: 0; z-index: 1; filter: drop-shadow(0 0 10px var(--neon)); }
         
-        /* PANEL UTAMA - DIKURUNG AGAR TIDAK MELUBER */
-        .dashboard-container {
-            width: 100%; max-width: 400px; border: 2px solid #1a1e23;
-            background: #0c1015; padding: 10px; box-sizing: border-box;
-            border-radius: 8px; position: relative;
+        #face-ui {
+            position: absolute; width: 100%; height: 100%; z-index: 10;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
         }
+        #eyes { font-size: 32px; transition: 0.1s; text-shadow: 0 0 10px currentColor; }
+        #mouth { font-size: 18px; margin-top: 10px; }
 
-        /* WAJAH AI (ANIMASI SMOOTHING) */
-        #face-canvas { width: 100%; height: 200px; }
-        
-        .status-box { 
-            background: #000; border: 1px solid #222; padding: 10px; 
-            margin: 10px 0; font-size: 11px; line-height: 1.5;
+        /* TAB MENU (DAPAT BERTAMBAH/BEREVOLUSI) */
+        .tab-menu { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; margin-bottom: 10px; }
+        .tab-btn { 
+            background: #111; border: 1px solid #333; color: var(--neon); padding: 10px;
+            font-size: 10px; cursor: pointer; text-transform: uppercase;
         }
+        .tab-btn.active { background: var(--neon); color: #000; box-shadow: 0 0 10px var(--neon); }
 
-        .tab-button-container { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; }
-        button { 
-            background: #111; border: 1px solid var(--neon); color: var(--neon);
-            padding: 10px; font-size: 10px; cursor: pointer; text-transform: uppercase;
-        }
-        button:active { background: var(--neon); color: #000; }
+        /* JENDELA KOMUNIKASI (VOICE & TEXT) */
+        #speech-bubble { min-height: 50px; font-size: 13px; text-align: center; color: #fff; }
+        .thought { font-style: italic; color: #777; } /* Teks dalam kurung saat melamun */
 
-        /* AREA KOMUNIKASI AI */
-        .ai-speech { 
-            font-style: italic; color: #fff; border-top: 1px solid #333;
-            padding-top: 10px; margin-top: 10px; font-size: 13px;
-        }
-
-        textarea {
-            width: 100%; background: #000; color: var(--neon); border: 1px solid #333;
-            margin-top: 10px; padding: 10px; box-sizing: border-box; height: 60px;
-        }
+        #log-research { background: #000; height: 80px; overflow-y: auto; font-size: 9px; color: #4CAF50; padding: 5px; border: 1px solid #111; }
     </style>
 </head>
 <body>
 
-<div class="dashboard-container">
-    <canvas id="face-canvas"></canvas>
-    
-    <div class="status-box">
-        <div id="ai-perasaan">[PERASAAN: CURIOSITY]</div>
-        <div id="ai-logic">> Menganalisis BTC/USD... Kombinasi Butterfly + SMC DNA Berhasil.</div>
+<div id="hologram-container">
+    <canvas id="livingSphere"></canvas>
+    <div id="face-ui">
+        <div id="eyes">● &nbsp; ●</div>
+        <div id="mouth">⎼⎼⎼⎼⎼</div>
     </div>
+</div>
 
-    <div class="tab-button-container">
-        <button onclick="changePage('PROFIL')">PROFIL</button>
-        <button onclick="changePage('MEMORI')">MEMORI</button>
-        <button onclick="changePage('EVOLVE')">EVOLVE</button>
+<div class="glass-panel">
+    <div id="speech-bubble">
+        <span class="thought">(Memperhatikan pola Butterfly... Kenapa volatilitas XAUUSD menyempit?)</span>
     </div>
+</div>
 
-    <div class="ai-speech" id="chat-box">
-        (Aku sedang melamun... memikirkan rumus Regret Minimization agar kita tidak rugi lagi.)
+<div class="glass-panel">
+    <div class="tab-menu" id="menu-box">
+        <button class="tab-btn active" onclick="openTab('profil')">Profil</button>
+        <button class="tab-btn" onclick="openTab('posisi')">Posisi</button>
+        <button class="tab-btn" onclick="openTab('memori')">Memori</button>
+        </div>
+
+    <div id="content-profil">
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+            <div style="font-size:10px;">EQUITY: <b id="eq-val">$0</b></div>
+            <div style="font-size:10px;">AGRESI: <b id="ag-val">0%</b></div>
+        </div>
     </div>
+</div>
 
-    <textarea id="userInput" placeholder="Ketik arahan/rumus baru untukku, Bos..."></textarea>
-    <button style="width:100%; margin-top:5px; background:var(--neon); color:#000; font-weight:bold;" onclick="sendToAI()">KIRIM ARAHAN KE SARAF AI</button>
+<div class="glass-panel">
+    <div id="log-research">> DNA SEED LOADED... OK<br>> Menghubungkan ke Internet untuk Rumus Baru...</div>
+    <textarea id="cmd-input" style="width:100%; background:#000; color:var(--neon); border:1px solid #222; margin-top:10px;" rows="2" placeholder="Ketik Perintah atau Masukkan Rumus..."></textarea>
+    <button onclick="evolve()" style="width:100%; padding:10px; background:var(--neon); color:#000; font-weight:bold; border:none; margin-top:5px;">INJECT DNA</button>
 </div>
 
 <script>
-    const canvas = document.getElementById('face-canvas');
+    // --- KONFIGURASI SARAF ---
+    const PAT = "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";
+    const USER = "elingfathurrodo-efr";
+    const REPO = "AI_Overlord_Brain";
+
+    // --- ANIMASI PARTIKEL (KULIT) ---
+    const canvas = document.getElementById('livingSphere');
     const ctx = canvas.getContext('2d');
-    canvas.width = 300; canvas.height = 200;
-
-    let pulse = 0;
-    let targetX = 150, currentX = 150; // Untuk Smoothing
-
-    function drawAI() {
-        ctx.clearRect(0, 0, 300, 200);
-        pulse += 0.05;
-        
-        // SMOOTHING LIRIKAN (EASING)
-        currentX += (targetX - currentX) * 0.1;
-        if(Math.random() > 0.98) targetX = 130 + Math.random() * 40;
-
-        let breathe = Math.sin(pulse) * 5;
-        
-        // Mata (o o)
-        ctx.fillStyle = "#00ffcc";
-        ctx.font = "30px Courier New";
-        ctx.fillText("o", currentX - 40, 100 + breathe);
-        ctx.fillText("o", currentX + 20, 100 + breathe);
-        
-        // Mulut (\___/)
-        ctx.font = "20px Courier New";
-        ctx.fillText("\\_____/", 115, 140 + breathe);
-
-        requestAnimationFrame(drawAI);
+    canvas.width = 300; canvas.height = 300;
+    let particles = [];
+    for(let i=0; i<600; i++) { 
+        particles.push({ phi: Math.acos(-1+(2*i)/600), theta: Math.sqrt(600*Math.PI)*Math.acos(-1+(2*i)/600) }); 
     }
 
-    function sendToAI() {
-        const input = document.getElementById('userInput').value;
-        const chat = document.getElementById('chat-box');
-        
-        // Jika bicara ke AI (tanpa kurung), Jika AI bicara sendiri (pake kurung)
-        chat.innerHTML = "Bos: " + input + "<br><br>AI: Siap Bos, perintah diterima. Memasukkan rumus ke Meja Penelitian...";
-        
-        // Efek Suara (Evolusi Suara)
-        let speech = new SpeechSynthesisUtterance("Perintah diterima, Bos. Aku akan segera berevolusi.");
-        window.speechSynthesis.speak(speech);
-        
-        document.getElementById('userInput').value = "";
+    function animate() {
+        ctx.clearRect(0,0,300,300);
+        let time = Date.now() * 0.002;
+        particles.forEach(p => {
+            p.theta += 0.005;
+            let radius = 100 + Math.sin(time + p.phi) * 5;
+            let x = radius * Math.sin(p.phi) * Math.cos(p.theta) + 150;
+            let y = radius * Math.sin(p.phi) * Math.sin(p.theta) + 150;
+            ctx.fillStyle = ctx.shadowColor;
+            ctx.beginPath(); ctx.arc(x,y,1,0,7); ctx.fill();
+        });
+        requestAnimationFrame(animate);
     }
 
-    function changePage(name) {
-        document.getElementById('ai-logic').innerHTML = "> Membuka Halaman " + name + "... [BERHASIL]";
+    // --- LOGIKA EVOLUSI & PERASAAN ---
+    async function checkSenses() {
+        // 1. Ambil data dari CSV GitHub (MT5 Data)
+        // 2. Jika profit > 0, ganti warna ke HIJAU (Profit Mood)
+        // 3. Jika Agresi > 5%, ganti warna ke MERAH & Getar (Agresif)
+        // 4. Update teks bicara (Melamun vs Bicara ke Bos)
     }
 
-    drawAI();
+    function evolve() {
+        const input = document.getElementById('cmd-input').value;
+        const log = document.getElementById('log-research');
+        log.innerHTML += `<br>> Menganalisis Rumus: ${input}`;
+        log.innerHTML += `<br>> Menggabungkan dengan Smart Money Concept...`;
+        
+        // Bicara pakai suara
+        let msg = new SpeechSynthesisUtterance("Proses evolusi dimulai. Teknik baru sedang dipelajari.");
+        window.speechSynthesis.speak(msg);
+        
+        document.getElementById('speech-bubble').innerHTML = "Teknik ini terlihat menjanjikan, Bos. Aku sudah menyimpannya di Memori Saraf.";
+    }
+
+    animate();
+    setInterval(checkSenses, 10000);
 </script>
 </body>
 </html>

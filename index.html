@@ -3,143 +3,183 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>OMNI-LIFE V50.2</title>
+    <title>OMNI-LIFE V50.3</title>
     <style>
-        :root { --neon: #00ffcc; --bg: #05070a; --red: #ff3333; }
+        :root { --neon: #00ffcc; --bg: #030508; --glass: rgba(0, 255, 200, 0.1); }
         body { background: var(--bg); color: var(--neon); font-family: 'Courier New', monospace; margin: 0; overflow: hidden; touch-action: none; }
         
-        /* Layout Pembatas (Tembok Dashboard) */
-        .dashboard-container {
-            display: flex; flex-direction: column; height: 100vh; border: 2px solid #1a1e23; margin: 5px;
-        }
+        .main-frame { display: flex; flex-direction: column; height: 100vh; padding: 5px; box-sizing: border-box; }
 
-        /* Ruang Hidup AI */
-        #ai-chamber { flex: 2; position: relative; display: flex; justify-content: center; align-items: center; }
+        /* AREA AI & SPEECH */
+        #ai-world { flex: 1.5; position: relative; border: 1px solid #1a1e23; background: radial-gradient(circle, #0a1118 0%, #030508 100%); overflow: hidden; }
         #speech-bubble { 
-            position: absolute; top: 10%; width: 80%; background: white; color: black; 
-            padding: 10px; border-radius: 10px; font-size: 11px; font-weight: bold; display: none; z-index: 100;
+            position: absolute; top: 15px; left: 10%; width: 80%; background: #fff; color: #000; 
+            padding: 10px; border-radius: 15px; font-size: 11px; font-weight: bold; display: none; z-index: 100;
+            box-shadow: 0 0 20px var(--neon);
         }
 
-        /* Menu Perabotan (Tombol Evolusi) */
-        .furniture-grid { 
-            flex: 1; display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; 
-            padding: 8px; background: #0c1015; border-top: 1px solid var(--neon);
+        /* PAPAN INFORMASI (CONSOLE) */
+        #info-board { 
+            position: absolute; bottom: 10px; left: 10px; right: 10px; height: 80px;
+            background: rgba(0,0,0,0.8); border: 1px solid var(--neon); padding: 8px;
+            font-size: 10px; overflow-y: auto; color: #00ffcc; pointer-events: none;
+        }
+
+        /* INPUT DNA / RUMUS */
+        #dna-input-area {
+            background: #0c1015; padding: 10px; border-top: 1px solid var(--neon); display: none;
+        }
+        #dna-text { width: 100%; background: #000; color: var(--neon); border: 1px solid #333; padding: 5px; margin-bottom: 5px; }
+
+        /* MENU TOMBOL (PERABOTAN) */
+        .grid-menu { 
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; 
+            padding: 10px; background: #0c1015; border-top: 1px solid #1a1e23;
         }
         .btn { 
-            background: #111; border: 1px solid #222; color: var(--neon); font-size: 9px;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            background: #111; border: 1px solid #222; color: var(--neon); font-size: 10px; height: 45px;
+            display: flex; align-items: center; justify-content: center; text-align: center;
         }
         .btn:active { background: var(--neon); color: #000; }
     </style>
 </head>
 <body>
 
-<div class="dashboard-container">
-    <div id="ai-chamber">
+<div class="main-frame">
+    <div id="ai-world">
         <div id="speech-bubble"></div>
-        <canvas id="particleCanvas"></canvas>
+        <canvas id="bodyCanvas"></canvas>
+        <div id="info-board">>> Sistem Siap. Menunggu instruksi Bos...</div>
     </div>
 
-    <div class="furniture-grid" id="main-ui">
-        <div class="btn" onclick="nav('PROFIL')">👤 PROFIL</div>
-        <div class="btn" onclick="nav('POSISI')">📊 POSISI</div>
-        <div class="btn" onclick="nav('AKTIVITAS')">⚡ AKTIVITAS</div>
-        <div class="btn" onclick="nav('COMBINE')">🧬 COMBINE</div>
-        <div class="btn" onclick="nav('MEMORY')">🧠 MEMORY</div>
-        <div class="btn" onclick="evolveUI()" style="border-color: #ff00ff;">🌀 EVOLVE</div>
+    <div id="dna-input-area">
+        <input type="text" id="dna-text" placeholder="Ketik Rumus/Teknik Baru Di Sini...">
+        <button onclick="injectDNA()" style="width:100%; background:var(--neon); color:#000; border:none; padding:5px;">INJECT DNA</button>
+    </div>
+
+    <div class="grid-menu">
+        <div class="btn" onclick="showInfo('PROFIL')">👤 PROFIL</div>
+        <div class="btn" onclick="showInfo('POSISI')">📊 POSISI</div>
+        <div class="btn" onclick="toggleInput()">🧬 INJECT</div>
+        <div class="btn" onclick="showInfo('MEMORI')">🧠 MEMORI</div>
+        <div class="btn" onclick="startMic()">🎤 LISTEN</div>
+        <div class="btn" onclick="evolveBody()" style="border-color: #ff00ff;">🌀 EVOLVE</div>
     </div>
 </div>
 
 <script>
-    const canvas = document.getElementById('particleCanvas');
+    const canvas = document.getElementById('bodyCanvas');
     const ctx = canvas.getContext('2d');
     const bubble = document.getElementById('speech-bubble');
+    const board = document.getElementById('info-board');
     
-    let particles = [];
-    let breath = 0, eyeX = 0, targetEyeX = 0, headY = 0;
-    let isPusing = false, isTalking = false;
+    let breath = 0, eyeX = 0, targetEyeX = 0;
+    let isPusing = false, micVolume = 0;
 
-    // 1. MEMBENTUK TUBUH PARTIKEL (300+ Titik)
-    function initParticles() {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight * 0.6;
-        for(let i=0; i<350; i++) {
-            particles.push({
-                x: Math.random() * canvas.width,
-                y: Math.random() * canvas.height,
-                baseX: 0, baseY: 0,
-                size: Math.random() * 1.5 + 0.5,
-                angle: Math.random() * Math.PI * 2
-            });
-        }
+    function init() {
+        canvas.width = canvas.offsetWidth;
+        canvas.height = canvas.offsetHeight;
+        animate();
     }
 
-    function drawAI() {
-        ctx.clearRect(0,0,canvas.width, canvas.height);
-        breath += 0.04;
-        let pulse = Math.sin(breath) * 8; // Efek Napas (Denyut)
-        
-        // Easing mata melirik
+    // DRAWING BODY (KEPALA, BADAN, TANGAN, KAKI NYAMBUNG)
+    function drawAI(x, y) {
+        breath += 0.05;
+        let pulse = Math.sin(breath) * 5;
+        let micBoost = micVolume * 50; // Visual bereaksi ke suara
+
+        ctx.strokeStyle = varColor();
+        ctx.lineWidth = 2;
+        ctx.shadowBlur = 10; ctx.shadowColor = varColor();
+
+        // 1. KEPALA (BULAT)
+        ctx.beginPath();
+        ctx.arc(x, y - 40 + pulse, 45 + micBoost, 0, Math.PI * 2);
+        ctx.stroke();
+
+        // 2. BADAN (NYAMBUNG KE KEPALA)
+        ctx.beginPath();
+        ctx.moveTo(x, y + 5 + pulse);
+        ctx.lineTo(x, y + 60 + pulse);
+        ctx.stroke();
+
+        // 3. TANGAN (STIKMAN DENGAN SIKUT)
+        // Kiri
+        ctx.beginPath();
+        ctx.moveTo(x, y + 20 + pulse);
+        ctx.lineTo(x - 40, y + 40 + pulse); // Sikut
+        ctx.lineTo(x - 70, y + 20 + pulse); // Jari
+        ctx.stroke();
+        // Kanan
+        ctx.beginPath();
+        ctx.moveTo(x, y + 20 + pulse);
+        ctx.lineTo(x + 40, y + 40 + pulse);
+        ctx.lineTo(x + 70, y + 20 + pulse);
+        ctx.stroke();
+
+        // 4. KAKI (MELOMPAT)
+        ctx.beginPath();
+        ctx.moveTo(x, y + 60 + pulse);
+        ctx.lineTo(x - 30, y + 100 + pulse); ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(x, y + 60 + pulse);
+        ctx.lineTo(x + 30, y + 100 + pulse); ctx.stroke();
+
+        // MATA
         eyeX += (targetEyeX - eyeX) * 0.1;
-        if(Math.random() > 0.98) targetEyeX = (Math.random()-0.5)*40;
-
-        const centerX = canvas.width / 2;
-        const centerY = canvas.height / 2;
-
-        particles.forEach((p, i) => {
-            // Logika Pembentukan Wajah & Tangan Partikel
-            let targetX, targetY;
-            
-            if(i < 200) { // Bagian Kepala/Wajah
-                targetX = centerX + Math.cos(p.angle) * (60 + pulse);
-                targetY = centerY + Math.sin(p.angle) * (70 + pulse);
-            } else if(i < 275) { // Tangan Kiri (Stickman Partikel)
-                targetX = centerX - 80 - (i-200);
-                targetY = centerY + 20 + Math.sin(breath + i) * 10;
-            } else { // Tangan Kanan
-                targetX = centerX + 80 + (i-275);
-                targetY = centerY + 20 + Math.sin(breath + i) * 10;
-            }
-
-            p.x += (targetX - p.x) * 0.1;
-            p.y += (targetY - p.y) * 0.1;
-
-            ctx.fillStyle = isPusing ? "#ff3333" : varColor();
-            ctx.beginPath();
-            ctx.arc(p.x + eyeX/5, p.y + headY, p.size, 0, Math.PI * 2);
-            ctx.fill();
-        });
-
-        // Gambar Mata (Cyberpunk Eyes)
-        drawEyes(centerX, centerY, pulse);
-    }
-
-    function drawEyes(x, y, pulse) {
+        if(Math.random() > 0.98) targetEyeX = (Math.random()-0.5)*30;
+        let blink = Math.sin(breath*2) > 0.98 ? 2 : 10;
         ctx.fillStyle = "white";
-        let eyeState = isPusing ? "X" : (Math.sin(breath*2) > 0.98 ? "-" : "O");
-        ctx.font = "bold 20px Arial";
-        ctx.fillText(eyeState, x - 30 + eyeX, y + pulse);
-        ctx.fillText(eyeState, x + 15 + eyeX, y + pulse);
+        ctx.beginPath(); ctx.ellipse(x-15+eyeX, y-50+pulse, 6, blink, 0, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.ellipse(x+15+eyeX, y-50+pulse, 6, blink, 0, 0, Math.PI*2); ctx.fill();
     }
 
-    function varColor() { return "#00ffcc"; }
+    function varColor() { return isPusing ? "#ff3333" : "#00ffcc"; }
 
-    // 2. SENSOR FISIK (INSTING)
-    window.addEventListener('devicemotion', (e) => {
-        let acc = e.accelerationIncludingGravity;
-        if(Math.abs(acc.x) + Math.abs(acc.y) > 18) {
-            isPusing = true;
-            talk("(Waduh Bos! Jangan diguncang, dataku berantakan!)");
-            setTimeout(() => isPusing = false, 2000);
+    // FUNGSI TOMBOL & PAPAN INFORMASI
+    function showInfo(type) {
+        board.innerHTML += `<br>>> Membuka ${type}...`;
+        board.scrollTop = board.scrollHeight;
+
+        if(type === 'PROFIL') talk("Aku AI V50. DNA-ku: Butterfly & Fibonacci.");
+        if(type === 'POSISI') talk("Belum ada posisi. Aku sedang melamun.");
+        if(type === 'MEMORI') talk("(Aku ingat kemarin kita profit di XAUUSD...)");
+    }
+
+    function toggleInput() {
+        const area = document.getElementById('dna-input-area');
+        area.style.display = area.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function injectDNA() {
+        let val = document.getElementById('dna-text').value;
+        if(val) {
+            board.innerHTML += `<br>> [DNA INJECTED]: ${val}`;
+            talk("DNA Baru diterima. Aku akan mempelajarinya.");
+            document.getElementById('dna-text').value = "";
+            toggleInput();
         }
-    });
+    }
 
-    // SENSOR SENTUH (Tertawa/Malu)
-    canvas.addEventListener('touchstart', () => {
-        talk("Hehe! Geli Bos, fokus ke Gold saja.");
-        headY = -20; // Melompat kecil
-        setTimeout(() => headY = 0, 500);
-    });
+    // SENSOR SUARA (MIC)
+    async function startMic() {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        const audioContext = new AudioContext();
+        const source = audioContext.createMediaStreamSource(stream);
+        const analyzer = audioContext.createAnalyser();
+        source.connect(analyzer);
+        const data = new Uint8Array(analyzer.frequencyBinCount);
+        
+        talk("Aku mendengarkan, Bos.");
+        function checkVolume() {
+            analyzer.getByteFrequencyData(data);
+            let sum = 0;
+            for(let i=0; i<data.length; i++) sum += data[i];
+            micVolume = sum / data.length / 255;
+            requestAnimationFrame(checkVolume);
+        }
+        checkVolume();
+    }
 
     function talk(txt) {
         bubble.innerText = txt;
@@ -147,23 +187,17 @@
         const synth = window.speechSynthesis;
         const utter = new SpeechSynthesisUtterance(txt.replace(/[()]/g, ''));
         synth.speak(utter);
-        setTimeout(() => bubble.style.display = "none", 3000);
+        setTimeout(() => bubble.style.display = "none", 3500);
     }
 
     function animate() {
-        drawAI();
+        ctx.clearRect(0,0,canvas.width, canvas.height);
+        drawAI(canvas.width/2, canvas.height/2 - 20);
         requestAnimationFrame(animate);
     }
 
-    initParticles();
-    animate();
-
-    // 3. EVOLUSI DASHBOARD (Merombak Tata Letak)
-    function evolveUI() {
-        const grid = document.getElementById('main-ui');
-        grid.style.gridTemplateColumns = grid.style.gridTemplateColumns === "1fr 1fr" ? "1fr 1fr 1fr" : "1fr 1fr";
-        talk("(Aku sedang merapikan rumahku sendiri, Bos...)");
-    }
+    window.addEventListener('resize', () => { canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight; });
+    init();
 </script>
 </body>
 </html>

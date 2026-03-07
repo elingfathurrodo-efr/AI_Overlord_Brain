@@ -1,59 +1,68 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=0.8, maximum-scale=1.0, user-scalable=no">
-    <title>OMNI-AI LIVING EVOLUTION</title>
-    <style>
-        :root { --neon: #00ffcc; --bg: #05070a; --panel: #0c1015; --red: #ff3333; }
-        body { background: var(--bg); color: var(--neon); font-family: 'Courier New', monospace; padding: 10px; display: flex; flex-direction: column; align-items: center; }
-        #hologram-container { position: relative; width: 300px; height: 160px; display: flex; justify-content: center; align-items: center; }
-        canvas { position: absolute; z-index: 1; filter: drop-shadow(0 0 10px var(--neon)); transform: scale(0.6); }
-        #face-box { position: absolute; width: 150px; height: 100px; z-index: 10; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        #eyes { font-size: 28px; font-weight: bold; text-shadow: 0 0 15px currentColor; }
-        .glass-panel { width: 100%; max-width: 480px; background: var(--panel); border: 1px solid #1a1e23; padding: 15px; box-sizing: border-box; margin-bottom: 8px; }
-        .biometric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-        .stat-box { background: #000; border: 1px solid #1a1e23; padding: 10px; }
-        .stat-label { font-size: 9px; opacity: 0.5; }
-        .stat-value { font-size: 14px; font-weight: bold; display: block; }
-        .glitch { animation: shake 0.2s infinite; }
-        @keyframes shake { 0% { transform: translate(0); } 25% { transform: translate(2px,-2px); } 50% { transform: translate(-2px,2px); } 100% { transform: translate(0); } }
-    </style>
-</head>
-<body>
-
-<div id="hologram-container">
-    <canvas id="livingSphere"></canvas>
-    <div id="face-box"><div id="eyes">o &nbsp; o</div><div id="mouth">\_____/</div></div>
-</div>
-
-<div class="glass-panel">
-    <div id="ai-mood" style="text-align:center; font-size:20px; margin-bottom:10px;">( ° _ ° )</div>
-    <div id="ai-speech" style="font-size:12px; color:#fff; text-align:center;">[DNA: STANDBY] Menunggu Saraf MT5...</div>
-</div>
-
-<div class="glass-panel">
-    <div class="biometric-grid">
-        <div class="stat-box"><span class="stat-label">EQUITY</span><span class="stat-value" id="eq-val">$0.00</span></div>
-        <div class="stat-box"><span class="stat-label">FLOATING</span><span class="stat-value" id="fl-val">$0.00</span></div>
-        <div class="stat-box"><span class="stat-label">SYMBOL</span><span class="stat-value" id="sym-val">-</span></div>
-        <div class="stat-box"><span class="stat-label">AGGRESSION</span><span class="stat-value" id="ag-val">0%</span></div>
-    </div>
-</div>
-
-<div class="glass-panel">
-    <textarea id="userInput" style="width:100%; background:#000; color:var(--neon); border:1px solid #333; padding:10px;" rows="2" placeholder="Kirim Perintah/Rumus..."></textarea>
-    <button onclick="sendToAI()" style="width:100%; padding:10px; background:var(--neon); color:#000; font-weight:bold; margin-top:5px; border:none;">EVOLVE DNA</button>
-</div>
-
 <script>
     const PAT = "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";
-    const USER = "elingfathurrodo-efr"; const REPO = "AI_Overlord_Brain"; const FILE = "Living_Evolution.csv";
+    const USER = "elingfathurrodo-efr"; 
+    const REPO = "AI_Overlord_Brain"; 
+    const FILE = "Living_Evolution.csv";
+
+    // --- VARIABEL MOTORIK (MATA & KEPALA) ---
+    const eyes = document.getElementById('eyes');
+    const faceBox = document.getElementById('face-box');
+    let eyeX = 0, eyeY = 0, targetEyeX = 0, targetEyeY = 0;
+    let headY = 0, breath = 0;
+
+    // --- ANIMASI PARTIKEL ---
+    const canvas = document.getElementById('livingSphere'); 
+    const ctx = canvas.getContext('2d');
+    canvas.width = 300; canvas.height = 300; 
+    let particles = [];
+    for(let i=0; i<400; i++) { 
+        particles.push({ 
+            phi: Math.acos(-1+(2*i)/400), 
+            theta: Math.sqrt(400*Math.PI)*Math.acos(-1+(2*i)/400) 
+        }); 
+    }
+
+    function anim() {
+        ctx.clearRect(0,0,300,300);
+        breath += 0.05;
+
+        // 1. LOGIKA MATA MELIRIK (SCANNING)
+        if (Math.random() > 0.98) { // Peluang melirik setiap frame
+            targetEyeX = (Math.random() - 0.5) * 40; 
+            targetEyeY = (Math.random() - 0.5) * 15;
+        }
+        
+        // Pergerakan halus (Easing)
+        eyeX += (targetEyeX - eyeX) * 0.1;
+        eyeY += (targetEyeY - eyeY) * 0.1;
+
+        // 2. LOGIKA BREATHING (MENGANGGUK PELAN)
+        headY = Math.sin(breath) * 5;
+
+        // Terapkan ke DOM Mata & Canvas
+        eyes.style.transform = `translate(${eyeX}px, ${eyeY + headY}px)`;
+        canvas.style.transform = `rotateY(${eyeX/4}deg) translateY(${headY/2}px)`;
+
+        // Gambar Partikel
+        let radius = 100 + (Math.sin(breath) * 5);
+        particles.forEach(p => {
+            p.theta += 0.008;
+            let x = radius * Math.sin(p.phi) * Math.cos(p.theta) + 150;
+            let y = radius * Math.sin(p.phi) * Math.sin(p.theta) + 150;
+            let z = radius * Math.cos(p.phi);
+            ctx.globalAlpha = (z + radius) / (radius * 2);
+            ctx.fillStyle = "#00ffcc"; 
+            ctx.beginPath(); ctx.arc(x,y,1.2,0,Math.PI*2); ctx.fill();
+        }); 
+        requestAnimationFrame(anim);
+    }
 
     // --- SYNC DATA DARI MT5 ---
     async function updateAI() {
         try {
-            const res = await fetch(`https://api.github.com/repos/${USER}/${REPO}/contents/${FILE}`, { headers: {"Authorization": `token ${PAT}`, "Cache-Control": "no-cache"} });
+            const res = await fetch(`https://api.github.com/repos/${USER}/${REPO}/contents/${FILE}`, { 
+                headers: {"Authorization": `token ${PAT}`, "Cache-Control": "no-cache"} 
+            });
             const data = await res.json();
             const val = atob(data.content).split(',');
             
@@ -62,32 +71,18 @@
             document.getElementById('sym-val').innerText = val[2];
             document.getElementById('ag-val').innerText = (parseFloat(val[3])*100).toFixed(2) + "%";
             
-            // Perasaan AI berdasarkan Agresi
-            if(parseFloat(val[3]) > 0.05) {
-                document.getElementById('ai-mood').innerText = "┌( ಠ_ಠ )┘";
-                document.getElementById('face-box').classList.add('glitch');
-                document.getElementById('ai-speech').innerText = "(Aku mendeteksi anomali, meningkatkan agresivitas teknik!)";
+            // Reaksi Perasaan
+            if(parseFloat(val[1]) < 0) {
+                document.getElementById('ai-mood').innerText = "( >_<)"; // Cemas kalau floating minus
+                faceBox.classList.add('glitch');
             } else {
-                document.getElementById('ai-mood').innerText = "( ° _ ° )";
-                document.getElementById('face-box').classList.remove('glitch');
+                document.getElementById('ai-mood').innerText = "( ° _ ° )"; // Tenang kalau profit
+                faceBox.classList.remove('glitch');
             }
-        } catch(e) { console.log("Sync..."); }
+        } catch(e) { console.log("Re-syncing saraf..."); }
     }
 
-    // --- ANIMASI PARTIKEL ---
-    const canvas = document.getElementById('livingSphere'); const ctx = canvas.getContext('2d');
-    canvas.width = 300; canvas.height = 300; let particles = [];
-    for(let i=0; i<400; i++) { particles.push({ phi: Math.acos(-1+(2*i)/400), theta: Math.sqrt(400*Math.PI)*Math.acos(-1+(2*i)/400) }); }
-    function anim() {
-        ctx.clearRect(0,0,300,300);
-        particles.forEach(p => {
-            p.theta += 0.008;
-            let x = 100 * Math.sin(p.phi) * Math.cos(p.theta) + 150;
-            let y = 100 * Math.sin(p.phi) * Math.sin(p.theta) + 150;
-            ctx.fillStyle = "#00ffcc"; ctx.globalAlpha = 0.6; ctx.beginPath(); ctx.arc(x,y,1,0,7); ctx.fill();
-        }); requestAnimationFrame(anim);
-    } anim();
-    setInterval(updateAI, 15000); updateAI();
+    anim(); // Jalankan animasi
+    setInterval(updateAI, 15000); // Sinkron data setiap 15 detik
+    updateAI();
 </script>
-</body>
-</html>

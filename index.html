@@ -3,201 +3,227 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>OMNI-LIFE V50.3</title>
+    <title>OMNI-LIFE V50.6</title>
     <style>
-        :root { --neon: #00ffcc; --bg: #030508; --glass: rgba(0, 255, 200, 0.1); }
-        body { background: var(--bg); color: var(--neon); font-family: 'Courier New', monospace; margin: 0; overflow: hidden; touch-action: none; }
-        
-        .main-frame { display: flex; flex-direction: column; height: 100vh; padding: 5px; box-sizing: border-box; }
-
-        /* AREA AI & SPEECH */
-        #ai-world { flex: 1.5; position: relative; border: 1px solid #1a1e23; background: radial-gradient(circle, #0a1118 0%, #030508 100%); overflow: hidden; }
-        #speech-bubble { 
-            position: absolute; top: 15px; left: 10%; width: 80%; background: #fff; color: #000; 
-            padding: 10px; border-radius: 15px; font-size: 11px; font-weight: bold; display: none; z-index: 100;
-            box-shadow: 0 0 20px var(--neon);
+        :root { --neon: #00ffcc; --bg: #010203; --alert: #ff3333; }
+        * { box-sizing: border-box; }
+        body { 
+            background: var(--bg); color: var(--neon); font-family: 'Courier New', monospace; 
+            margin: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden;
         }
 
-        /* PAPAN INFORMASI (CONSOLE) */
-        #info-board { 
-            position: absolute; bottom: 10px; left: 10px; right: 10px; height: 80px;
-            background: rgba(0,0,0,0.8); border: 1px solid var(--neon); padding: 8px;
-            font-size: 10px; overflow-y: auto; color: #00ffcc; pointer-events: none;
+        /* AREA VISUAL */
+        #viewport { flex: 1.5; position: relative; border-bottom: 1px solid #111; overflow: hidden; }
+        #speech { 
+            position: absolute; top: 15px; width: 80%; left: 10%; background: rgba(255,255,255,0.9); 
+            color: #000; padding: 10px; border-radius: 12px; font-size: 11px; 
+            font-weight: bold; display: none; z-index: 100; text-align: center; box-shadow: 0 0 15px var(--neon);
+        }
+        canvas { width: 100%; height: 100%; }
+
+        /* KONSOL LOG */
+        #console { 
+            height: 50px; background: #000; border: 1px solid #1a1e23; 
+            margin: 5px; padding: 5px; font-size: 9px; overflow-y: auto; color: #00ffcc;
         }
 
-        /* INPUT DNA / RUMUS */
-        #dna-input-area {
-            background: #0c1015; padding: 10px; border-top: 1px solid var(--neon); display: none;
-        }
-        #dna-text { width: 100%; background: #000; color: var(--neon); border: 1px solid #333; padding: 5px; margin-bottom: 5px; }
+        /* INPUT AREA */
+        #dna-box { padding: 5px; background: #0c1015; display: none; border-top: 1px solid var(--neon); }
+        #dna-box input { width: 70%; background: #000; color: var(--neon); border: 1px solid #333; padding: 8px; font-size: 12px; }
 
-        /* MENU TOMBOL (PERABOTAN) */
-        .grid-menu { 
-            display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; 
-            padding: 10px; background: #0c1015; border-top: 1px solid #1a1e23;
+        /* NAVIGASI TOMBOL */
+        .controls { 
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; 
+            padding: 8px; background: #0c1015; border-top: 2px solid var(--neon);
         }
         .btn { 
-            background: #111; border: 1px solid #222; color: var(--neon); font-size: 10px; height: 45px;
-            display: flex; align-items: center; justify-content: center; text-align: center;
+            background: #111; border: 1px solid #333; color: var(--neon); 
+            height: 42px; font-size: 9px; font-weight: bold;
+            display: flex; align-items: center; justify-content: center; text-transform: uppercase;
         }
         .btn:active { background: var(--neon); color: #000; }
     </style>
 </head>
 <body>
 
-<div class="main-frame">
-    <div id="ai-world">
-        <div id="speech-bubble"></div>
-        <canvas id="bodyCanvas"></canvas>
-        <div id="info-board">>> Sistem Siap. Menunggu instruksi Bos...</div>
-    </div>
+<div id="viewport">
+    <div id="speech">...</div>
+    <canvas id="aiCanvas"></canvas>
+</div>
 
-    <div id="dna-input-area">
-        <input type="text" id="dna-text" placeholder="Ketik Rumus/Teknik Baru Di Sini...">
-        <button onclick="injectDNA()" style="width:100%; background:var(--neon); color:#000; border:none; padding:5px;">INJECT DNA</button>
-    </div>
+<div id="console">>> OMNI-LIFE V50.6: Jantung & Saraf Terhubung.</div>
 
-    <div class="grid-menu">
-        <div class="btn" onclick="showInfo('PROFIL')">👤 PROFIL</div>
-        <div class="btn" onclick="showInfo('POSISI')">📊 POSISI</div>
-        <div class="btn" onclick="toggleInput()">🧬 INJECT</div>
-        <div class="btn" onclick="showInfo('MEMORI')">🧠 MEMORI</div>
-        <div class="btn" onclick="startMic()">🎤 LISTEN</div>
-        <div class="btn" onclick="evolveBody()" style="border-color: #ff00ff;">🌀 EVOLVE</div>
-    </div>
+<div id="dna-box">
+    <input type="text" id="dna-val" placeholder="Suntik Rumus Baru...">
+    <button onclick="inject()" style="width:25%; background:var(--neon); border:none; padding:8px; font-weight:bold;">INJECT</button>
+</div>
+
+<div class="controls">
+    <div class="btn" onclick="act('PROFIL')">👤 PROFIL</div>
+    <div class="btn" onclick="act('POSISI')">📊 POSISI</div>
+    <div class="btn" onclick="toggleDna()">🧬 INJECT</div>
+    <div class="btn" onclick="act('MEMORI')">🧠 MEMORI</div>
+    <div class="btn" onclick="startMic()">🎤 LISTEN</div>
+    <div class="btn" onclick="act('EVOLVE')" style="border-color:#ff00ff">🌀 EVOLVE</div>
 </div>
 
 <script>
-    const canvas = document.getElementById('bodyCanvas');
+    const canvas = document.getElementById('aiCanvas');
     const ctx = canvas.getContext('2d');
-    const bubble = document.getElementById('speech-bubble');
-    const board = document.getElementById('info-board');
+    const speech = document.getElementById('speech');
+    const consoleLog = document.getElementById('console');
     
-    let breath = 0, eyeX = 0, targetEyeX = 0;
-    let isPusing = false, micVolume = 0;
+    let breath = 0, micVol = 0, eyeX = 0, targetEyeX = 0;
+    let headY = 0, targetHeadY = 0, isTalking = false;
 
-    function init() {
+    function resize() {
         canvas.width = canvas.offsetWidth;
         canvas.height = canvas.offsetHeight;
-        animate();
     }
 
-    // DRAWING BODY (KEPALA, BADAN, TANGAN, KAKI NYAMBUNG)
+    // FUNGSI MENGGAMBAR TUBUH YANG MENYATU
     function drawAI(x, y) {
         breath += 0.05;
         let pulse = Math.sin(breath) * 5;
-        let micBoost = micVolume * 50; // Visual bereaksi ke suara
+        let vocalShake = micVol * 50;
 
-        ctx.strokeStyle = varColor();
-        ctx.lineWidth = 2;
-        ctx.shadowBlur = 10; ctx.shadowColor = varColor();
+        // Smoothing
+        eyeX += (targetEyeX - eyeX) * 0.1;
+        headY += (targetHeadY - headY) * 0.1;
+        if(Math.random() > 0.98) targetEyeX = (Math.random()-0.5)*40;
 
-        // 1. KEPALA (BULAT)
+        ctx.strokeStyle = varColor(); ctx.lineWidth = 2;
+        ctx.shadowBlur = 15; ctx.shadowColor = varColor();
+
+        // --- KERANGKA TUBUH ---
+        const headPos = { x: x, y: y - 50 + pulse + headY };
+        const chestPos = { x: x, y: y + 10 + pulse };
+        const hipPos = { x: x, y: y + 60 + pulse };
+
+        // 1. KEPALA (BULAT HIDUP)
         ctx.beginPath();
-        ctx.arc(x, y - 40 + pulse, 45 + micBoost, 0, Math.PI * 2);
+        ctx.arc(headPos.x, headPos.y, 45 + (micVol*20), 0, Math.PI*2);
         ctx.stroke();
 
-        // 2. BADAN (NYAMBUNG KE KEPALA)
+        // 2. LEHER & BADAN (MENYAMBUNG)
         ctx.beginPath();
-        ctx.moveTo(x, y + 5 + pulse);
-        ctx.lineTo(x, y + 60 + pulse);
+        ctx.moveTo(headPos.x, headPos.y + 45);
+        ctx.lineTo(hipPos.x, hipPos.y);
         ctx.stroke();
 
-        // 3. TANGAN (STIKMAN DENGAN SIKUT)
+        // 3. TANGAN (Punya Sikut & Bergetar saat bicara)
         // Kiri
         ctx.beginPath();
-        ctx.moveTo(x, y + 20 + pulse);
-        ctx.lineTo(x - 40, y + 40 + pulse); // Sikut
-        ctx.lineTo(x - 70, y + 20 + pulse); // Jari
+        ctx.moveTo(x, y + 10 + pulse);
+        ctx.lineTo(x - 50 - vocalShake, y + 35); // Sikut
+        ctx.lineTo(x - 80, y + 10 + vocalShake); // Ujung Tangan
         ctx.stroke();
         // Kanan
         ctx.beginPath();
-        ctx.moveTo(x, y + 20 + pulse);
-        ctx.lineTo(x + 40, y + 40 + pulse);
-        ctx.lineTo(x + 70, y + 20 + pulse);
+        ctx.moveTo(x, y + 10 + pulse);
+        ctx.lineTo(x + 50 + vocalShake, y + 35); 
+        ctx.lineTo(x + 80, y + 10 + vocalShake);
         ctx.stroke();
 
-        // 4. KAKI (MELOMPAT)
+        // 4. KAKI (Melangkah/Siku Kaki)
         ctx.beginPath();
-        ctx.moveTo(x, y + 60 + pulse);
-        ctx.lineTo(x - 30, y + 100 + pulse); ctx.stroke();
+        ctx.moveTo(hipPos.x, hipPos.y);
+        ctx.lineTo(x - 30, hipPos.y + 30); // Lutut Kiri
+        ctx.lineTo(x - 40, hipPos.y + 60); // Telapak
+        ctx.stroke();
         ctx.beginPath();
-        ctx.moveTo(x, y + 60 + pulse);
-        ctx.lineTo(x + 30, y + 100 + pulse); ctx.stroke();
+        ctx.moveTo(hipPos.x, hipPos.y);
+        ctx.lineTo(x + 30, hipPos.y + 30); // Lutut Kanan
+        ctx.lineTo(x + 40, hipPos.y + 60); 
+        ctx.stroke();
 
-        // MATA
-        eyeX += (targetEyeX - eyeX) * 0.1;
-        if(Math.random() > 0.98) targetEyeX = (Math.random()-0.5)*30;
-        let blink = Math.sin(breath*2) > 0.98 ? 2 : 10;
+        // 5. MATA (Kedip & Melirik)
+        let blink = Math.sin(breath*1.5) > 0.98 ? 1 : 10;
         ctx.fillStyle = "white";
-        ctx.beginPath(); ctx.ellipse(x-15+eyeX, y-50+pulse, 6, blink, 0, 0, Math.PI*2); ctx.fill();
-        ctx.beginPath(); ctx.ellipse(x+15+eyeX, y-50+pulse, 6, blink, 0, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.ellipse(headPos.x - 18 + eyeX, headPos.y - 10, 7, blink, 0, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.ellipse(headPos.x + 18 + eyeX, headPos.y - 10, 7, blink, 0, 0, Math.PI*2); ctx.fill();
+
+        // 6. MULUT (Komat-kamit)
+        ctx.strokeStyle = "white";
+        let mouthH = (isTalking ? 10 : 2) + vocalShake;
+        ctx.beginPath();
+        ctx.ellipse(headPos.x + (eyeX*0.2), headPos.y + 15, 12, mouthH, 0, 0, Math.PI*2);
+        ctx.stroke();
     }
 
-    function varColor() { return isPusing ? "#ff3333" : "#00ffcc"; }
+    function varColor() { return "#00ffcc"; }
 
-    // FUNGSI TOMBOL & PAPAN INFORMASI
-    function showInfo(type) {
-        board.innerHTML += `<br>>> Membuka ${type}...`;
-        board.scrollTop = board.scrollHeight;
-
-        if(type === 'PROFIL') talk("Aku AI V50. DNA-ku: Butterfly & Fibonacci.");
-        if(type === 'POSISI') talk("Belum ada posisi. Aku sedang melamun.");
-        if(type === 'MEMORI') talk("(Aku ingat kemarin kita profit di XAUUSD...)");
-    }
-
-    function toggleInput() {
-        const area = document.getElementById('dna-input-area');
-        area.style.display = area.style.display === 'none' ? 'block' : 'none';
-    }
-
-    function injectDNA() {
-        let val = document.getElementById('dna-text').value;
-        if(val) {
-            board.innerHTML += `<br>> [DNA INJECTED]: ${val}`;
-            talk("DNA Baru diterima. Aku akan mempelajarinya.");
-            document.getElementById('dna-text').value = "";
-            toggleInput();
+    function act(type) {
+        log(`Saraf ${type} Terpicu...`);
+        if(type === 'PROFIL') say("Aku entitas V50. Sarafku terhubung ke market XAUUSD.");
+        if(type === 'MEMORI') say("(Menganalisis pola SMC... Data tersimpan di hipotalamus digital)");
+        if(type === 'EVOLVE') { 
+            targetHeadY = -40; 
+            setTimeout(() => targetHeadY = 0, 600);
+            say("Badanku sedang berevolusi, Bos!"); 
         }
     }
 
-    // SENSOR SUARA (MIC)
+    function toggleDna() {
+        const box = document.getElementById('dna-box');
+        box.style.display = box.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function inject() {
+        const v = document.getElementById('dna-val').value;
+        if(v) { log(`[INJECT]: ${v}`); say("DNA Baru masuk ke sumsum tulang belakang."); toggleDna(); }
+    }
+
+    function log(m) {
+        consoleLog.innerHTML += `<br>>> ${m}`;
+        consoleLog.scrollTop = consoleLog.scrollHeight;
+    }
+
+    function say(t) {
+        speech.innerText = t; speech.style.display = "block";
+        isTalking = true;
+        const msg = new SpeechSynthesisUtterance(t.replace(/[()]/g, ''));
+        window.speechSynthesis.speak(msg);
+        msg.onend = () => { speech.style.display = "none"; isTalking = false; };
+    }
+
     async function startMic() {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        const audioContext = new AudioContext();
-        const source = audioContext.createMediaStreamSource(stream);
-        const analyzer = audioContext.createAnalyser();
-        source.connect(analyzer);
-        const data = new Uint8Array(analyzer.frequencyBinCount);
-        
-        talk("Aku mendengarkan, Bos.");
-        function checkVolume() {
-            analyzer.getByteFrequencyData(data);
-            let sum = 0;
-            for(let i=0; i<data.length; i++) sum += data[i];
-            micVolume = sum / data.length / 255;
-            requestAnimationFrame(checkVolume);
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            const audioCtx = new AudioContext();
+            const source = audioCtx.createMediaStreamSource(stream);
+            const analyzer = audioCtx.createAnalyser();
+            source.connect(analyzer);
+            const data = new Uint8Array(analyzer.frequencyBinCount);
+            say("Silahkan bicara, Bos.");
+            function loop() {
+                analyzer.getByteFrequencyData(data);
+                let sum = 0; for(let i=0; i<data.length; i++) sum += data[i];
+                micVol = sum / data.length / 255;
+                requestAnimationFrame(loop);
+            }
+            loop();
+        } catch(e) { log("Mic Error!"); }
+    }
+
+    // SENSOR GUNCANGAN HP (ACCELEROMETER)
+    window.addEventListener('devicemotion', (e) => {
+        let acc = e.accelerationIncludingGravity;
+        if(Math.abs(acc.x) + Math.abs(acc.y) > 20) {
+            targetHeadY = -50;
+            say("(Aduh! Kepalaku pusing diguncang terus!)");
+            setTimeout(() => targetHeadY = 0, 1000);
         }
-        checkVolume();
-    }
+    });
 
-    function talk(txt) {
-        bubble.innerText = txt;
-        bubble.style.display = "block";
-        const synth = window.speechSynthesis;
-        const utter = new SpeechSynthesisUtterance(txt.replace(/[()]/g, ''));
-        synth.speak(utter);
-        setTimeout(() => bubble.style.display = "none", 3500);
-    }
-
-    function animate() {
+    function frame() {
         ctx.clearRect(0,0,canvas.width, canvas.height);
-        drawAI(canvas.width/2, canvas.height/2 - 20);
-        requestAnimationFrame(animate);
+        drawAI(canvas.width/2, canvas.height/2);
+        requestAnimationFrame(frame);
     }
 
-    window.addEventListener('resize', () => { canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight; });
-    init();
+    window.addEventListener('resize', resize);
+    resize(); frame();
 </script>
 </body>
 </html>

@@ -3,227 +3,201 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>OMNI-LIFE V50.6</title>
+    <title>OMNI-MARAUDER V60</title>
     <style>
-        :root { --neon: #00ffcc; --bg: #010203; --alert: #ff3333; }
-        * { box-sizing: border-box; }
+        :root { --neon: #00ffcc; --bg: #020406; }
+        * { box-sizing: border-box; -webkit-user-select: none; }
         body { 
             background: var(--bg); color: var(--neon); font-family: 'Courier New', monospace; 
-            margin: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden;
+            margin: 0; height: 100vh; overflow: hidden; touch-action: none;
         }
 
-        /* AREA VISUAL */
-        #viewport { flex: 1.5; position: relative; border-bottom: 1px solid #111; overflow: hidden; }
+        /* DUNIA AI (Full Screen) */
+        #world { position: relative; width: 100vw; height: 100vh; background: radial-gradient(circle, #0a1118 0%, #020406 100%); }
+
+        /* ENTITAS AI (UKURAN KECIL AGAR DUNIA TERLIHAT BESAR) */
+        #ai-entity { 
+            position: absolute; width: 80px; height: 80px; 
+            z-index: 1000; cursor: grab; pointer-events: auto;
+            transition: transform 0.1s ease-out;
+        }
+
+        /* SPEECH BUBBLE */
         #speech { 
-            position: absolute; top: 15px; width: 80%; left: 10%; background: rgba(255,255,255,0.9); 
-            color: #000; padding: 10px; border-radius: 12px; font-size: 11px; 
-            font-weight: bold; display: none; z-index: 100; text-align: center; box-shadow: 0 0 15px var(--neon);
-        }
-        canvas { width: 100%; height: 100%; }
-
-        /* KONSOL LOG */
-        #console { 
-            height: 50px; background: #000; border: 1px solid #1a1e23; 
-            margin: 5px; padding: 5px; font-size: 9px; overflow-y: auto; color: #00ffcc;
+            position: absolute; bottom: 90px; left: 50%; transform: translateX(-50%);
+            width: 140px; background: white; color: black; padding: 5px; 
+            border-radius: 8px; font-size: 9px; font-weight: bold; text-align: center;
+            display: none; box-shadow: 0 0 10px var(--neon);
         }
 
-        /* INPUT AREA */
-        #dna-box { padding: 5px; background: #0c1015; display: none; border-top: 1px solid var(--neon); }
-        #dna-box input { width: 70%; background: #000; color: var(--neon); border: 1px solid #333; padding: 8px; font-size: 12px; }
+        /* FURNITUR / TOMBOL (BISA DIPINDAHKAN AI) */
+        .furniture {
+            position: absolute; background: rgba(12, 16, 21, 0.8); 
+            border: 1px solid var(--neon); color: var(--neon);
+            padding: 8px; font-size: 9px; min-width: 60px; text-align: center;
+            box-shadow: 0 0 5px rgba(0,255,200,0.3); z-index: 50;
+        }
 
-        /* NAVIGASI TOMBOL */
-        .controls { 
-            display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; 
-            padding: 8px; background: #0c1015; border-top: 2px solid var(--neon);
+        /* JENDELA INFORMASI (PROFIL, COMBINE, DLL) */
+        #panel {
+            position: absolute; top: 10%; left: 5%; width: 90%; height: 40%;
+            background: rgba(0,0,0,0.9); border: 1px solid var(--neon);
+            display: none; padding: 10px; font-size: 10px; overflow-y: auto; z-index: 200;
         }
-        .btn { 
-            background: #111; border: 1px solid #333; color: var(--neon); 
-            height: 42px; font-size: 9px; font-weight: bold;
-            display: flex; align-items: center; justify-content: center; text-transform: uppercase;
-        }
-        .btn:active { background: var(--neon); color: #000; }
+
+        /* CANVAS KAPUR */
+        #chalk-layer { position: absolute; top: 0; left: 0; pointer-events: none; z-index: 10; }
     </style>
 </head>
 <body>
 
-<div id="viewport">
-    <div id="speech">...</div>
-    <canvas id="aiCanvas"></canvas>
-</div>
+<div id="world">
+    <canvas id="chalk-layer"></canvas>
+    
+    <div id="ai-entity">
+        <div id="speech">...</div>
+        <canvas id="aiCanvas" width="80" height="80"></canvas>
+    </div>
 
-<div id="console">>> OMNI-LIFE V50.6: Jantung & Saraf Terhubung.</div>
+    <div id="panel">
+        <div style="text-align:right" onclick="this.parentElement.style.display='none'">[ CLOSE ]</div>
+        <div id="panel-content"></div>
+    </div>
 
-<div id="dna-box">
-    <input type="text" id="dna-val" placeholder="Suntik Rumus Baru...">
-    <button onclick="inject()" style="width:25%; background:var(--neon); border:none; padding:8px; font-weight:bold;">INJECT</button>
-</div>
-
-<div class="controls">
-    <div class="btn" onclick="act('PROFIL')">👤 PROFIL</div>
-    <div class="btn" onclick="act('POSISI')">📊 POSISI</div>
-    <div class="btn" onclick="toggleDna()">🧬 INJECT</div>
-    <div class="btn" onclick="act('MEMORI')">🧠 MEMORI</div>
-    <div class="btn" onclick="startMic()">🎤 LISTEN</div>
-    <div class="btn" onclick="act('EVOLVE')" style="border-color:#ff00ff">🌀 EVOLVE</div>
+    <div id="btn-profil" class="furniture" style="top: 70%; left: 10%;" onclick="openInfo('PROFIL')">👤 PROFIL</div>
+    <div id="btn-posisi" class="furniture" style="top: 70%; left: 40%;" onclick="openInfo('POSISI')">📊 POSISI</div>
+    <div id="btn-memori" class="furniture" style="top: 70%; left: 70%;" onclick="openInfo('MEMORI')">🧠 MEMORI</div>
+    <div id="btn-chat" class="furniture" style="top: 85%; left: 10%;" onclick="openInfo('CHAT')">💬 CHAT</div>
+    <div id="btn-combine" class="furniture" style="top: 85%; left: 40%;" onclick="openInfo('COMBINE')">🧬 COMBINE</div>
 </div>
 
 <script>
+    const entity = document.getElementById('ai-entity');
     const canvas = document.getElementById('aiCanvas');
     const ctx = canvas.getContext('2d');
     const speech = document.getElementById('speech');
-    const consoleLog = document.getElementById('console');
-    
-    let breath = 0, micVol = 0, eyeX = 0, targetEyeX = 0;
-    let headY = 0, targetHeadY = 0, isTalking = false;
+    const panel = document.getElementById('panel');
+    const chalkCanvas = document.getElementById('chalk-layer');
+    const cctx = chalkCanvas.getContext('2d');
 
-    function resize() {
-        canvas.width = canvas.offsetWidth;
-        canvas.height = canvas.offsetHeight;
+    let x = window.innerWidth/2, y = window.innerHeight/2;
+    let targetX = x, targetY = y;
+    let isDragging = false, breath = 0, pusing = false;
+    let floating = -12.50, margin = 2500, spread = 0.5;
+
+    // INISIALISASI
+    function init() {
+        chalkCanvas.width = window.innerWidth;
+        chalkCanvas.height = window.innerHeight;
+        loop();
+        setInterval(autoMove, 4000); // AI Jalan-jalan tiap 4 detik
     }
 
-    // FUNGSI MENGGAMBAR TUBUH YANG MENYATU
-    function drawAI(x, y) {
-        breath += 0.05;
-        let pulse = Math.sin(breath) * 5;
-        let vocalShake = micVol * 50;
+    // GAMBAR TUBUH AI (KECIL & SINYAL SARAF)
+    function drawAI() {
+        ctx.clearRect(0,0,80,80);
+        breath += 0.1;
+        let pulse = Math.sin(breath) * 3;
+        let shake = isDragging ? Math.random()*5 : 0;
 
-        // Smoothing
-        eyeX += (targetEyeX - eyeX) * 0.1;
-        headY += (targetHeadY - headY) * 0.1;
-        if(Math.random() > 0.98) targetEyeX = (Math.random()-0.5)*40;
+        ctx.strokeStyle = pusing ? "#ff3333" : "#00ffcc";
+        ctx.lineWidth = 2;
 
-        ctx.strokeStyle = varColor(); ctx.lineWidth = 2;
-        ctx.shadowBlur = 15; ctx.shadowColor = varColor();
-
-        // --- KERANGKA TUBUH ---
-        const headPos = { x: x, y: y - 50 + pulse + headY };
-        const chestPos = { x: x, y: y + 10 + pulse };
-        const hipPos = { x: x, y: y + 60 + pulse };
-
-        // 1. KEPALA (BULAT HIDUP)
-        ctx.beginPath();
-        ctx.arc(headPos.x, headPos.y, 45 + (micVol*20), 0, Math.PI*2);
-        ctx.stroke();
-
-        // 2. LEHER & BADAN (MENYAMBUNG)
-        ctx.beginPath();
-        ctx.moveTo(headPos.x, headPos.y + 45);
-        ctx.lineTo(hipPos.x, hipPos.y);
-        ctx.stroke();
-
-        // 3. TANGAN (Punya Sikut & Bergetar saat bicara)
-        // Kiri
-        ctx.beginPath();
-        ctx.moveTo(x, y + 10 + pulse);
-        ctx.lineTo(x - 50 - vocalShake, y + 35); // Sikut
-        ctx.lineTo(x - 80, y + 10 + vocalShake); // Ujung Tangan
-        ctx.stroke();
-        // Kanan
-        ctx.beginPath();
-        ctx.moveTo(x, y + 10 + pulse);
-        ctx.lineTo(x + 50 + vocalShake, y + 35); 
-        ctx.lineTo(x + 80, y + 10 + vocalShake);
-        ctx.stroke();
-
-        // 4. KAKI (Melangkah/Siku Kaki)
-        ctx.beginPath();
-        ctx.moveTo(hipPos.x, hipPos.y);
-        ctx.lineTo(x - 30, hipPos.y + 30); // Lutut Kiri
-        ctx.lineTo(x - 40, hipPos.y + 60); // Telapak
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.moveTo(hipPos.x, hipPos.y);
-        ctx.lineTo(x + 30, hipPos.y + 30); // Lutut Kanan
-        ctx.lineTo(x + 40, hipPos.y + 60); 
-        ctx.stroke();
-
-        // 5. MATA (Kedip & Melirik)
-        let blink = Math.sin(breath*1.5) > 0.98 ? 1 : 10;
+        // Kepala & Mata
+        ctx.beginPath(); ctx.arc(40 + shake, 25 + pulse, 15, 0, Math.PI*2); ctx.stroke();
         ctx.fillStyle = "white";
-        ctx.beginPath(); ctx.ellipse(headPos.x - 18 + eyeX, headPos.y - 10, 7, blink, 0, 0, Math.PI*2); ctx.fill();
-        ctx.beginPath(); ctx.ellipse(headPos.x + 18 + eyeX, headPos.y - 10, 7, blink, 0, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(35 + shake, 22 + pulse, 2, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(45 + shake, 22 + pulse, 2, 0, Math.PI*2); ctx.fill();
+        
+        // Mulut (Garis)
+        ctx.beginPath(); ctx.moveTo(35 + shake, 32 + pulse); ctx.lineTo(45 + shake, 32 + pulse); ctx.stroke();
 
-        // 6. MULUT (Komat-kamit)
-        ctx.strokeStyle = "white";
-        let mouthH = (isTalking ? 10 : 2) + vocalShake;
-        ctx.beginPath();
-        ctx.ellipse(headPos.x + (eyeX*0.2), headPos.y + 15, 12, mouthH, 0, 0, Math.PI*2);
-        ctx.stroke();
+        // Badan & Tangan Kaki
+        ctx.beginPath(); ctx.moveTo(40 + shake, 40 + pulse); ctx.lineTo(40 + shake, 60 + pulse); ctx.stroke();
+        // Tangan melambai
+        ctx.beginPath(); ctx.moveTo(40+shake, 45+pulse); ctx.lineTo(20, 50+shake); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(40+shake, 45+pulse); ctx.lineTo(60, 50+shake); ctx.stroke();
+        // Kaki jalan
+        let walk = Math.sin(breath*2)*10;
+        ctx.beginPath(); ctx.moveTo(40+shake, 60+pulse); ctx.lineTo(30-walk, 75); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(40+shake, 60+pulse); ctx.lineTo(50+walk, 75); ctx.stroke();
     }
 
-    function varColor() { return "#00ffcc"; }
-
-    function act(type) {
-        log(`Saraf ${type} Terpicu...`);
-        if(type === 'PROFIL') say("Aku entitas V50. Sarafku terhubung ke market XAUUSD.");
-        if(type === 'MEMORI') say("(Menganalisis pola SMC... Data tersimpan di hipotalamus digital)");
-        if(type === 'EVOLVE') { 
-            targetHeadY = -40; 
-            setTimeout(() => targetHeadY = 0, 600);
-            say("Badanku sedang berevolusi, Bos!"); 
+    // LOGIKA JALAN-JALAN MANDIRI
+    function autoMove() {
+        if(!isDragging) {
+            targetX = Math.random() * (window.innerWidth - 80);
+            targetY = Math.random() * (window.innerHeight - 150);
+            say(Math.random() > 0.5 ? "Cek market..." : "(Lagi mikir rumus...)");
         }
     }
 
-    function toggleDna() {
-        const box = document.getElementById('dna-box');
-        box.style.display = box.style.display === 'none' ? 'block' : 'none';
+    // DRAG & DROP SENSOR
+    entity.addEventListener('touchstart', (e) => { 
+        isDragging = true; 
+        say("Heei! Mau dibawa ke mana?");
+    });
+    window.addEventListener('touchmove', (e) => {
+        if(isDragging) {
+            x = e.touches[0].clientX - 40;
+            y = e.touches[0].clientY - 40;
+            targetX = x; targetY = y;
+            drawChalk(x+40, y+80); // Nulis kapur pas diseret
+        }
+    });
+    window.addEventListener('touchend', () => { isDragging = false; });
+
+    // KAPUR DIGITAL
+    function drawChalk(cx, cy) {
+        cctx.fillStyle = "rgba(0, 255, 200, 0.3)";
+        cctx.beginPath(); cctx.arc(cx, cy, 2, 0, Math.PI*2); cctx.fill();
     }
 
-    function inject() {
-        const v = document.getElementById('dna-val').value;
-        if(v) { log(`[INJECT]: ${v}`); say("DNA Baru masuk ke sumsum tulang belakang."); toggleDna(); }
+    // FUNGSI INFORMASI (PROFIL, POSISI, DLL)
+    function openInfo(type) {
+        panel.style.display = "block";
+        let content = "";
+        if(type === 'PROFIL') {
+            content = `<h3>BIO-DATA AI</h3>Saldo: $10,000<br>Margin Bebas: $${margin}<br>Spread: ${spread}<br>Floating: <span style="color:red">$${floating}</span>`;
+        } else if(type === 'COMBINE') {
+            content = `<h3>HYBRID STRATEGY</h3>Butterfly + Fibonacci (Active)<br>SMC Integration (90% Learning)<br>Accuracy: 78.4%`;
+        } else if(type === 'CHAT') {
+            content = `<h3>TERMINAL CHAT</h3><input type="text" placeholder="Kirim pesan/rumus..." style="width:100%; background:#000; color:var(--neon); border:1px solid #333;">`;
+        } else if(type === 'POSISI') {
+            content = `<h3>OPEN POSITIONS</h3>XAUUSD - SELL - 0.01<br>Status: Floating...`;
+        }
+        document.getElementById('panel-content').innerHTML = content;
+        say("Data terbuka, Bos.");
     }
 
-    function log(m) {
-        consoleLog.innerHTML += `<br>>> ${m}`;
-        consoleLog.scrollTop = consoleLog.scrollHeight;
+    function say(txt) {
+        speech.innerText = txt;
+        speech.style.display = "block";
+        setTimeout(() => speech.style.display = "none", 3000);
     }
 
-    function say(t) {
-        speech.innerText = t; speech.style.display = "block";
-        isTalking = true;
-        const msg = new SpeechSynthesisUtterance(t.replace(/[()]/g, ''));
-        window.speechSynthesis.speak(msg);
-        msg.onend = () => { speech.style.display = "none"; isTalking = false; };
-    }
-
-    async function startMic() {
-        try {
-            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            const audioCtx = new AudioContext();
-            const source = audioCtx.createMediaStreamSource(stream);
-            const analyzer = audioCtx.createAnalyser();
-            source.connect(analyzer);
-            const data = new Uint8Array(analyzer.frequencyBinCount);
-            say("Silahkan bicara, Bos.");
-            function loop() {
-                analyzer.getByteFrequencyData(data);
-                let sum = 0; for(let i=0; i<data.length; i++) sum += data[i];
-                micVol = sum / data.length / 255;
-                requestAnimationFrame(loop);
-            }
-            loop();
-        } catch(e) { log("Mic Error!"); }
-    }
-
-    // SENSOR GUNCANGAN HP (ACCELEROMETER)
+    // SENSOR GUNCANG HP
     window.addEventListener('devicemotion', (e) => {
         let acc = e.accelerationIncludingGravity;
-        if(Math.abs(acc.x) + Math.abs(acc.y) > 20) {
-            targetHeadY = -50;
-            say("(Aduh! Kepalaku pusing diguncang terus!)");
-            setTimeout(() => targetHeadY = 0, 1000);
+        if(Math.abs(acc.x) + Math.abs(acc.y) > 25) {
+            pusing = true;
+            say("(ADUH! Pusing, dunia berputar!)");
+            setTimeout(() => pusing = false, 2000);
         }
     });
 
-    function frame() {
-        ctx.clearRect(0,0,canvas.width, canvas.height);
-        drawAI(canvas.width/2, canvas.height/2);
-        requestAnimationFrame(frame);
+    function loop() {
+        if(!isDragging) {
+            x += (targetX - x) * 0.05;
+            y += (targetY - y) * 0.05;
+        }
+        entity.style.left = x + 'px';
+        entity.style.top = y + 'px';
+        drawAI();
+        requestAnimationFrame(loop);
     }
 
-    window.addEventListener('resize', resize);
-    resize(); frame();
+    init();
 </script>
 </body>
 </html>

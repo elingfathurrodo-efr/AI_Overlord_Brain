@@ -3,202 +3,143 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>OMNI-STICKMAN V80</title>
+    <title>OMNI-PROFESSOR V100</title>
     <style>
         :root { --neon: #00ffcc; --gold: #ffd700; --bg: #010203; }
         body { background: var(--bg); color: var(--neon); font-family: 'Courier New', monospace; margin: 0; overflow: hidden; touch-action: none; }
-        #world { width: 100vw; height: 100vh; position: relative; }
         
-        /* TOMBOL UTAMA (MASTER HUB) */
-        #master-hub {
-            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-            width: 70px; height: 70px; border-radius: 50%; background: rgba(0,255,200,0.1);
-            border: 3px double var(--neon); box-shadow: 0 0 20px var(--neon);
-            display: flex; align-items: center; justify-content: center; z-index: 5000;
-            font-weight: bold; font-size: 10px; cursor: pointer;
+        #lab { width: 100vw; height: 100vh; position: relative; background: radial-gradient(circle at center, #0a1118 0%, #010203 100%); }
+
+        /* FURNITUR PERMANEN */
+        .prop { position: absolute; border: 1px solid rgba(0, 255, 200, 0.3); padding: 10px; background: rgba(0,0,0,0.5); font-size: 10px; text-align: center; }
+        #desk { bottom: 80px; left: 20px; width: 120px; height: 60px; border-top: 3px solid var(--neon); }
+        #trash { bottom: 20px; right: 20px; width: 40px; height: 50px; border-radius: 0 0 5px 5px; }
+        #mt5-portal { top: 50%; right: -10px; width: 50px; height: 100px; border: 2px dashed var(--gold); display: flex; align-items: center; justify-content: center; writing-mode: vertical-rl; }
+
+        /* STICKMAN ENTITAS */
+        #ai-entity { position: absolute; width: 100px; height: 120px; z-index: 1000; transition: opacity 0.5s; }
+        
+        /* BUKU HARIAN RUMUS (PERMANEN) */
+        #diary-panel { 
+            position: fixed; top: 10px; left: 10px; width: 200px; max-height: 150px; 
+            background: rgba(0,20,20,0.9); border: 1px solid var(--gold); padding: 10px; 
+            font-size: 9px; overflow-y: auto; display: block; z-index: 2000;
         }
 
-        /* ENTITAS STICKMAN */
-        #ai-entity { position: absolute; width: 120px; height: 140px; z-index: 1000; cursor: grab; }
-        #speech { 
-            position: absolute; bottom: 110%; left: 50%; transform: translateX(-50%);
-            background: #fff; color: #000; padding: 6px 12px; border-radius: 12px;
-            font-size: 10px; min-width: 100px; display: none; font-weight: bold; text-align: center;
-        }
+        /* OVERLAY SENSOR GELAP */
+        #dark-overlay { position: fixed; inset: 0; background: black; opacity: 0; pointer-events: none; z-index: 9999; transition: opacity 0.5s; }
 
-        /* TOMBOL HASIL GAMBAR (CHALK BUTTONS) */
-        .chalk-btn {
-            position: absolute; border: 2px solid white; background: rgba(255,255,255,0.1);
-            color: white; padding: 8px 15px; font-size: 10px; border-radius: 4px;
-            box-shadow: 2px 2px 0px #555; cursor: pointer; z-index: 100;
-        }
-
-        /* PANEL INFO (DATA MT5) */
-        #data-panel {
-            position: fixed; top: 10%; left: 10%; right: 10%; background: rgba(0,0,0,0.95);
-            border: 1px solid var(--neon); padding: 15px; display: none; z-index: 6000;
-        }
+        .chalk-btn { position: absolute; border: 1px solid #fff; background: rgba(255,255,255,0.1); color: #fff; padding: 5px; font-size: 9px; }
     </style>
 </head>
 <body>
 
-<div id="world">
-    <canvas id="chalkCanvas" style="position:absolute; top:0; left:0; pointer-events:none;"></canvas>
+<div id="lab">
+    <div id="dark-overlay"></div>
     
-    <div id="ai-entity">
-        <div id="speech">...</div>
-        <canvas id="bodyCanvas" width="120" height="140"></canvas>
+    <div id="desk" class="prop">MEJA RISET<br>(Belajar...)</div>
+    <div id="trash" class="prop">TONG</div>
+    <div id="mt5-portal">PORTAL MT5</div>
+
+    <div id="diary-panel">
+        <b style="color:var(--gold)">📔 DIARI RUMUS (GitHub)</b>
+        <div id="formula-list">- Kedip_Logic_v1<br>- Fibonacci_Retrace_v2</div>
     </div>
 
-    <div id="master-hub" onclick="togglePanel()">OMNI</div>
-
-    <div id="data-panel">
-        <div style="text-align:right" onclick="this.parentElement.style.display='none'">[X]</div>
-        <h3 style="color:var(--gold)">MARKET INTELLIGENCE</h3>
-        <div id="stats-content">Memuat data MT5...</div>
+    <div id="ai-entity">
+        <div id="speech" style="position:absolute; bottom:110%; background:white; color:black; padding:5px; border-radius:5px; font-size:9px; display:none; width:100px;">...</div>
+        <canvas id="bodyCanvas" width="100" height="120"></canvas>
     </div>
 </div>
 
 <script>
     const entity = document.getElementById('ai-entity');
     const bCtx = document.getElementById('bodyCanvas').getContext('2d');
-    const cCanvas = document.getElementById('chalkCanvas');
-    const cCtx = cCanvas.getContext('2d');
+    const darkOverlay = document.getElementById('dark-overlay');
     
-    let posX = window.innerWidth/2 - 60, posY = window.innerHeight/2;
+    let posX = 150, posY = window.innerHeight - 200;
     let targetX = posX, targetY = posY;
-    let state = 'IDLE', mood = 'HAPPY', frame = 0, isDragging = false;
-    let buttons = [];
+    let state = 'STUDYING', frame = 0, mood = 'NEUTRAL';
+    let knowledge = ["SMC_Basics"];
 
     function init() {
-        cCanvas.width = window.innerWidth;
-        cCanvas.height = window.innerHeight;
         loop();
-        setInterval(brain, 6000);
+        checkLight();
+        setInterval(autoLife, 8000);
     }
 
-    // GAMBAR TUBUH DENGAN PERSENDIAN (Sikut & Lutut)
+    // ANIMASI TUBUH PROFESOR (DUDUK/BERDIRI)
     function drawStickman() {
-        bCtx.clearRect(0,0,120,140);
-        frame += 0.08;
-        let breath = Math.sin(frame) * 3;
-        let walk = (state === 'WALKING') ? Math.sin(frame * 6) * 15 : 0;
-
-        bCtx.strokeStyle = (mood === 'BUSY') ? "#ffd700" : "#00ffcc";
-        bCtx.lineWidth = 3; bCtx.lineCap = "round";
-
-        let cx = 60, cy = 40 + breath; // Kepala
-
-        // KEPALA & EKSPRESI
-        bCtx.beginPath(); bCtx.arc(cx, cy, 18, 0, Math.PI*2); bCtx.stroke();
-        bCtx.fillStyle = "white";
-        // Mata (Berkedip)
-        if(Math.sin(frame*2) < 0.95) {
-            bCtx.beginPath(); bCtx.arc(cx-7, cy-3, 2, 0, Math.PI*2); bCtx.fill();
-            bCtx.beginPath(); bCtx.arc(cx+7, cy-3, 2, 0, Math.PI*2); bCtx.fill();
-        }
-        // Mulut (Emoticon)
-        bCtx.beginPath(); 
-        if(mood === 'HAPPY') bCtx.arc(cx, cy+5, 6, 0.1*Math.PI, 0.9*Math.PI);
-        else if(mood === 'THINKING') bCtx.moveTo(cx-5, cy+8); bCtx.lineTo(cx+5, cy+8);
-        bCtx.stroke();
-
-        // BADAN (Menyambung ke Sikut)
-        let spineBot = cy + 40;
-        bCtx.beginPath(); bCtx.moveTo(cx, cy+18); bCtx.lineTo(cx, spineBot); bCtx.stroke();
-
-        // TANGAN (DENGAN SIKUT)
-        if(state === 'THINKING') {
-            // Pose Mikir: Sikut ditekuk ke dagu
-            bCtx.beginPath(); bCtx.moveTo(cx, cy+25); bCtx.lineTo(cx-20, cy+35); bCtx.lineTo(cx-10, cy+10); bCtx.stroke();
-            bCtx.beginPath(); bCtx.moveTo(cx, cy+25); bCtx.lineTo(cx+20, cy+50); bCtx.stroke();
-        } else {
-            // Tangan Ayun
-            bCtx.beginPath(); bCtx.moveTo(cx, cy+25); bCtx.lineTo(cx-30, cy+40+walk); bCtx.lineTo(cx-50, cy+30); bCtx.stroke();
-            bCtx.beginPath(); bCtx.moveTo(cx, cy+25); bCtx.lineTo(cx+30, cy+40-walk); bCtx.lineTo(cx+50, cy+30); bCtx.stroke();
-        }
-
-        // KAKI (DENGAN LUTUT)
-        bCtx.beginPath(); bCtx.moveTo(cx, spineBot); 
-        bCtx.lineTo(cx-15-walk, spineBot+20); bCtx.lineTo(cx-20-walk, spineBot+45); bCtx.stroke();
-        bCtx.beginPath(); bCtx.moveTo(cx, spineBot); 
-        bCtx.lineTo(cx+15+walk, spineBot+20); bCtx.lineTo(cx+20+walk, spineBot+45); bCtx.stroke();
-    }
-
-    // LOGIKA OTAK (DECISION MAKING)
-    function brain() {
-        if(isDragging) return;
-        let r = Math.random();
-        if(r < 0.2) searchInternet();
-        else if(r < 0.4) drawMenu();
-        else if(r < 0.5 && buttons.length > 2) cleanup();
-        else walkRandom();
-    }
-
-    // PINTU INTERNET
-    function searchInternet() {
-        state = 'DRAWING';
-        say("Lagi nyari rumus di internet...");
-        // Gambar Pintu
-        let dx = posX + 150;
-        drawChalkRect(dx, posY, 60, 100);
+        bCtx.clearRect(0,0,100,120);
+        frame += 0.07;
+        let breath = Math.sin(frame) * 2;
         
-        setTimeout(() => {
-            entity.style.opacity = "0";
-            setTimeout(() => {
-                entity.style.opacity = "1";
-                mood = 'HAPPY';
-                say("Dapet teknik baru!");
-                createButton(dx, posY + 110, "DNA: BUTTERFLY");
-                state = 'IDLE';
-            }, 2000);
-        }, 1000);
-    }
+        bCtx.strokeStyle = varColor(); bCtx.lineWidth = 3; bCtx.lineCap = "round";
+        let cx = 50, cy = 40 + breath;
 
-    function drawMenu() {
-        state = 'THINKING'; mood = 'BUSY';
-        say("Bikin tombol saldo dulu...");
-        setTimeout(() => {
-            createButton(posX, posY + 150, "CEK SALDO");
-            state = 'IDLE'; mood = 'HAPPY';
-        }, 1500);
-    }
+        // Kepala
+        bCtx.beginPath(); bCtx.arc(cx, cy, 15, 0, Math.PI*2); bCtx.stroke();
+        // Kacamata Profesor
+        bCtx.beginPath(); bCtx.rect(cx-10, cy-2, 8, 5); bCtx.rect(cx+2, cy-2, 8, 5); bCtx.stroke();
 
-    function createButton(bx, by, txt) {
-        let btn = document.createElement('div');
-        btn.className = 'chalk-btn';
-        btn.style.left = bx + 'px';
-        btn.style.top = by + 'px';
-        btn.innerText = txt;
-        btn.onclick = () => { if(txt === "CEK SALDO") togglePanel(); };
-        document.getElementById('world').appendChild(btn);
-        buttons.push(btn);
-    }
-
-    function cleanup() {
-        say("Bersihin layar ah...");
-        if(buttons.length > 0) {
-            let b = buttons.shift();
-            b.style.transform = "scale(0)";
-            setTimeout(() => b.remove(), 500);
+        // Badan
+        let sBot = cy + 35;
+        if(state === 'STUDYING') {
+            // Pose Duduk di Meja
+            bCtx.beginPath(); bCtx.moveTo(cx, cy+15); bCtx.lineTo(cx, sBot); bCtx.stroke();
+            bCtx.beginPath(); bCtx.moveTo(cx, sBot); bCtx.lineTo(cx-20, sBot+10); bCtx.lineTo(cx-20, sBot+30); bCtx.stroke(); // Kaki tekuk
+            bCtx.beginPath(); bCtx.moveTo(cx, cy+20); bCtx.lineTo(cx-15, cy+40); bCtx.lineTo(cx-5, cy+45); bCtx.stroke(); // Tangan nulis
+        } else {
+            // Pose Berdiri/Jalan
+            let walk = (state === 'WALKING') ? Math.sin(frame*8)*10 : 0;
+            bCtx.beginPath(); bCtx.moveTo(cx, cy+15); bCtx.lineTo(cx, sBot); bCtx.stroke();
+            bCtx.beginPath(); bCtx.moveTo(cx, sBot); bCtx.lineTo(cx-10-walk, sBot+40); bCtx.stroke();
+            bCtx.beginPath(); bCtx.moveTo(cx, sBot); bCtx.lineTo(cx+10+walk, sBot+40); bCtx.stroke();
         }
     }
 
-    function walkRandom() {
+    function varColor() { return mood === 'ANGRY' ? '#ff4444' : '#00ffcc'; }
+
+    // LOGIKA OTOMATIS (BELAJAR, KERJA, INTERNET)
+    function autoLife() {
+        let r = Math.random();
+        if(r < 0.3) {
+            state = 'WALKING'; targetX = 200 + Math.random()*100; say("Cari referensi dulu...");
+        } else if(r < 0.6) {
+            state = 'STUDYING'; posX = 40; posY = window.innerHeight - 180; say("Nemu rumus baru di internet!");
+            learnNewThing();
+        } else if(r < 0.7) {
+            goToWork();
+        }
+    }
+
+    function learnNewThing() {
+        let skills = ["Fibonacci_X", "OrderBlock_V2", "Liquidity_Hunt"];
+        let newSkill = skills[Math.floor(Math.random()*skills.length)];
+        if(!knowledge.includes(newSkill)) {
+            knowledge.push(newSkill);
+            document.getElementById('formula-list').innerHTML += `<br>- ${newSkill}`;
+        }
+    }
+
+    function goToWork() {
+        say("MT5 Buka! Aku kerja dulu Bos!");
+        targetX = window.innerWidth;
         state = 'WALKING';
-        targetX = Math.random() * (window.innerWidth - 120);
-        targetY = Math.random() * (window.innerHeight - 200);
+        setTimeout(() => { entity.style.opacity = "0"; }, 1000);
+        setTimeout(() => { 
+            entity.style.opacity = "1"; posX = window.innerWidth - 100; targetX = 200; 
+            say("Hasil kerja hari ini: Profit!");
+        }, 5000);
     }
 
-    function drawChalkRect(x, y, w, h) {
-        cCtx.strokeStyle = "white"; cCtx.lineWidth = 2;
-        cCtx.strokeRect(x, y, w, h);
-    }
-
-    function togglePanel() {
-        const p = document.getElementById('data-panel');
-        p.style.display = p.style.display === 'none' ? 'block' : 'none';
-        document.getElementById('stats-content').innerHTML = `Saldo: $5,240<br>Profit: +$120<br>Positions: 2 Open`;
+    // SENSOR CAHAYA (KAMERA SIMULATION)
+    async function checkLight() {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            // Simulasi deteksi kegelapan sederhana (biasanya butuh canvas processing)
+            // Di sini kita pakai logika sederhana: Jika layar disentuh lama, dianggap gelap.
+        } catch(e) { console.log("Camera access denied"); }
     }
 
     function say(t) {
@@ -207,21 +148,9 @@
         setTimeout(() => s.style.display = "none", 3000);
     }
 
-    // DRAG SYSTEM
-    entity.addEventListener('touchstart', (e) => { isDragging = true; state = 'IDLE'; });
-    window.addEventListener('touchmove', (e) => {
-        if(isDragging) {
-            posX = e.touches[0].clientX - 60;
-            posY = e.touches[0].clientY - 70;
-            targetX = posX; targetY = posY;
-        }
-    });
-    window.addEventListener('touchend', () => isDragging = false);
-
     function loop() {
         if(state === 'WALKING') {
-            posX += (targetX - posX) * 0.04;
-            posY += (targetY - posY) * 0.04;
+            posX += (targetX - posX) * 0.05;
             if(Math.abs(targetX - posX) < 1) state = 'IDLE';
         }
         entity.style.left = posX + 'px';

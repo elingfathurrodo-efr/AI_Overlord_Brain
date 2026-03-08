@@ -1,0 +1,10 @@
+{
+    "name": "MACD Oscillator",
+    "fast_ema": 12,
+    "slow_ema": 26,
+    "signal_period": 9,
+    "weight": 0.70,
+    "logic_buy": "MACD_Main > MACD_Signal AND MACD_Main < 0",
+    "logic_sell": "MACD_Main < MACD_Signal AND MACD_Main > 0",
+    "divergence_check": true
+}

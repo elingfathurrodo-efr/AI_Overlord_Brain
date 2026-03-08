@@ -105,7 +105,6 @@
   }
   .bar-fill.health { background:linear-gradient(90deg,#ff4444,#ffaa00,#00ff88); }
   .bar-fill.score  { background:linear-gradient(90deg,var(--purple),var(--cyan)); }
-  .bar-fill.pnl    { background:linear-gradient(90deg,var(--green),#00ccff); }
 
   /* ── SIGNAL DISPLAY ── */
   .signal-box {
@@ -146,7 +145,6 @@
   .btn-green   { background:linear-gradient(135deg,#004d30,var(--green)); color:#000; }
   .btn-purple  { background:linear-gradient(135deg,#3d1a80,var(--purple)); color:#fff; }
   .btn-gray    { background:#1a1a2e; color:#888; border:1px solid #333; }
-  .btn:disabled { opacity:0.4; cursor:not-allowed; }
 
   /* ── INPUT ── */
   .input-row { display:flex; gap:8px; margin-top:8px; align-items:center; flex-wrap:wrap; }
@@ -156,16 +154,6 @@
     padding:6px 10px; border-radius:6px; font-family:'Courier New',monospace;
     font-size:12px; width:140px;
     transition:border-color .2s;
-  }
-  .inp:focus { outline:none; border-color:var(--purple); }
-
-  /* ── GITHUB CONFIG ── */
-  .gh-config { display:flex; flex-direction:column; gap:6px; }
-  .gh-config .inp { width:100%; }
-  .saved-badge {
-    display:inline-block; padding:2px 8px; border-radius:10px;
-    font-size:9px; background:rgba(0,255,136,0.15); color:var(--green);
-    border:1px solid rgba(0,255,136,0.3);
   }
 
   /* ── LOG TERMINAL ── */
@@ -179,51 +167,39 @@
   .log-box .log-entry.warn { color:var(--gold); }
   .log-box .log-entry.err  { color:var(--red); }
   .log-box .log-entry.info { color:var(--cyan); }
-  .log-box::-webkit-scrollbar { width:4px; }
-  .log-box::-webkit-scrollbar-track { background:#050510; }
-  .log-box::-webkit-scrollbar-thumb { background:#333; border-radius:2px; }
 
-  /* ── STATUS BADGE ── */
-  .badge {
-    display:inline-flex; align-items:center; gap:4px;
-    padding:2px 8px; border-radius:10px; font-size:9px;
-    text-transform:uppercase; letter-spacing:1px;
-  }
+  /* ── BADGE ── */
+  .badge { display:inline-flex; align-items:center; gap:4px; padding:2px 8px; border-radius:10px; font-size:9px; text-transform:uppercase; letter-spacing:1px; }
   .badge.online { background:rgba(0,255,136,0.15); color:var(--green); border:1px solid rgba(0,255,136,0.3); }
   .badge.offline{ background:rgba(255,68,68,0.15);  color:var(--red);   border:1px solid rgba(255,68,68,0.3); }
   .badge.idle   { background:rgba(255,215,0,0.15);  color:var(--gold);  border:1px solid rgba(255,215,0,0.3); }
 
+  /* ── JARVIS MIC BUTTON ── */
+  .jarvis-btn {
+    position:fixed; bottom:25px; right:25px; width:65px; height:65px;
+    background: linear-gradient(135deg, var(--purple), #4c1d95);
+    border: none; border-radius: 50%; cursor: pointer; z-index: 1000;
+    box-shadow: 0 0 15px rgba(124, 58, 237, 0.4); display: flex;
+    align-items: center; justify-content: center; font-size: 28px;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  .jarvis-btn:hover { transform: scale(1.1); box-shadow: 0 0 25px rgba(124, 58, 237, 0.7); }
+  .jarvis-btn.listening { animation: pulse-jarvis 1.5s infinite; background: var(--red); }
+  @keyframes pulse-jarvis {
+    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+    70% { transform: scale(1.1); box-shadow: 0 0 0 20px rgba(239, 68, 68, 0); }
+    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+  }
+
   /* ── MODAL ── */
-  .modal-overlay {
-    display:none; position:fixed; inset:0;
-    background:rgba(0,0,0,0.85); z-index:100;
-    justify-content:center; align-items:center;
-  }
+  .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:100; justify-content:center; align-items:center; }
   .modal-overlay.active { display:flex; }
-  .modal {
-    background:var(--panel); border:1px solid var(--purple);
-    border-radius:12px; padding:24px; max-width:400px; width:90%;
-  }
-  .modal h3 { color:var(--gold); margin-bottom:12px; }
-  .modal p  { color:#888; font-size:12px; line-height:1.6; }
-  .modal .btn-group { margin-top:16px; }
-
-  /* ── RESPONSIVE ── */
-  @media(max-width:600px) {
-    .container { padding:10px; }
-    .grid { gap:10px; }
-    .btn { padding:6px 12px; font-size:10px; }
-  }
-
-  /* ── VOICE BUTTON ANIMATION ── */
-  @keyframes pulse-voice {
-    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(124, 58, 237, 0.7); }
-    70% { transform: scale(1.1); box-shadow: 0 0 0 15px rgba(124, 58, 237, 0); }
-    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(124, 58, 237, 0); }
-  }
+  .modal { background:var(--panel); border:1px solid var(--purple); border-radius:12px; padding:24px; max-width:400px; width:90%; }
 </style>
 </head>
 <body>
+
+<button class="jarvis-btn" id="jarvis-mic" title="Voice Control (Saraf 24)">🎙️</button>
 
 <div class="header">
   <h1>⚡ AI OVERLORD BRAIN V20.000 ⚡</h1>
@@ -249,52 +225,23 @@
         <div class="bar-label"><span>NEURAL HEALTH</span><span id="txt-health">100%</span></div>
         <div class="bar-bg"><div id="bar-health" class="bar-fill health" style="width:100%"></div></div>
       </div>
-      <div class="metric">
-        <span class="metric-label">💰 P&L Hari Ini</span>
-        <span id="txt-pnl" class="metric-value green">$0.00</span>
-      </div>
-      <div class="metric">
-        <span class="metric-label">💵 Equity</span>
-        <span id="txt-equity" class="metric-value cyan">$—</span>
-      </div>
-      <div class="metric">
-        <span class="metric-label">📈 Balance</span>
-        <span id="txt-balance" class="metric-value silver">$—</span>
-      </div>
-      <div class="metric">
-        <span class="metric-label">🏦 Margin Level</span>
-        <span id="txt-margin" class="metric-value silver">—%</span>
-      </div>
-      <div class="metric">
-        <span class="metric-label">📂 Open Positions</span>
-        <span id="txt-pos" class="metric-value gold">0</span>
-      </div>
-      <div class="metric">
-        <span class="metric-label">✅ Win / ❌ Lose Streak</span>
-        <span id="txt-streak" class="metric-value silver">0 / 0</span>
-      </div>
+      <div class="metric"><span class="metric-label">💰 P&L Hari Ini</span><span id="txt-pnl" class="metric-value green">$0.00</span></div>
+      <div class="metric"><span class="metric-label">💵 Equity</span><span id="txt-equity" class="metric-value cyan">$—</span></div>
     </div>
 
     <div class="card cyan">
       <div class="card-title">🎮 Command Center → MT5</div>
       <div class="btn-group">
-        <button class="btn btn-gold"   onclick="sendCommand('IDLE')">● IDLE</button>
-        <button class="btn btn-green"  onclick="sendCommand('BUY_NOW')">▲ FORCE BUY</button>
-        <button class="btn btn-red"    onclick="sendCommand('SELL_NOW')">▼ FORCE SELL</button>
-        <button class="btn btn-cyan"   onclick="sendCommand('CLOSE_ALL')">✕ CLOSE ALL</button>
-        <button class="btn btn-purple" onclick="sendCommand('HARVEST')">⚔️ TEBAS PUCUK</button>
-        <button class="btn btn-gray"   onclick="showKillModal()">🚨 KILL SWITCH</button>
+        <button class="btn btn-gold" onclick="sendCommand('IDLE')">● IDLE</button>
+        <button class="btn btn-green" onclick="sendCommand('BUY_NOW')">▲ BUY</button>
+        <button class="btn btn-red" onclick="sendCommand('SELL_NOW')">▼ SELL</button>
+        <button class="btn btn-cyan" onclick="sendCommand('CLOSE_ALL')">✕ CLOSE ALL</button>
+        <button class="btn btn-purple" onclick="sendCommand('HARVEST')">⚔️ HARVEST</button>
+        <button class="btn btn-gray" onclick="showKillModal()">🚨 KILL</button>
       </div>
       <div style="margin-top:14px; border-top:1px solid #1a1a30; padding-top:12px;">
-        <div class="card-title">⚙️ Parameter Override</div>
-        <div class="input-row">
-          <label>Lot Size</label>
-          <input type="number" id="inp-lot" class="inp" placeholder="0.00" step="0.01" min="0.01" max="10">
-        </div>
-        <div class="input-row" style="margin-top:4px">
-          <label>&nbsp;</label>
-          <button class="btn btn-cyan" style="width:140px" onclick="setLotOverride()">SET LOT</button>
-        </div>
+        <input type="number" id="inp-lot" class="inp" placeholder="Lot" step="0.01">
+        <button class="btn btn-cyan" onclick="setLotOverride()">SET LOT</button>
       </div>
     </div>
 
@@ -305,256 +252,160 @@
 
     <div class="card">
       <div class="card-title">🔑 GitHub Configuration</div>
-      <div class="gh-config">
-        <input type="password" id="inp-token" class="inp" placeholder="github_pat_..." style="width:100%">
-        <input type="text" id="inp-repo" class="inp" placeholder="user/repo" style="width:100%" value="elingfathurrod-efr/AI_Overlord_Brain">
-        <input type="text" id="inp-branch" class="inp" placeholder="main" style="width:100%" value="main">
-      </div>
-      <div class="btn-group" style="margin-top:10px">
-        <button class="btn btn-gold" onclick="saveConfig()">💾 SAVE CONFIG</button>
-        <button class="btn btn-cyan" onclick="testConnection()">🔗 TEST CONNECT</button>
-      </div>
-      <div id="txt-config-status" style="margin-top:8px;font-size:10px;color:#555;"></div>
+      <input type="password" id="inp-token" class="inp" placeholder="Token" style="width:100%">
+      <input type="text" id="inp-repo" class="inp" placeholder="Repo" style="width:100%">
+      <button class="btn btn-gold" onclick="saveConfig()" style="margin-top:10px">SAVE CONFIG</button>
     </div>
 
     <div class="card">
-        <div class="card-title">📜 Activity Log</div>
-        <div class="log-box" id="log-box"></div>
-        <div style="margin-top:6px; display:flex; justify-content:space-between; align-items:center;">
-          <span style="font-size:9px;color:#444" id="txt-lastupdate">Last update: —</span>
-          <button class="btn btn-gray" onclick="clearLog()" style="padding:3px 8px;font-size:9px;">CLEAR LOG</button>
-        </div>
+      <div class="card-title">📝 Logic.json Editor</div>
+      <textarea id="logic-editor" style="width:100%; height:100px; background:#020208; color:var(--cyan); font-size:10px; border:1px solid #1a1a30; padding:8px;">{ "command": "IDLE" }</textarea>
+      <div class="btn-group">
+        <button class="btn btn-gold" onclick="pushLogic()">PUSH</button>
+        <button class="btn btn-gray" onclick="pullLogic()">PULL</button>
+      </div>
     </div>
 
-    <textarea id="logic-editor" style="display:none;"></textarea>
+    <div class="card grid-full">
+      <div class="card-title">📜 Activity Log</div>
+      <div class="log-box" id="log-box"></div>
+    </div>
 
   </div>
 </div>
 
 <div class="modal-overlay" id="kill-modal">
   <div class="modal">
-    <h3>🚨 KILL SWITCH — KONFIRMASI</h3>
-    <p>Ini akan mengirim perintah <strong style="color:var(--red)">KILL = TRUE</strong> ke MT5.</p>
+    <h3>🚨 KILL SWITCH</h3>
+    <p>Konfirmasi hentikan sistem?</p>
     <div class="btn-group">
-      <button class="btn btn-red"  onclick="executeKill()">⚡ YA, KILL!</button>
-      <button class="btn btn-gray" onclick="hideKillModal()">✕ BATAL</button>
+      <button class="btn btn-red" onclick="executeKill()">YA, KILL!</button>
+      <button class="btn btn-gray" onclick="hideKillModal()">BATAL</button>
     </div>
   </div>
 </div>
 
 <script>
-// ═══════════════════════════════════════
-//  CONFIGURATION & STATE
-// ═══════════════════════════════════════
-let GH_TOKEN  = localStorage.getItem('gh_token')  || '';
-let GH_REPO   = localStorage.getItem('gh_repo')   || 'elingfathurrod-efr/AI_Overlord_Brain';
-let GH_BRANCH = localStorage.getItem('gh_branch') || 'main';
-
-document.getElementById('inp-token').value  = GH_TOKEN;
-document.getElementById('inp-repo').value   = GH_REPO;
-document.getElementById('inp-branch').value = GH_BRANCH;
-
-let pollInterval = null;
+// --- CORE CONFIG ---
+let GH_TOKEN = localStorage.getItem('gh_token') || '';
+let GH_REPO = localStorage.getItem('gh_repo') || '';
 let logicSHA = '';
-let statusSHA = '';
 
 const NERVES = [
-  {id:'n01', name:'Butterfly',   emoji:'🦋', desc:'Volatility Squeeze'},
-  {id:'n02', name:'Fib Gravity', emoji:'📐', desc:'Sniper Points'},
-  {id:'n03', name:'Entropy',     emoji:'🌊', desc:'Anti-FOMO Filter'},
-  {id:'n04', name:'SMC',         emoji:'🏦', desc:'Smart Money'},
-  {id:'n05', name:'AntiFrag',    emoji:'🛡️', desc:'Lot Manager'},
-  {id:'n06', name:'Curiosity',   emoji:'🔍', desc:'Learning'},
-  {id:'n07', name:'RegretMin',   emoji:'🔒', desc:'SL/TP Guard'},
-  {id:'n08', name:'Entropy Know',emoji:'🧬', desc:'Signal Score'},
-  {id:'n09', name:'Holy Grail',  emoji:'🏆', desc:'Multi-TF'},
-  {id:'n10', name:'Dual-Agent',  emoji:'🤖', desc:'MT5+GitHub'},
-  {id:'n11', name:'Jembatan',    emoji:'🌉', desc:'Internet Bridge'},
-  {id:'n12', name:'AutoModder',  emoji:'🎨', desc:'UI Auto-Update'},
-  {id:'n13', name:'Fractal',     emoji:'🔮', desc:'Time Harmony'},
-  {id:'n14', name:'BlackSwan',   emoji:'🦢', desc:'Crash Radar'},
-  {id:'n15', name:'Liquidity',   emoji:'💧', desc:'Heatmap'},
-  {id:'n16', name:'Genetic',     emoji:'🧫', desc:'Self-Evolve'},
-  {id:'n17', name:'Salary',      emoji:'💼', desc:'Daily Guard'},
-  {id:'n18', name:'Vacuum',      emoji:'🌪️', desc:'Micro Scalp'},
-  {id:'n19', name:'Infinity',    emoji:'♾️', desc:'Trail Stop'},
-  {id:'n20', name:'Harvester',   emoji:'⚔️', desc:'Tebas Pucuk'},
+  {id:'n01', name:'Butterfly', emoji:'🦋', desc:'Volatility'},
+  {id:'n02', name:'Fib Gravity', emoji:'📐', desc:'Sniper'},
+  {id:'n03', name:'Entropy', emoji:'🌊', desc:'Filter'},
+  {id:'n04', name:'SMC', emoji:'🏦', desc:'Smart Money'},
+  {id:'n05', name:'AntiFrag', emoji:'🛡️', desc:'Lot Manager'},
+  {id:'n06', name:'Curiosity', emoji:'🔍', desc:'Learning'},
+  {id:'n07', name:'RegretMin', emoji:'🔒', desc:'SL/TP'},
+  {id:'n08', name:'Entropy Know', emoji:'🧬', desc:'Signal'},
+  {id:'n09', name:'Holy Grail', emoji:'🏆', desc:'Multi-TF'},
+  {id:'n10', name:'Dual-Agent', emoji:'🤖', desc:'MT5+GH'},
+  {id:'n11', name:'Jembatan', emoji:'🌉', desc:'Internet'},
+  {id:'n12', name:'AutoModder', emoji:'🎨', desc:'UI'},
+  {id:'n13', name:'Fractal', emoji:'🔮', desc:'Harmony'},
+  {id:'n14', name:'BlackSwan', emoji:'🦢', desc:'Crash'},
+  {id:'n15', name:'Liquidity', emoji:'💧', desc:'Heatmap'},
+  {id:'n16', name:'Genetic', emoji:'🧫', desc:'Evolve'},
+  {id:'n17', name:'Salary', emoji:'💼', desc:'Daily'},
+  {id:'n18', name:'Vacuum', emoji:'🌪️', desc:'Scalp'},
+  {id:'n19', name:'Infinity', emoji:'♾️', desc:'Trail'},
+  {id:'n20', name:'Harvester', emoji:'⚔️', desc:'Tebas'}
 ];
 
-// ═══════════════════════════════════════
-//  JARVIS VOICE ENGINE (SARAF 24)
-// ═══════════════════════════════════════
+// --- JARVIS VOICE ENGINE ---
 const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
 recognition.lang = 'id-ID';
-recognition.continuous = false;
-recognition.interimResults = false;
 const synth = window.speechSynthesis;
 
 function jarvisSpeak(text) {
   const utter = new SpeechSynthesisUtterance(text);
   utter.lang = 'id-ID';
-  utter.pitch = 0.8;
-  utter.rate = 1.0;
+  utter.pitch = 0.9;
   synth.speak(utter);
   addLog('info', `JARVIS: "${text}"`);
 }
 
-function initVoice() {
-  const voiceBtn = document.createElement('button');
-  voiceBtn.className = 'btn btn-purple';
-  voiceBtn.style = 'position:fixed; bottom:20px; right:20px; z-index:999; border-radius:50%; width:60px; height:60px; box-shadow:0 0 15px var(--purple); font-size:24px;';
-  voiceBtn.innerHTML = '🎙️';
-  document.body.appendChild(voiceBtn);
-
-  voiceBtn.onclick = () => {
+function initJarvis() {
+  const micBtn = document.getElementById('jarvis-mic');
+  micBtn.onclick = () => {
     recognition.start();
-    addLog('info', 'JARVIS Mendengarkan Chief Eling...');
-    voiceBtn.style.animation = 'pulse-voice 1.5s infinite';
+    micBtn.classList.add('listening');
+    addLog('info', 'Voice Engine Active...');
   };
 
-  recognition.onresult = async (event) => {
-    voiceBtn.style.animation = 'none';
+  recognition.onresult = (event) => {
+    micBtn.classList.remove('listening');
     const speech = event.results[0][0].transcript.toLowerCase();
-    addLog('info', `CHIEF: "${speech}"`);
+    addLog('info', `Chief: "${speech}"`);
     
-    if (speech.includes('profesor') || speech.includes('jarvis')) {
-      const res = await fetch(`status.json?v=${Math.random()}`);
-      const data = await res.json();
-
-      if (speech.includes('profit') || speech.includes('hasil')) {
-        const pnl = data.live_metrics ? data.live_metrics.daily_pnl : data.daily_pnl;
-        jarvisSpeak(`Halo Chief Eling. Profit hari ini adalah ${pnl} dollar. Kondisi akun aman.`);
-      } 
-      else if (speech.includes('kondisi') || speech.includes('saraf')) {
-        const health = data.brain_control ? data.brain_control.neural_health : (data.health || 100);
-        const reaped = data.library_evolution ? data.library_evolution.evolution_stats.discarded_bad_logic : 0;
-        jarvisSpeak(`Kesehatan saraf ${health} persen. Saya telah membuang ${reaped} strategi buruk hari ini.`);
-      }
-      else if (speech.includes('siapa saya')) {
-        jarvisSpeak(`Anda adalah Chief Eling Fathurrod, satu-satunya pemegang otoritas Overlord V20.`);
-      }
-      else if (speech.includes('target')) {
-        jarvisSpeak(`Target hari ini 250 dollar. Kita sedang dalam tren positif, Chief.`);
-      }
-      else {
-        jarvisSpeak("Saya stand-by, Chief. Ada perintah lain?");
-      }
+    if (speech.includes('jarvis') || speech.includes('profesor')) {
+      if (speech.includes('buy')) { sendCommand('BUY_NOW'); jarvisSpeak("Perintah Buy dikirim, Chief."); }
+      else if (speech.includes('sell')) { sendCommand('SELL_NOW'); jarvisSpeak("Perintah Sell dikirim, Chief."); }
+      else if (speech.includes('tutup') || speech.includes('close')) { sendCommand('CLOSE_ALL'); jarvisSpeak("Semua posisi ditutup."); }
+      else if (speech.includes('profit')) jarvisSpeak("Menganalisis profit... Status stabil.");
+      else jarvisSpeak("Siap Chief, saya mendengarkan.");
     }
   };
-
-  recognition.onerror = () => {
-    voiceBtn.style.animation = 'none';
-    addLog('err', 'Gagal menangkap suara. Coba lagi.');
-  };
+  recognition.onerror = () => micBtn.classList.remove('listening');
 }
 
-// ═══════════════════════════════════════
-//  CORE FUNCTIONS (MT5 & GITHUB)
-// ═══════════════════════════════════════
+// --- SYSTEM FUNCTIONS ---
 function init() {
   renderNerves();
-  startClock();
-  initVoice();
-  if(GH_TOKEN) {
-    startPolling();
-    addLog('info', `Config loaded. Ready to harvest.`);
-  } else {
-    addLog('warn', 'PAT Token belum diisi.');
-  }
+  initJarvis();
+  document.getElementById('inp-token').value = GH_TOKEN;
+  document.getElementById('inp-repo').value = GH_REPO;
+  setInterval(() => { document.getElementById('badge-time').textContent = '🕐 ' + new Date().toLocaleTimeString(); }, 1000);
+  addLog('ok', 'System V20.000 Online, Chief.');
 }
 
-function renderNerves(statusData) {
+function renderNerves() {
   const grid = document.getElementById('nerves-grid');
   grid.innerHTML = '';
   NERVES.forEach(n => {
-    let cls = 'active';
-    let val = 'ACTIVE';
-    if(statusData) {
-      if(n.id === 'n14' && statusData.black_swan) { cls='danger'; val='ALERT!'; }
-      if(n.id === 'n17' && !statusData.salary_ok) { cls='warn';   val='STOP'; }
-      if(n.id === 'n08') { val = (statusData.signal_score||0).toFixed(0)+'/100'; }
-    }
-    grid.innerHTML += `<div class="nerve ${cls}"><span class="nerve-name">${n.emoji} ${n.name}</span><span class="nerve-val">${val}</span><span style="font-size:7px;color:#444">${n.desc}</span></div>`;
+    grid.innerHTML += `<div class="nerve active"><span class="nerve-name">${n.emoji} ${n.name}</span><span class="nerve-val">ACTIVE</span><span style="font-size:7px;color:#444">${n.desc}</span></div>`;
   });
-}
-
-function startClock() {
-  setInterval(()=>{
-    document.getElementById('badge-time').textContent = '🕐 ' + new Date().toUTCString().slice(17,25) + ' UTC';
-  }, 1000);
-}
-
-function startPolling() {
-  if(pollInterval) clearInterval(pollInterval);
-  fetchStatus();
-  pollInterval = setInterval(fetchStatus, 30000);
-}
-
-async function fetchStatus() {
-  if(!GH_TOKEN) return;
-  try {
-    const url = `https://api.github.com/repos/${GH_REPO}/contents/status.json`;
-    const r = await fetch(url, { headers: { 'Authorization': `token ${GH_TOKEN}`, 'Accept':'application/vnd.github.v3+json' }});
-    if(!r.ok) return;
-    const data = await r.json();
-    statusSHA = data.sha;
-    const status = JSON.parse(atob(data.content.replace(/\n/g,'')));
-    updateUI(status);
-  } catch(e) { console.error(e); }
-}
-
-function updateUI(s) {
-  const sig = s.signal || 0;
-  const box = document.getElementById('signal-box');
-  if(sig === 1)  { box.className='signal-box buy';  box.textContent='▲ BUY'; }
-  else if(sig===-1){ box.className='signal-box sell'; box.textContent='▼ SELL'; }
-  else { box.className='signal-box flat'; box.textContent='● FLAT'; }
-
-  const metrics = s.live_metrics || s;
-  const pnl = parseFloat(metrics.daily_pnl||0);
-  document.getElementById('txt-pnl').textContent = (pnl>=0?'+':'') + '$'+pnl.toFixed(2);
-  document.getElementById('txt-pnl').className = 'metric-value ' + (pnl>=0?'green':'red');
-  document.getElementById('txt-equity').textContent = '$'+(parseFloat(metrics.equity)||0).toFixed(2);
-  document.getElementById('txt-balance').textContent = '$'+(parseFloat(metrics.balance)||0).toFixed(2);
-  
-  renderNerves(s);
-}
-
-async function sendCommand(cmd) {
-  const payload = { command: cmd, kill: "false", lot_override: "0", timestamp: new Date().toISOString() };
-  await pushLogic(payload);
-  addLog('ok', `Command sent: ${cmd}`);
-}
-
-async function pushLogic(payload) {
-  const b64 = btoa(unescape(encodeURIComponent(JSON.stringify(payload, null, 2))));
-  const body = { message:'Dashboard command update', content: b64 };
-  if(logicSHA) body.sha = logicSHA;
-  await fetch(`https://api.github.com/repos/${GH_REPO}/contents/logic.json`, {
-    method:'PUT',
-    headers:{ 'Authorization':`token ${GH_TOKEN}`, 'Content-Type':'application/json' },
-    body: JSON.stringify(body)
-  });
-}
-
-function saveConfig() {
-  GH_TOKEN = document.getElementById('inp-token').value.trim();
-  localStorage.setItem('gh_token', GH_TOKEN);
-  startPolling();
-  addLog('ok', 'Config Saved');
 }
 
 function addLog(type, msg) {
   const box = document.getElementById('log-box');
   const line = document.createElement('span');
   line.className = 'log-entry ' + type;
-  line.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+  line.innerHTML = `[${new Date().toLocaleTimeString()}] ${msg}<br>`;
   box.appendChild(line);
-  box.appendChild(document.createElement('br'));
   box.scrollTop = box.scrollHeight;
 }
 
-function clearLog() { document.getElementById('log-box').innerHTML=''; }
+function saveConfig() {
+  GH_TOKEN = document.getElementById('inp-token').value;
+  GH_REPO = document.getElementById('inp-repo').value;
+  localStorage.setItem('gh_token', GH_TOKEN);
+  localStorage.setItem('gh_repo', GH_REPO);
+  addLog('ok', 'Config Saved.');
+}
+
+async function sendCommand(cmd) {
+  addLog('info', `Command Issued: ${cmd}`);
+  const payload = { command: cmd, timestamp: new Date().toISOString() };
+  document.getElementById('logic-editor').value = JSON.stringify(payload, null, 2);
+  pushLogic(payload);
+}
+
+async function pushLogic(payload) {
+  if(!GH_TOKEN) return addLog('err', 'Token missing!');
+  const content = btoa(JSON.stringify(payload));
+  try {
+    const r = await fetch(`https://api.github.com/repos/${GH_REPO}/contents/logic.json`, {
+      method: 'PUT',
+      headers: { 'Authorization': `token ${GH_TOKEN}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: 'Update', content: content, sha: logicSHA })
+    });
+    if(r.ok) addLog('ok', 'GitHub Synced.');
+  } catch(e) { addLog('err', 'Sync Error.'); }
+}
+
 function showKillModal() { document.getElementById('kill-modal').classList.add('active'); }
 function hideKillModal() { document.getElementById('kill-modal').classList.remove('active'); }
 

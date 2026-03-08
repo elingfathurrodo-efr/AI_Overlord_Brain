@@ -1,0 +1,10 @@
+{
+    "global_kill_switch": false,
+    "max_daily_drawdown_percent": 5.0,
+    "max_total_drawdown_percent": 15.0,
+    "max_open_trades_per_symbol": 2,
+    "auto_deleveraging": true,
+    "emergency_close_all": false,
+    "trading_allowed_hours": ["07:00-22:00"],
+    "min_equity_threshold": 100.0
+}

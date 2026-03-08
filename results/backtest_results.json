@@ -1,0 +1,15 @@
+{
+    "last_test_date": "2026-03-08 22:30:00",
+    "genome_tested": "GEN-4921-SMC-RSI",
+    "simulation_period": "30_days",
+    "results": {
+        "total_trades": 45,
+        "win_rate": 0.68,
+        "profit_factor": 2.1,
+        "max_drawdown_percent": 3.2,
+        "expected_payoff": 12.5,
+        "recovery_factor": 4.5
+    },
+    "verdict": "PASSED",
+    "promotion_status": "ACTIVE_GENOME"
+}

@@ -214,11 +214,17 @@
     .grid { gap:10px; }
     .btn { padding:6px 12px; font-size:10px; }
   }
+
+  /* ── VOICE BUTTON ANIMATION ── */
+  @keyframes pulse-voice {
+    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(124, 58, 237, 0.7); }
+    70% { transform: scale(1.1); box-shadow: 0 0 0 15px rgba(124, 58, 237, 0); }
+    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(124, 58, 237, 0); }
+  }
 </style>
 </head>
 <body>
 
-<!-- HEADER -->
 <div class="header">
   <h1>⚡ AI OVERLORD BRAIN V20.000 ⚡</h1>
   <p><span class="pulse-dot"></span>20 SARAF AKTIF | SCALPER SEJATI | GITHUB BRIDGE LIVE</p>
@@ -232,24 +238,17 @@
 <div class="container">
   <div class="grid">
 
-    <!-- ═══════════════════════════════ -->
-    <!--  CARD 1: LIVE STATUS            -->
-    <!-- ═══════════════════════════════ -->
     <div class="card gold">
       <div class="card-title">📊 Live Status MT5</div>
-
       <div id="signal-box" class="signal-box flat">● FLAT</div>
-
       <div class="bar-wrap" style="margin-top:12px">
         <div class="bar-label"><span>SIGNAL SCORE</span><span id="txt-score">0/100</span></div>
         <div class="bar-bg"><div id="bar-score" class="bar-fill score" style="width:0%"></div></div>
       </div>
-
       <div class="bar-wrap">
         <div class="bar-label"><span>NEURAL HEALTH</span><span id="txt-health">100%</span></div>
         <div class="bar-bg"><div id="bar-health" class="bar-fill health" style="width:100%"></div></div>
       </div>
-
       <div class="metric">
         <span class="metric-label">💰 P&L Hari Ini</span>
         <span id="txt-pnl" class="metric-value green">$0.00</span>
@@ -276,12 +275,8 @@
       </div>
     </div>
 
-    <!-- ═══════════════════════════════ -->
-    <!--  CARD 2: COMMAND CENTER         -->
-    <!-- ═══════════════════════════════ -->
     <div class="card cyan">
       <div class="card-title">🎮 Command Center → MT5</div>
-
       <div class="btn-group">
         <button class="btn btn-gold"   onclick="sendCommand('IDLE')">● IDLE</button>
         <button class="btn btn-green"  onclick="sendCommand('BUY_NOW')">▲ FORCE BUY</button>
@@ -290,7 +285,6 @@
         <button class="btn btn-purple" onclick="sendCommand('HARVEST')">⚔️ TEBAS PUCUK</button>
         <button class="btn btn-gray"   onclick="showKillModal()">🚨 KILL SWITCH</button>
       </div>
-
       <div style="margin-top:14px; border-top:1px solid #1a1a30; padding-top:12px;">
         <div class="card-title">⚙️ Parameter Override</div>
         <div class="input-row">
@@ -302,42 +296,19 @@
           <button class="btn btn-cyan" style="width:140px" onclick="setLotOverride()">SET LOT</button>
         </div>
       </div>
-
-      <div style="margin-top:12px">
-        <div class="card-title">📩 Last Command Sent</div>
-        <div id="txt-lastcmd" style="color:var(--gold); font-size:12px; padding:6px; background:#050510; border-radius:4px;">IDLE</div>
-        <div id="txt-cmdtime" style="color:#444; font-size:9px; margin-top:3px;">—</div>
-      </div>
     </div>
 
-    <!-- ═══════════════════════════════ -->
-    <!--  CARD 3: 20 SARAF STATUS        -->
-    <!-- ═══════════════════════════════ -->
     <div class="card grid-full">
       <div class="card-title">🧠 Status 20 Saraf (Real-time)</div>
-      <div class="nerves" id="nerves-grid">
-        <!-- Diisi oleh JS -->
-      </div>
+      <div class="nerves" id="nerves-grid"></div>
     </div>
 
-    <!-- ═══════════════════════════════ -->
-    <!--  CARD 4: GITHUB CONFIGURATION  -->
-    <!-- ═══════════════════════════════ -->
     <div class="card">
       <div class="card-title">🔑 GitHub Configuration</div>
       <div class="gh-config">
-        <div>
-          <div style="font-size:9px;color:#666;margin-bottom:3px;">PAT TOKEN (disimpan lokal)</div>
-          <input type="password" id="inp-token" class="inp" placeholder="github_pat_..." style="width:100%">
-        </div>
-        <div>
-          <div style="font-size:9px;color:#666;margin-bottom:3px;">REPOSITORY</div>
-          <input type="text" id="inp-repo" class="inp" placeholder="user/repo" style="width:100%" value="elingfathurrod-efr/AI_Overlord_Brain">
-        </div>
-        <div>
-          <div style="font-size:9px;color:#666;margin-bottom:3px;">BRANCH</div>
-          <input type="text" id="inp-branch" class="inp" placeholder="main" style="width:100%" value="main">
-        </div>
+        <input type="password" id="inp-token" class="inp" placeholder="github_pat_..." style="width:100%">
+        <input type="text" id="inp-repo" class="inp" placeholder="user/repo" style="width:100%" value="elingfathurrod-efr/AI_Overlord_Brain">
+        <input type="text" id="inp-branch" class="inp" placeholder="main" style="width:100%" value="main">
       </div>
       <div class="btn-group" style="margin-top:10px">
         <button class="btn btn-gold" onclick="saveConfig()">💾 SAVE CONFIG</button>
@@ -346,51 +317,24 @@
       <div id="txt-config-status" style="margin-top:8px;font-size:10px;color:#555;"></div>
     </div>
 
-    <!-- ═══════════════════════════════ -->
-    <!--  CARD 5: LOGIC.JSON EDITOR     -->
-    <!-- ═══════════════════════════════ -->
     <div class="card">
-      <div class="card-title">📝 Logic.json Editor (Brain Control)</div>
-      <textarea id="logic-editor" style="
-        width:100%; height:160px; background:#020208;
-        border:1px solid #1a1a30; border-radius:6px;
-        color:var(--cyan); font-family:'Courier New',monospace;
-        font-size:10px; padding:8px; resize:vertical;
-        line-height:1.5;
-      " spellcheck="false">{
-  "command": "IDLE",
-  "kill": "false",
-  "lot_override": "0",
-  "note": "Edit dan push untuk kontrol MT5"
-}</textarea>
-      <div class="btn-group">
-        <button class="btn btn-gold" onclick="pushLogic()">🚀 PUSH TO GITHUB</button>
-        <button class="btn btn-gray" onclick="pullLogic()">⬇️ PULL LATEST</button>
-      </div>
+        <div class="card-title">📜 Activity Log</div>
+        <div class="log-box" id="log-box"></div>
+        <div style="margin-top:6px; display:flex; justify-content:space-between; align-items:center;">
+          <span style="font-size:9px;color:#444" id="txt-lastupdate">Last update: —</span>
+          <button class="btn btn-gray" onclick="clearLog()" style="padding:3px 8px;font-size:9px;">CLEAR LOG</button>
+        </div>
     </div>
 
-    <!-- ═══════════════════════════════ -->
-    <!--  CARD 6: ACTIVITY LOG           -->
-    <!-- ═══════════════════════════════ -->
-    <div class="card grid-full">
-      <div class="card-title">📜 Activity Log</div>
-      <div class="log-box" id="log-box"></div>
-      <div style="margin-top:6px; display:flex; justify-content:space-between; align-items:center;">
-        <span style="font-size:9px;color:#444" id="txt-lastupdate">Last update: —</span>
-        <button class="btn btn-gray" onclick="clearLog()" style="padding:3px 8px;font-size:9px;">CLEAR LOG</button>
-      </div>
-    </div>
+    <textarea id="logic-editor" style="display:none;"></textarea>
 
-  </div><!-- end .grid -->
-</div><!-- end .container -->
+  </div>
+</div>
 
-<!-- KILL SWITCH MODAL -->
 <div class="modal-overlay" id="kill-modal">
   <div class="modal">
     <h3>🚨 KILL SWITCH — KONFIRMASI</h3>
-    <p>Ini akan mengirim perintah <strong style="color:var(--red)">KILL = TRUE</strong> ke MT5.<br>
-    Semua posisi akan ditutup paksa dan EA berhenti trading.<br><br>
-    Yakin, Bos?</p>
+    <p>Ini akan mengirim perintah <strong style="color:var(--red)">KILL = TRUE</strong> ke MT5.</p>
     <div class="btn-group">
       <button class="btn btn-red"  onclick="executeKill()">⚡ YA, KILL!</button>
       <button class="btn btn-gray" onclick="hideKillModal()">✕ BATAL</button>
@@ -406,7 +350,6 @@ let GH_TOKEN  = localStorage.getItem('gh_token')  || '';
 let GH_REPO   = localStorage.getItem('gh_repo')   || 'elingfathurrod-efr/AI_Overlord_Brain';
 let GH_BRANCH = localStorage.getItem('gh_branch') || 'main';
 
-// Load saved config into inputs
 document.getElementById('inp-token').value  = GH_TOKEN;
 document.getElementById('inp-repo').value   = GH_REPO;
 document.getElementById('inp-branch').value = GH_BRANCH;
@@ -415,7 +358,6 @@ let pollInterval = null;
 let logicSHA = '';
 let statusSHA = '';
 
-// 20 Nerves definitions
 const NERVES = [
   {id:'n01', name:'Butterfly',   emoji:'🦋', desc:'Volatility Squeeze'},
   {id:'n02', name:'Fib Gravity', emoji:'📐', desc:'Sniper Points'},
@@ -440,22 +382,87 @@ const NERVES = [
 ];
 
 // ═══════════════════════════════════════
-//  INIT
+//  JARVIS VOICE ENGINE (SARAF 24)
+// ═══════════════════════════════════════
+const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+recognition.lang = 'id-ID';
+recognition.continuous = false;
+recognition.interimResults = false;
+const synth = window.speechSynthesis;
+
+function jarvisSpeak(text) {
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.lang = 'id-ID';
+  utter.pitch = 0.8;
+  utter.rate = 1.0;
+  synth.speak(utter);
+  addLog('info', `JARVIS: "${text}"`);
+}
+
+function initVoice() {
+  const voiceBtn = document.createElement('button');
+  voiceBtn.className = 'btn btn-purple';
+  voiceBtn.style = 'position:fixed; bottom:20px; right:20px; z-index:999; border-radius:50%; width:60px; height:60px; box-shadow:0 0 15px var(--purple); font-size:24px;';
+  voiceBtn.innerHTML = '🎙️';
+  document.body.appendChild(voiceBtn);
+
+  voiceBtn.onclick = () => {
+    recognition.start();
+    addLog('info', 'JARVIS Mendengarkan Chief Eling...');
+    voiceBtn.style.animation = 'pulse-voice 1.5s infinite';
+  };
+
+  recognition.onresult = async (event) => {
+    voiceBtn.style.animation = 'none';
+    const speech = event.results[0][0].transcript.toLowerCase();
+    addLog('info', `CHIEF: "${speech}"`);
+    
+    if (speech.includes('profesor') || speech.includes('jarvis')) {
+      const res = await fetch(`status.json?v=${Math.random()}`);
+      const data = await res.json();
+
+      if (speech.includes('profit') || speech.includes('hasil')) {
+        const pnl = data.live_metrics ? data.live_metrics.daily_pnl : data.daily_pnl;
+        jarvisSpeak(`Halo Chief Eling. Profit hari ini adalah ${pnl} dollar. Kondisi akun aman.`);
+      } 
+      else if (speech.includes('kondisi') || speech.includes('saraf')) {
+        const health = data.brain_control ? data.brain_control.neural_health : (data.health || 100);
+        const reaped = data.library_evolution ? data.library_evolution.evolution_stats.discarded_bad_logic : 0;
+        jarvisSpeak(`Kesehatan saraf ${health} persen. Saya telah membuang ${reaped} strategi buruk hari ini.`);
+      }
+      else if (speech.includes('siapa saya')) {
+        jarvisSpeak(`Anda adalah Chief Eling Fathurrod, satu-satunya pemegang otoritas Overlord V20.`);
+      }
+      else if (speech.includes('target')) {
+        jarvisSpeak(`Target hari ini 250 dollar. Kita sedang dalam tren positif, Chief.`);
+      }
+      else {
+        jarvisSpeak("Saya stand-by, Chief. Ada perintah lain?");
+      }
+    }
+  };
+
+  recognition.onerror = () => {
+    voiceBtn.style.animation = 'none';
+    addLog('err', 'Gagal menangkap suara. Coba lagi.');
+  };
+}
+
+// ═══════════════════════════════════════
+//  CORE FUNCTIONS (MT5 & GITHUB)
 // ═══════════════════════════════════════
 function init() {
   renderNerves();
   startClock();
+  initVoice();
   if(GH_TOKEN) {
     startPolling();
-    addLog('info', `Config loaded. Repo: ${GH_REPO}`);
+    addLog('info', `Config loaded. Ready to harvest.`);
   } else {
-    addLog('warn', 'PAT Token belum diisi. Set di GitHub Configuration.');
+    addLog('warn', 'PAT Token belum diisi.');
   }
 }
 
-// ═══════════════════════════════════════
-//  RENDER 20 NERVES
-// ═══════════════════════════════════════
 function renderNerves(statusData) {
   const grid = document.getElementById('nerves-grid');
   grid.innerHTML = '';
@@ -463,261 +470,94 @@ function renderNerves(statusData) {
     let cls = 'active';
     let val = 'ACTIVE';
     if(statusData) {
-      // Customize based on actual status
       if(n.id === 'n14' && statusData.black_swan) { cls='danger'; val='ALERT!'; }
       if(n.id === 'n17' && !statusData.salary_ok) { cls='warn';   val='STOP'; }
       if(n.id === 'n08') { val = (statusData.signal_score||0).toFixed(0)+'/100'; }
     }
-    grid.innerHTML += `
-      <div class="nerve ${cls}">
-        <span class="nerve-name">${n.emoji} ${n.name}</span>
-        <span class="nerve-val">${val}</span>
-        <span style="font-size:7px;color:#444">${n.desc}</span>
-      </div>`;
+    grid.innerHTML += `<div class="nerve ${cls}"><span class="nerve-name">${n.emoji} ${n.name}</span><span class="nerve-val">${val}</span><span style="font-size:7px;color:#444">${n.desc}</span></div>`;
   });
 }
 
-// ═══════════════════════════════════════
-//  CLOCK
-// ═══════════════════════════════════════
 function startClock() {
   setInterval(()=>{
-    const now = new Date();
-    document.getElementById('badge-time').textContent =
-      '🕐 ' + now.toUTCString().slice(17,25) + ' UTC';
+    document.getElementById('badge-time').textContent = '🕐 ' + new Date().toUTCString().slice(17,25) + ' UTC';
   }, 1000);
 }
 
-// ═══════════════════════════════════════
-//  POLLING STATUS FROM GITHUB
-// ═══════════════════════════════════════
 function startPolling() {
   if(pollInterval) clearInterval(pollInterval);
   fetchStatus();
-  pollInterval = setInterval(fetchStatus, 30000); // Poll tiap 30 detik
-  addLog('ok', 'Polling GitHub status started (30s interval)');
+  pollInterval = setInterval(fetchStatus, 30000);
 }
 
 async function fetchStatus() {
   if(!GH_TOKEN) return;
   try {
     const url = `https://api.github.com/repos/${GH_REPO}/contents/status.json`;
-    const r = await fetch(url, {
-      headers: { 'Authorization': `token ${GH_TOKEN}`, 'Accept':'application/vnd.github.v3+json' }
-    });
-    if(!r.ok) { addLog('err', `GitHub status fetch: ${r.status}`); return; }
+    const r = await fetch(url, { headers: { 'Authorization': `token ${GH_TOKEN}`, 'Accept':'application/vnd.github.v3+json' }});
+    if(!r.ok) return;
     const data = await r.json();
     statusSHA = data.sha;
-    const content = atob(data.content.replace(/\n/g,''));
-    const status = JSON.parse(content);
+    const status = JSON.parse(atob(data.content.replace(/\n/g,'')));
     updateUI(status);
-    document.getElementById('txt-lastupdate').textContent = 'Last update: ' + new Date().toLocaleTimeString();
-    document.getElementById('badge-mt5').className = 'badge online';
-    document.getElementById('badge-mt5').textContent = '● MT5: LIVE';
-  } catch(e) {
-    document.getElementById('badge-mt5').className = 'badge offline';
-    document.getElementById('badge-mt5').textContent = '○ MT5: OFFLINE';
-    addLog('warn', 'Status fetch error: ' + e.message);
-  }
+  } catch(e) { console.error(e); }
 }
 
-// ═══════════════════════════════════════
-//  UPDATE UI FROM STATUS DATA
-// ═══════════════════════════════════════
 function updateUI(s) {
-  // Signal box
   const sig = s.signal || 0;
   const box = document.getElementById('signal-box');
   if(sig === 1)  { box.className='signal-box buy';  box.textContent='▲ BUY'; }
   else if(sig===-1){ box.className='signal-box sell'; box.textContent='▼ SELL'; }
-  else           { box.className='signal-box flat'; box.textContent='● FLAT'; }
+  else { box.className='signal-box flat'; box.textContent='● FLAT'; }
 
-  // Bars
-  const sc = Math.min(100, Math.max(0, s.signal_score||0));
-  const hp = Math.min(100, Math.max(0, s.health||100));
-  document.getElementById('bar-score').style.width  = sc + '%';
-  document.getElementById('bar-health').style.width = hp + '%';
-  document.getElementById('txt-score').textContent  = sc.toFixed(1)+'/100';
-  document.getElementById('txt-health').textContent = hp.toFixed(1)+'%';
-
-  // Metrics
-  const pnl = parseFloat(s.daily_pnl||0);
-  const pnlEl = document.getElementById('txt-pnl');
-  pnlEl.textContent = (pnl>=0?'+':'') + '$'+pnl.toFixed(2);
-  pnlEl.className = 'metric-value ' + (pnl>=0?'green':'red');
-
-  document.getElementById('txt-equity').textContent  = '$'+(parseFloat(s.equity)||0).toFixed(2);
-  document.getElementById('txt-balance').textContent = '$'+(parseFloat(s.balance)||0).toFixed(2);
-  document.getElementById('txt-margin').textContent  = (parseFloat(s.margin_level)||0).toFixed(1)+'%';
-  document.getElementById('txt-pos').textContent     = s.open_positions||0;
-  document.getElementById('txt-streak').textContent  = (s.win_streak||0)+' / '+(s.lose_streak||0);
-
+  const metrics = s.live_metrics || s;
+  const pnl = parseFloat(metrics.daily_pnl||0);
+  document.getElementById('txt-pnl').textContent = (pnl>=0?'+':'') + '$'+pnl.toFixed(2);
+  document.getElementById('txt-pnl').className = 'metric-value ' + (pnl>=0?'green':'red');
+  document.getElementById('txt-equity').textContent = '$'+(parseFloat(metrics.equity)||0).toFixed(2);
+  document.getElementById('txt-balance').textContent = '$'+(parseFloat(metrics.balance)||0).toFixed(2);
+  
   renderNerves(s);
-  addLog('info', `Status synced: Sig=${sig} Score=${sc.toFixed(1)} Health=${hp.toFixed(1)}%`);
 }
 
-// ═══════════════════════════════════════
-//  SEND COMMAND TO GITHUB
-// ═══════════════════════════════════════
 async function sendCommand(cmd) {
-  if(!GH_TOKEN) { addLog('err','PAT Token belum diisi!'); return; }
-
-  const payload = {
-    command: cmd,
-    kill: "false",
-    lot_override: "0",
-    timestamp: new Date().toISOString(),
-    note: `Sent from Dashboard at ${new Date().toLocaleTimeString()}`
-  };
-
-  document.getElementById('logic-editor').value = JSON.stringify(payload, null, 2);
+  const payload = { command: cmd, kill: "false", lot_override: "0", timestamp: new Date().toISOString() };
   await pushLogic(payload);
-
-  document.getElementById('txt-lastcmd').textContent = cmd;
-  document.getElementById('txt-cmdtime').textContent = new Date().toLocaleTimeString();
   addLog('ok', `Command sent: ${cmd}`);
 }
 
-async function setLotOverride() {
-  const lot = parseFloat(document.getElementById('inp-lot').value);
-  if(isNaN(lot) || lot <= 0) { addLog('err','Masukkan lot yang valid!'); return; }
-  await sendCommand('IDLE');
-  const el = document.getElementById('logic-editor');
-  const cur = JSON.parse(el.value||'{}');
-  cur.lot_override = lot.toString();
-  el.value = JSON.stringify(cur, null, 2);
-  await pushLogic(cur);
-  addLog('ok', `Lot override set: ${lot}`);
-}
-
-async function executeKill() {
-  hideKillModal();
-  const payload = { command:"CLOSE_ALL", kill:"true", lot_override:"0",
-    timestamp: new Date().toISOString() };
-  document.getElementById('logic-editor').value = JSON.stringify(payload, null, 2);
-  await pushLogic(payload);
-  addLog('err', '🚨 KILL SWITCH ACTIVATED! All positions closing...');
-}
-
-// ═══════════════════════════════════════
-//  PUSH logic.json TO GITHUB
-// ═══════════════════════════════════════
 async function pushLogic(payload) {
-  if(!GH_TOKEN) { addLog('err','PAT Token belum diisi!'); return; }
-
-  let content;
-  if(payload) {
-    content = JSON.stringify(payload, null, 2);
-  } else {
-    content = document.getElementById('logic-editor').value;
-    try { JSON.parse(content); } catch(e) { addLog('err','JSON tidak valid: '+e.message); return; }
-  }
-
-  const b64 = btoa(unescape(encodeURIComponent(content)));
+  const b64 = btoa(unescape(encodeURIComponent(JSON.stringify(payload, null, 2))));
   const body = { message:'Dashboard command update', content: b64 };
   if(logicSHA) body.sha = logicSHA;
-
-  try {
-    const r = await fetch(`https://api.github.com/repos/${GH_REPO}/contents/logic.json`, {
-      method:'PUT',
-      headers:{
-        'Authorization':`token ${GH_TOKEN}`,
-        'Content-Type':'application/json',
-        'Accept':'application/vnd.github.v3+json'
-      },
-      body: JSON.stringify(body)
-    });
-    const data = await r.json();
-    if(r.ok) {
-      logicSHA = data.content.sha;
-      addLog('ok', 'logic.json pushed to GitHub ✓');
-    } else {
-      addLog('err', 'Push failed: ' + (data.message||r.status));
-    }
-  } catch(e) { addLog('err', 'Push error: '+e.message); }
+  await fetch(`https://api.github.com/repos/${GH_REPO}/contents/logic.json`, {
+    method:'PUT',
+    headers:{ 'Authorization':`token ${GH_TOKEN}`, 'Content-Type':'application/json' },
+    body: JSON.stringify(body)
+  });
 }
 
-async function pullLogic() {
-  if(!GH_TOKEN) { addLog('err','PAT Token belum diisi!'); return; }
-  try {
-    const r = await fetch(`https://api.github.com/repos/${GH_REPO}/contents/logic.json`, {
-      headers:{ 'Authorization':`token ${GH_TOKEN}`, 'Accept':'application/vnd.github.v3+json' }
-    });
-    const data = await r.json();
-    if(r.ok) {
-      logicSHA = data.sha;
-      const content = decodeURIComponent(escape(atob(data.content.replace(/\n/g,''))));
-      document.getElementById('logic-editor').value = JSON.stringify(JSON.parse(content), null, 2);
-      addLog('ok', 'logic.json pulled from GitHub ✓');
-    } else { addLog('err','Pull failed: '+(data.message||r.status)); }
-  } catch(e) { addLog('err','Pull error: '+e.message); }
-}
-
-// ═══════════════════════════════════════
-//  CONFIG MANAGEMENT
-// ═══════════════════════════════════════
 function saveConfig() {
-  GH_TOKEN  = document.getElementById('inp-token').value.trim();
-  GH_REPO   = document.getElementById('inp-repo').value.trim();
-  GH_BRANCH = document.getElementById('inp-branch').value.trim();
-  localStorage.setItem('gh_token',  GH_TOKEN);
-  localStorage.setItem('gh_repo',   GH_REPO);
-  localStorage.setItem('gh_branch', GH_BRANCH);
-  document.getElementById('txt-config-status').innerHTML =
-    '<span class="saved-badge">✓ SAVED LOCALLY</span>';
+  GH_TOKEN = document.getElementById('inp-token').value.trim();
+  localStorage.setItem('gh_token', GH_TOKEN);
   startPolling();
-  addLog('ok', 'Config saved & polling restarted');
+  addLog('ok', 'Config Saved');
 }
 
-async function testConnection() {
-  const token = document.getElementById('inp-token').value.trim();
-  const repo  = document.getElementById('inp-repo').value.trim();
-  if(!token) { addLog('err','Masukkan PAT Token!'); return; }
-  try {
-    const r = await fetch(`https://api.github.com/repos/${repo}`, {
-      headers:{ 'Authorization':`token ${token}` }
-    });
-    const d = await r.json();
-    if(r.ok) {
-      addLog('ok', `✅ Connected! Repo: ${d.full_name} | Stars: ${d.stargazers_count}`);
-      document.getElementById('txt-config-status').innerHTML =
-        '<span class="saved-badge">✅ CONNECTION OK</span>';
-    } else {
-      addLog('err', 'Connection failed: '+d.message);
-    }
-  } catch(e) { addLog('err','Test error: '+e.message); }
-}
-
-// ═══════════════════════════════════════
-//  LOG SYSTEM
-// ═══════════════════════════════════════
 function addLog(type, msg) {
   const box = document.getElementById('log-box');
-  const ts  = new Date().toLocaleTimeString();
-  const icons = {ok:'✅',warn:'⚠️',err:'❌',info:'ℹ️'};
   const line = document.createElement('span');
   line.className = 'log-entry ' + type;
-  line.textContent = `[${ts}] ${icons[type]||''} ${msg}`;
+  line.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
   box.appendChild(line);
   box.appendChild(document.createElement('br'));
   box.scrollTop = box.scrollHeight;
-  // Limit 100 entries
-  while(box.children.length > 200) box.removeChild(box.firstChild);
 }
-function clearLog() { document.getElementById('log-box').innerHTML=''; }
 
-// ═══════════════════════════════════════
-//  MODAL
-// ═══════════════════════════════════════
+function clearLog() { document.getElementById('log-box').innerHTML=''; }
 function showKillModal() { document.getElementById('kill-modal').classList.add('active'); }
 function hideKillModal() { document.getElementById('kill-modal').classList.remove('active'); }
-document.getElementById('kill-modal').addEventListener('click', function(e){
-  if(e.target === this) hideKillModal();
-});
 
-// ═══════════════════════════════════════
-//  START
-// ═══════════════════════════════════════
 init();
 </script>
 </body>

@@ -1,9 +1,16 @@
 {
-  "dash_x": 100,
-  "dash_y": 50,
-  "dash_w": 300,
-  "dash_h": 150,
-  "dash_color": 32896,
-  "current_intel": "SEARCHING_FOR_WHALES",
-  "iq_level": 500
+  "timestamp": "2025-01-01T00:00:00Z",
+  "symbol": "XAUUSD",
+  "health": 100,
+  "daily_pnl": 0,
+  "equity": 0,
+  "balance": 0,
+  "margin_level": 0,
+  "signal": 0,
+  "signal_score": 0,
+  "win_streak": 0,
+  "lose_streak": 0,
+  "open_positions": 0,
+  "black_swan": false,
+  "salary_ok": true
 }

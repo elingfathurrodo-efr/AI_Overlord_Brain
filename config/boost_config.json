@@ -1,0 +1,10 @@
+{
+    "execution_mode": "SCALPING",
+    "heartbeat_interval_ms": 1000,
+    "warp_mode_active": false,
+    "latency_threshold_ms": 200,
+    "max_spread_allowed": 25,
+    "slippage_control_pips": 2,
+    "news_pause_active": true,
+    "retry_attempts": 3
+}

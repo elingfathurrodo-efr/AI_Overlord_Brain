@@ -495,7 +495,7 @@ function startClock() {
 function startPolling() {
   if(pollInterval) clearInterval(pollInterval);
   fetchStatus();
-  pollInterval = setInterval(fetchStatus, 30000); // Poll tiap 30 detik
+  pollInterval = setInterval(fetchStatus, 10000); // Poll tiap 30 detik
   addLog('ok', 'Polling GitHub status started (30s interval)');
 }
 

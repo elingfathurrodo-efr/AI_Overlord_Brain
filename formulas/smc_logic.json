@@ -1,0 +1,12 @@
+{
+    "name": "Smart Money Concept Logic",
+    "lookback_candles": 50,
+    "detect_bos": true,
+    "detect_choch": true,
+    "order_block_min_size": 10,
+    "fvg_min_gap_points": 5,
+    "weight": 0.95,
+    "logic_buy": "CHoCH_Bullish AND Price_In_OrderBlock",
+    "logic_sell": "CHoCH_Bearish AND Price_In_OrderBlock",
+    "liquidity_sweep_filter": true
+}

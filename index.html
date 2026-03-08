@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -329,11 +328,11 @@
       <div class="gh-config">
         <div>
           <div style="font-size:9px;color:#666;margin-bottom:3px;">PAT TOKEN (disimpan lokal)</div>
-          <input type="password" id="inp-token" class="inp" placeholder="github_pat_..." style="width:100%" value="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">
+          <input type="password" id="inp-token" class="inp" placeholder="github_pat_..." style="width:100%">
         </div>
         <div>
           <div style="font-size:9px;color:#666;margin-bottom:3px;">REPOSITORY</div>
-          <input type="text" id="inp-repo" class="inp" placeholder="user/repo" style="width:100%" value="elingfathurrodo-efr/AI_Overlord_Brain">
+          <input type="text" id="inp-repo" class="inp" placeholder="user/repo" style="width:100%" value="elingfathurrod-efr/AI_Overlord_Brain">
         </div>
         <div>
           <div style="font-size:9px;color:#666;margin-bottom:3px;">BRANCH</div>
@@ -403,8 +402,8 @@
 // ═══════════════════════════════════════
 //  CONFIGURATION & STATE
 // ═══════════════════════════════════════
-let GH_TOKEN  = localStorage.getItem('gh_token')  || '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';
-let GH_REPO   = localStorage.getItem('gh_repo')   || 'elingfathurrodo-efr/AI_Overlord_Brain';
+let GH_TOKEN  = localStorage.getItem('gh_token')  || '';
+let GH_REPO   = localStorage.getItem('gh_repo')   || 'elingfathurrod-efr/AI_Overlord_Brain';
 let GH_BRANCH = localStorage.getItem('gh_branch') || 'main';
 
 // Load saved config into inputs

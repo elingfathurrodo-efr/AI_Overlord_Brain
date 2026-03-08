@@ -1,14 +1,24 @@
 {
   "timestamp": "2026-03-08T13:15:00Z",
-  "active_symbols": ["XAUUSD", "BTCUSD", "EURUSD"],
+  "active_symbols": [
+    "XAUUSD",
+    "BTCUSD",
+    "EURUSD"
+  ],
   "brain_control": {
     "neural_health": 100,
     "anti_virus_logic": "ENABLED",
     "bad_logic_cleaner": "AUTO_REAP"
   },
   "library": {
-    "techniques": ["Butterfly_Squeeze", "SMC_OrderBlock"],
-    "formulas": ["Kelly_Criterion_V3", "Volatility_Ratio_X"],
+    "techniques": [
+      "Butterfly_Squeeze",
+      "SMC_OrderBlock"
+    ],
+    "formulas": [
+      "Kelly_Criterion_V3",
+      "Volatility_Ratio_X"
+    ],
     "current_best_combine": "SMC x Volatility_Ratio_X"
   },
   "evolution_stats": {
@@ -21,6 +31,6 @@
     "signal": 1,
     "signal_score": 92,
     "equity": 5250.75,
-    "daily_pnl": 250.00
+    "daily_pnl": 250
   }
 }

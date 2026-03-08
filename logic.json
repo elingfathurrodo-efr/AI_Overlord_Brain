@@ -1,16 +1,26 @@
 {
-  "timestamp": "2025-01-01T00:00:00Z",
-  "symbol": "XAUUSD",
-  "health": 100,
-  "daily_pnl": 0,
-  "equity": 0,
-  "balance": 0,
-  "margin_level": 0,
-  "signal": 0,
-  "signal_score": 0,
-  "win_streak": 0,
-  "lose_streak": 0,
-  "open_positions": 0,
-  "black_swan": false,
-  "salary_ok": true
+  "timestamp": "2026-03-08T13:15:00Z",
+  "active_symbols": ["XAUUSD", "BTCUSD", "EURUSD"],
+  "brain_control": {
+    "neural_health": 100,
+    "anti_virus_logic": "ENABLED",
+    "bad_logic_cleaner": "AUTO_REAP"
+  },
+  "library": {
+    "techniques": ["Butterfly_Squeeze", "SMC_OrderBlock"],
+    "formulas": ["Kelly_Criterion_V3", "Volatility_Ratio_X"],
+    "current_best_combine": "SMC x Volatility_Ratio_X"
+  },
+  "evolution_stats": {
+    "successful_combines": 5,
+    "discarded_bad_logic": 14,
+    "last_learned_formula": "Mean_Reversion_2026"
+  },
+  "live_metrics": {
+    "symbol": "XAUUSD",
+    "signal": 1,
+    "signal_score": 92,
+    "equity": 5250.75,
+    "daily_pnl": 250.00
+  }
 }

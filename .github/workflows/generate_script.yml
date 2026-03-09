@@ -16,14 +16,19 @@ jobs:
 
       - name: Generate Full MQ5 File
         run: |
-          # Perhatikan: Tidak ada spasi di dalam kurung kurawal variabel
-          sed"s/TOKEN_AKAN_DIISI_OTOMATIS/${{secrets.MY_GITHUB_PAT}}/g"template_ea.mq5>AI_Overlord_Brain_V20.mq5
-          sed-i"s|REPO_AKAN_DIISI_OTOMATIS|${{github.repository}}|g"AI_Overlord_Brain_V20.mq5
+          # Ganti token dan repository di template
+          sed "s/TOKEN_AKAN_DIISI_OTOMATIS/${{secrets.MY_GITHUB_PAT}}/g" template_ea.mq5 > AI_Overlord_Brain_V20.mq5
+          sed -i "s|REPO_AKAN_DIISI_OTOMATIS|${{github.repository}}|g" AI_Overlord_Brain_V20.mq5
           
       - name: Commit Updated Script
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           git add AI_Overlord_Brain_V20.mq5
-          git commit -m "GitHub melahirkan script MT5 baru [Automated]" || echo "No changes"
-          git push
+          # Hanya commit jika ada perubahan
+          if ! git diff --cached --quiet; then
+            git commit -m "GitHub melahirkan script MT5 baru [Automated]"
+            git push
+          else
+            echo "Tidak ada perubahan untuk di-commit"
+          fi

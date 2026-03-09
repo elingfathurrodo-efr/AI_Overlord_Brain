@@ -4,7 +4,7 @@
 //|   Powered by Cloud Sync RAM-Only (Zero-Footprint)                |
 //+------------------------------------------------------------------+
 #property copyright   "AI-Overlord-Dev"
-#property link        "https://github.com/REPO_AKAN_DIISI_OTOMATIS"
+#property link        "https://github.com"
 #property version     "20.00"
 #property description "AI OVERLORD BRAIN — Full Autonomous Cloud Engine"
 #property strict
@@ -13,7 +13,7 @@
 #include <Trade\PositionInfo.mqh>
 
 // ═══════════════════════════════════════════════════════════════════
-//  INPUT PARAMETERS (AKAN DIISI OTOMATIS OLEH GITHUB)
+//  INPUT PARAMETERS (Dapat diubah di MT5)
 // ═══════════════════════════════════════════════════════════════════
 input group "═══ GITHUB CLOUD CONFIG ═══"
 input string  InpToken        = "TOKEN_AKAN_DIISI_OTOMATIS"; 
@@ -24,38 +24,35 @@ input int     InpSyncSec      = 3;        // Sinkronisasi RAM (Detik)
 input group "═══ NEURAL ARCHITECTURE ═══"
 input bool    InpAutoTrade    = true;     // Aktifkan Autopilot
 input double  InpNeuralSens   = 0.95;     // Sensitivitas Saraf
-input int     InpMaxNerves    = 60;       // Total 60 Saraf Aktif
 
 input group "═══ RISK MANAGEMENT ═══"
 input double  InpLot          = 0.01;
 input int     InpMagic        = 882199;
-input int     InpSL           = 400;
-input int     InpTP           = 800;
+input int     InpSL           = 400;      // Point
+input int     InpTP           = 800;      // Point
 
 // ═══════════════════════════════════════════════════════════════════
-//  GLOBAL DATA STRUCTURES
+//  GLOBAL DATA & STRUCTURES
 // ═══════════════════════════════════════════════════════════════════
 CTrade         m_trade;
 string         G_Memory_JSON  = "";  
 string         G_Signal_CMD   = "IDLE";
-double         G_NeuralHealth = 100.0;
+bool           G_CloudError   = false;
 
 struct Nerve {
-   string id;
    double pulse;
    color  node_color;
 };
 Nerve G_SystemNerves[60];
 
 // ═══════════════════════════════════════════════════════════════════
-//  BASE64 RAM DECODER (CORE ZERO-FOOTPRINT)
+//  BASE64 RAM DECODER
 // ═══════════════════════════════════════════════════════════════════
 string Base64Decode(string base64) {
    string b64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
    string decoded = "";
-   int i = 0, j = 0;
    int char_array_4[4], char_array_3[3];
-   int in_len = StringLen(base64);
+   int i = 0, j = 0, in_len = StringLen(base64);
 
    while (in_len-- && base64[i] != '=') {
       char_array_4[j++] = StringFind(b64, StringSubstr(base64, i, 1));
@@ -75,8 +72,11 @@ string Base64Decode(string base64) {
 //  CLOUD PROTOCOL ENGINE
 // ═══════════════════════════════════════════════════════════════════
 void SyncCloudToRAM() {
-   if(!TerminalInfoInteger(TERMINAL_CONNECTED)) return;
-   
+   if(InpToken == "TOKEN_AKAN_DIISI_OTOMATIS" || InpToken == "") {
+      G_CloudError = true;
+      return;
+   }
+
    string url = "https://api.github.com/repos/" + InpRepo + "/contents/" + InpFilePath;
    string auth = "Authorization: token " + InpToken + "\r\nUser-Agent: MT5-AI-Overlord\r\n";
    char post[], result[];
@@ -85,6 +85,7 @@ void SyncCloudToRAM() {
    int res = WebRequest("GET", url, auth, 5000, post, result, headers);
 
    if(res == 200) {
+      G_CloudError = false;
       string json_raw = CharArrayToString(result);
       int start = StringFind(json_raw, "\"content\":\"") + 11;
       int end = StringFind(json_raw, "\"", start);
@@ -97,55 +98,65 @@ void SyncCloudToRAM() {
          else if(StringFind(G_Memory_JSON, "SELL") >= 0) G_Signal_CMD = "SELL";
          else G_Signal_CMD = "IDLE";
       }
+   } else {
+      G_CloudError = true;
    }
 }
 
 // ═══════════════════════════════════════════════════════════════════
-//  MASSIVE VISUAL ENGINE (60 NERVES)
+//  VISUAL DASHBOARD ENGINE
 // ═══════════════════════════════════════════════════════════════════
 void RenderDashboard() {
-   // Frame Utama
-   CreateRect("AI_BG", 5, 5, 1150, 850, C'5,5,5', C'40,40,40', 2);
-   CreateLabel("AI_Title", 30, 45, "AI OVERLORD BRAIN — ULTIMATE CLOUD NEURAL (60 NERVES)", "Impact", 22, clrWhite);
+   CreateRect("AI_BG", 5, 5, 1150, 850, C'5,5,5', C'40,40,40', 1);
+   CreateLabel("AI_Title", 30, 45, "AI OVERLORD BRAIN — ULTIMATE CLOUD NEURAL (60 NERVES)", "Impact", 20, clrWhite);
 
    for(int i=0; i<60; i++) {
       int col = i / 15;
       int row = i % 15;
       int x = 30 + (col * 275);
-      int y = 110 + (row * 46);
+      int y = 100 + (row * 48);
       string n = "Nerve_" + (string)i;
       
       G_SystemNerves[i].pulse = MathRand() % 100;
-      color c = (G_SystemNerves[i].pulse > 80) ? clrLime : (G_SystemNerves[i].pulse < 20) ? clrRed : clrSkyBlue;
+      color c = (G_SystemNerves[i].pulse > 85) ? clrLime : (G_SystemNerves[i].pulse < 15) ? clrRed : clrDeepSkyBlue;
 
-      CreateRect(n+"_bg", x, y, 260, 40, C'15,15,15', c, 1);
-      CreateLabel(n+"_id", x+10, y+12, "NERVE_ID_0x" + (string)(i+1000), "Consolas", 9, clrGray);
-      CreateLabel(n+"_vl", x+190, y+12, (string)G_SystemNerves[i].pulse + "%", "Consolas", 10, c);
+      CreateRect(n+"_bg", x, y, 260, 42, C'15,15,15', c, 1);
+      CreateLabel(n+"_id", x+10, y+14, "NERVE_UNIT_0x" + (string)(i+1024), "Consolas", 8, clrGray);
+      CreateLabel(n+"_vl", x+200, y+14, (string)G_SystemNerves[i].pulse + "%", "Consolas", 10, c);
    }
 
-   // Info Panel
-   CreateRect("InfBox", 855, 550, 265, 260, C'10,20,10', clrGreen, 1);
-   CreateLabel("InfT", 870, 565, "SYSTEM AUTONOMOUS", "Arial Bold", 10, clrWhite);
-   CreateLabel("InfS", 870, 680, "SIGNAL: " + G_Signal_CMD, "Impact", 26, clrGold);
+   // Status Panel
+   color statusColor = G_CloudError ? clrRed : clrLime;
+   string statusMsg = G_CloudError ? "CLOUD DISCONNECTED / TOKEN MISSING" : "CLOUD SYNC: ACTIVE";
+   
+   CreateRect("InfBox", 855, 550, 265, 260, C'10,15,10', statusColor, 1);
+   CreateLabel("StatL", 870, 570, statusMsg, "Arial Bold", 9, statusColor);
+   CreateLabel("InfS", 870, 680, "SIGNAL: " + G_Signal_CMD, "Impact", 30, (G_Signal_CMD=="IDLE" ? clrWhite : clrGold));
 }
 
 // ═══════════════════════════════════════════════════════════════════
 //  CORE SYSTEM FUNCTIONS
 // ═══════════════════════════════════════════════════════════════════
 int OnInit() {
+   if(!TerminalInfoInteger(TERMINAL_DLL_ALLOWED)) {
+      Alert("Error: Izinkan DLL di Settings MT5!");
+      return(INIT_FAILED);
+   }
    m_trade.SetExpertMagicNumber(InpMagic);
    EventSetTimer(1);
    return(INIT_SUCCEEDED);
 }
 
 void OnDeinit(const int reason) {
+   EventKillTimer();
    ObjectsDeleteAll(0, "AI_");
    for(int i=0; i<60; i++) ObjectsDeleteAll(0, "Nerve_" + (string)i);
 }
 
 void OnTimer() {
    if(TimeCurrent() % InpSyncSec == 0) SyncCloudToRAM();
-   if(InpAutoTrade) {
+   
+   if(InpAutoTrade && !G_CloudError) {
       bool buy_exists = false, sell_exists = false;
       for(int i=PositionsTotal()-1; i>=0; i--) {
          if(PositionGetSymbol(i)==_Symbol && PositionGetInteger(POSITION_MAGIC)==InpMagic) {
@@ -155,16 +166,16 @@ void OnTimer() {
       }
 
       if(G_Signal_CMD == "BUY" && !buy_exists) {
-         CloseAll(); m_trade.Buy(InpLot, _Symbol, 0, 0, 0, "AI-AUTO");
+         CloseAll(); m_trade.Buy(InpLot, _Symbol, 0, 0, 0, "AI-OVERLORD");
       }
       if(G_Signal_CMD == "SELL" && !sell_exists) {
-         CloseAll(); m_trade.Sell(InpLot, _Symbol, 0, 0, 0, "AI-AUTO");
+         CloseAll(); m_trade.Sell(InpLot, _Symbol, 0, 0, 0, "AI-OVERLORD");
       }
    }
    RenderDashboard();
+   ChartRedraw();
 }
 
-// --- UTILITY ---
 void CreateRect(string name, int x, int y, int w, int h, color bg, color border, int sz) {
    ObjectCreate(0, name, OBJ_RECTANGLE_LABEL, 0, 0, 0);
    ObjectSetInteger(0, name, OBJPROP_XDISTANCE, x);
@@ -173,7 +184,6 @@ void CreateRect(string name, int x, int y, int w, int h, color bg, color border,
    ObjectSetInteger(0, name, OBJPROP_YSIZE, h);
    ObjectSetInteger(0, name, OBJPROP_BGCOLOR, bg);
    ObjectSetInteger(0, name, OBJPROP_BORDER_COLOR, border);
-   ObjectSetInteger(0, name, OBJPROP_WIDTH, sz);
    ObjectSetInteger(0, name, OBJPROP_CORNER, CORNER_LEFT_UPPER);
 }
 
@@ -189,8 +199,7 @@ void CreateLabel(string name, int x, int y, string txt, string font, int sz, col
 
 void CloseAll() {
    for(int i=PositionsTotal()-1; i>=0; i--) {
-      if(PositionGetSymbol(i)==_Symbol && PositionGetInteger(POSITION_MAGIC)==InpMagic) {
+      if(PositionGetSymbol(i)==_Symbol && PositionGetInteger(POSITION_MAGIC)==InpMagic)
          m_trade.PositionClose(PositionGetInteger(POSITION_TICKET));
-      }
    }
 }

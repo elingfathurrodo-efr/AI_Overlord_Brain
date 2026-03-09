@@ -1,5 +1,8 @@
-- name: Generate Full MQ5 File
+      - name: Generate Full MQ5 File
         run: |
+          # Ganti token dan repository di template
+          sed "s/TOKEN_AKAN_DIISI_OTOMATIS/${{secrets.MY_GITHUB_PAT}}/g" template_ea.mq5 > AI_Overlord_Brain_V20.mq5
+          sed -i "s|REPO_AKAN_DIISI_OTOMATIS|${{github.repository}}|g" AI_Overlord_Brain_V20.mq5
           # Replace token and repository in the template
           sed "s/TOKEN_TO_BE_AUTOMATICALLY_FILLED/${{secrets.MY_GITHUB_PAT}}/g" template_ea.mq5 > AI_Overlord_Brain_V20.mq5
           sed -i "s|REPO_TO_BE_AUTOMATICALLY_FILLED|${{github.repository}}|g" AI_Overlord_Brain_V20.mq5
@@ -9,10 +12,13 @@
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           git add AI_Overlord_Brain_V20.mq5
+          # Hanya commit jika ada perubahan
           # Only commit if there are changes
           if ! git diff --cached --quiet; then
+            git commit -m "GitHub melahirkan script MT5 baru [Automated]"
             git commit -m "GitHub generated new MT5 script [Automated]"
             git push
           else
+            echo "Tidak ada perubahan untuk di-commit"
             echo "No changes to commit"
           fi

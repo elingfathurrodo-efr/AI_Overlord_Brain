@@ -2,6 +2,8 @@ name: AI Overlord Builder
 on:
   push:
     branches: [ main ]
+    paths-ignore:
+      - 'AI_Overlord_Brain_V20.mq5'   # ← STOP INFINITE LOOP
   workflow_dispatch:
 
 jobs:
@@ -13,28 +15,36 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.MY_GITHUB_PAT }}
 
-      - name: Check template exists
+      - name: Cek template ada
         run: |
+          echo "📂 File di repo:"
+          ls -la
           if [ ! -f "template_ea.mq5" ]; then
-            echo "❌ ERROR: template_ea.mq5 not found!"
+            echo "❌ template_ea.mq5 TIDAK ADA!"
             exit 1
           fi
-          echo "✅ template_ea.mq5 found"
+          echo "✅ template_ea.mq5 ditemukan"
+          echo "📄 Isi template:"
+          cat template_ea.mq5
 
-      - name: Generate Neural Script
+      - name: Generate File MQ5
         run: |
-          sed "s|TOKEN_AKAN_DIISI_OTOMATIS|${{ secrets.MY_GITHUB_PAT }}|g" template_ea.mq5 > AI_Overlord_Brain_V20.mq5
+          cp template_ea.mq5 AI_Overlord_Brain_V20.mq5
+          sed -i "s|TOKEN_AKAN_DIISI_OTOMATIS|${{ secrets.MY_GITHUB_PAT }}|g" AI_Overlord_Brain_V20.mq5
           sed -i "s|REPO_AKAN_DIISI_OTOMATIS|${{ github.repository }}|g" AI_Overlord_Brain_V20.mq5
-          echo "✅ File generated:"
+          echo "✅ File berhasil digenerate:"
           cat AI_Overlord_Brain_V20.mq5
 
-      - name: Deploy to Repository
+      - name: Push ke Repo
         run: |
-          git config --global user.name 'github-actions'
-          git config --global user.email 'github-actions@github.com'
-          # ✅ FIX: Set remote URL dengan PAT agar push bisa auth
-          git remote set-url origin https://x-access-token:${{ secrets.MY_GITHUB_PAT }}@github.com/${{ github.repository }}
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git remote set-url origin https://x-access-token:${{ secrets.MY_GITHUB_PAT }}@github.com/${{ github.repository }}.git
           git add AI_Overlord_Brain_V20.mq5
-          git commit -m "🧬 AI Neural Update: Build V20 Success" || echo "Nothing to commit"
+          git diff --staged --quiet && echo "⚠️ Tidak ada perubahan" && exit 0
+          git commit -m "🧬 AI Neural Update: Build V20 Success"
           git push origin main
+          echo "✅ File berhasil di-push!"

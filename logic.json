@@ -9,14 +9,11 @@
 "trailing_ratio": 0.65,
 "ghost_sl": true,
 
-"ai_version": "V20",
-"logic_version": 1,
-
-"update_mode": "SAFE",
+"trade_direction_mode": "BOTH",
 "apply_to_new_trades_only": true,
 
-"brain_status": "ACTIVE",
-"data_valid": true,
+"ai_version": "V20",
+"logic_version": 1,
 
 "timestamp": "2026-03-10 01:10:00",
 "source": "AI_BRAIN"

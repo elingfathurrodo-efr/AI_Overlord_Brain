@@ -2,188 +2,40 @@ name: AI Overlord Builder
 
 on:
   workflow_dispatch:
-    inputs:
-      signal_action:
-        description: 'Signal Action (BUY/SELL/CLOSE/UPDATE)'
-        required: false
-        default: 'UPDATE'
-      symbol:
-        description: 'Symbol (e.g. EURUSD)'
-        required: false
-        default: 'EURUSD'
-      lot:
-        description: 'Lot Size'
-        required: false
-        default: '0.01'
-      comment:
-        description: 'Comment / Notes'
-        required: false
-        default: 'AI Overlord Signal'
-
-  # Bisa juga dipicu via repository_dispatch (menerima signal dari luar)
-  repository_dispatch:
-    types: [send-signal, update-signal, close-signal]
-
-  # Jadwal otomatis setiap 5 menit (opsional)
-  # schedule:
-  #   - cron: '*/5 * * * *'
 
 permissions:
   contents: write
-
-env:
-  # ✅ Token otomatis dari GitHub Secrets
-  GH_TOKEN: ${{ secrets.MY_GITHUB_PAT }}
-  # ✅ Repo otomatis dari GitHub context
-  REPO_OWNER: ${{ github.repository_owner }}
-  REPO_NAME: ${{ github.event.repository.name }}
-  FULL_REPO: ${{ github.repository }}
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      # ── Step 1: Checkout repo ──────────────────────────────────────────────
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
         with:
-          token: ${{ secrets.MY_GITHUB_PAT }}
-          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
 
-      # ── Step 2: Setup Git Identity ─────────────────────────────────────────
-      - name: Setup Git
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
-      # ── Step 3: Generate MQ5 File ──────────────────────────────────────────
       - name: Generate MQ5
         run: |
-          echo "🔧 Generating EA..."
+          echo "Generating EA..."
 
-          # Tentukan signal dari input atau repository_dispatch
-          if [ "${{ github.event_name }}" == "repository_dispatch" ]; then
-            SIGNAL_ACTION="${{ github.event.client_payload.action }}"
-            SYMBOL="${{ github.event.client_payload.symbol }}"
-            LOT="${{ github.event.client_payload.lot }}"
-            COMMENT="${{ github.event.client_payload.comment }}"
-          else
-            SIGNAL_ACTION="${{ github.event.inputs.signal_action }}"
-            SYMBOL="${{ github.event.inputs.symbol }}"
-            LOT="${{ github.event.inputs.lot }}"
-            COMMENT="${{ github.event.inputs.comment }}"
+          if [ ! -f template_ea.mq5 ]; then
+            echo "// AI Overlord Brain V20 - Neural Update" > template_ea.mq5
+            echo "// Token: TOKEN_AKAN_DIISI_OTOMATIS" >> template_ea.mq5
           fi
 
-          # Default values jika kosong
-          SIGNAL_ACTION="${SIGNAL_ACTION:-UPDATE}"
-          SYMBOL="${SYMBOL:-EURUSD}"
-          LOT="${LOT:-0.01}"
-          COMMENT="${COMMENT:-AI Overlord Signal}"
-          TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          sed "s|TOKEN_AKAN_DIISI_OTOMATIS|TEST_TOKEN|g" template_ea.mq5 > AI_Overlord_Brain_V20.mq5
 
-          # ✅ Token dan Repo otomatis terisi dari secrets & context
-          API_TOKEN="${{ secrets.MY_GITHUB_PAT }}"
-          API_REPO="https://api.github.com/repos/${{ github.repository }}"
+          echo "File generated:"
+          ls -la
 
-          echo "📡 Signal: $SIGNAL_ACTION | Symbol: $SYMBOL | Lot: $LOT"
-
-          if [ -f template_ea.mq5 ]; then
-            echo "✅ Template found, processing..."
-
-            # Ganti placeholder token dan repo di template
-            sed \
-              -e "s|FORGE_ARM_ALLIES_DYNAMICS_TOKEN|${API_TOKEN}|g" \
-              -e "s|FORGE_ARM_ALLIES_DYNAMICS_REPO|https://api.github.com/repos/${{ github.repository }}|g" \
-              -e "s|FORGE_ARM_ALLIES_DYNAMICS2|${{ github.repository }}|g" \
-              template_ea.mq5 > AI_Overlord_Brain_V25.mq5
-
-            echo "✅ File generated from template"
-          else
-            echo "⚠️ Template not found, generating fresh..."
-            cat > AI_Overlord_Brain_V25.mq5 << 'MQLEOF'
-// ============================================================
-// AI OVERLORD BRAIN V25 - AUTO GENERATED
-// Token & Repo: Auto-injected by GitHub Actions
-// ============================================================
-#property copyright "AI Overlord Dev"
-#property link      "https://github.com/${{ github.repository }}"
-#property version   "25.00"
-MQLEOF
-          fi
-
-          # ✅ Update logic.json dengan signal terbaru
-          cat > logic.json << EOF
-{
-  "timestamp": "${TIMESTAMP}",
-  "version": "25.0",
-  "repo": "${{ github.repository }}",
-  "signal": {
-    "action": "${SIGNAL_ACTION}",
-    "symbol": "${SYMBOL}",
-    "lot": ${LOT},
-    "comment": "${COMMENT}",
-    "issued_by": "${{ github.actor }}",
-    "run_id": "${{ github.run_id }}"
-  },
-  "status": "active",
-  "api_endpoint": "https://api.github.com/repos/${{ github.repository }}/contents/logic.json"
-}
-EOF
-
-          echo "✅ logic.json updated"
-          echo "📄 Files:"
-          ls -la *.mq5 *.json 2>/dev/null || ls -la
-
-      # ── Step 4: Commit & Push ──────────────────────────────────────────────
       - name: Commit File
         run: |
-          git add AI_Overlord_Brain_V25.mq5 logic.json || true
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
 
-          if git diff --staged --quiet; then
-            echo "ℹ️ No changes to commit"
-          else
-            TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-            git commit -m "🤖 AI Overlord Brain V25 - Auto Update ${TIMESTAMP}"
-            git push
-            echo "✅ Pushed to repository"
-          fi
+          git add AI_Overlord_Brain_V20.mq5
+          git commit -m "Generate EA file" || echo "No changes"
 
-      # ── Step 5: Send Signal via GitHub API ─────────────────────────────────
-      - name: Send Signal Notification
-        run: |
-          echo "📡 Sending signal notification..."
-
-          # Kirim repository_dispatch event ke repo ini sendiri (atau repo lain)
-          SIGNAL_ACTION="${{ github.event.inputs.signal_action || github.event.client_payload.action }}"
-          SYMBOL="${{ github.event.inputs.symbol || github.event.client_payload.symbol }}"
-
-          # Trigger workflow dispatch notification
-          curl -s -X POST \
-            -H "Authorization: token ${{ secrets.MY_GITHUB_PAT }}" \
-            -H "Accept: application/vnd.github+json" \
-            "https://api.github.com/repos/${{ github.repository }}/dispatches" \
-            -d "{
-              \"event_type\": \"signal-received\",
-              \"client_payload\": {
-                \"action\": \"${SIGNAL_ACTION:-UPDATE}\",
-                \"symbol\": \"${SYMBOL:-EURUSD}\",
-                \"status\": \"generated\",
-                \"run_id\": \"${{ github.run_id }}\",
-                \"timestamp\": \"$(date -u +%s)\"
-              }
-            }" && echo "✅ Signal sent" || echo "⚠️ Signal send failed (non-critical)"
-
-      # ── Step 6: Summary ────────────────────────────────────────────────────
-      - name: Summary
-        run: |
-          echo "## 🤖 AI Overlord Brain - Build Summary" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "| Parameter | Value |" >> $GITHUB_STEP_SUMMARY
-          echo "|-----------|-------|" >> $GITHUB_STEP_SUMMARY
-          echo "| Repository | \`${{ github.repository }}\` |" >> $GITHUB_STEP_SUMMARY
-          echo "| Token | \`MY_GITHUB_PAT (auto)\` |" >> $GITHUB_STEP_SUMMARY
-          echo "| Signal | \`${{ github.event.inputs.signal_action || 'dispatch' }}\` |" >> $GITHUB_STEP_SUMMARY
-          echo "| Symbol | \`${{ github.event.inputs.symbol || 'auto' }}\` |" >> $GITHUB_STEP_SUMMARY
-          echo "| Run ID | \`${{ github.run_id }}\` |" >> $GITHUB_STEP_SUMMARY
-          echo "| Status | ✅ Success |" >> $GITHUB_STEP_SUMMARY
+          git push

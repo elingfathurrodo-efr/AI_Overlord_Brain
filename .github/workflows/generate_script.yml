@@ -20,11 +20,11 @@ jobs:
           sed -i "s|REPO_AKAN_DIISI_OTOMATIS|${{ github.repository }}|g" AI_Overlord_Brain_V20.mq5
 
       - name: Deploy to Repository
+        env:
+          GITHUB_TOKEN: ${{ secrets.MY_GITHUB_PAT }}
         run: |
           git config --global user.name 'github-actions'
           git config --global user.email 'github-actions@github.com'
           git add AI_Overlord_Brain_V20.mq5
           git commit -m "🧬 AI Neural Update: Build V20 Success" || exit 0
           git push origin main
-        env:
-          GITHUB_TOKEN: ${{ secrets.MY_GITHUB_PAT }}

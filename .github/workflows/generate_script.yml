@@ -1,37 +1,36 @@
 name: AI Overlord Builder
+
 on:
-  push:
-    branches: [ main ]
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
+
     steps:
-      - name: Checkout Code
+      - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Generate Neural Script
+      - name: Generate MQ5
         run: |
-          # Jika template_ea.mq5 belum ada, kita buatkan isinya agar tidak error
+          echo "Generating EA..."
+
           if [ ! -f template_ea.mq5 ]; then
             echo "// AI Overlord Brain V20 - Neural Update" > template_ea.mq5
             echo "// Token: TOKEN_AKAN_DIISI_OTOMATIS" >> template_ea.mq5
           fi
-          
-          # Membuat file baru berdasarkan template
-          sed "s|TOKEN_AKAN_DIISI_OTOMATIS|${{ secrets.MY_GITHUB_PAT }}|g" template_ea.mq5 > AI_Overlord_Brain_V20.mq5
-          sed -i "s|REPO_AKAN_DIISI_OTOMATIS|${{ github.repository }}|g" AI_Overlord_Brain_V20.mq5
 
-      - name: Deploy to Repository
-        env:
-          GITHUB_TOKEN: ${{ secrets.MY_GITHUB_PAT }}
+          sed "s|TOKEN_AKAN_DIISI_OTOMATIS|TEST_TOKEN|g" template_ea.mq5 > AI_Overlord_Brain_V20.mq5
+
+          echo "File generated:"
+          ls -la
+
+      - name: Commit File
         run: |
-          git config --global user.name 'github-actions'
-          git config --global user.email 'github-actions@github.com'
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+
           git add AI_Overlord_Brain_V20.mq5
-          git commit -m "🧬 AI Neural Update: Build V20 Success" || exit 0
-          # Memaksa push ke branch main
-          git push origin main
+          git commit -m "Generate EA file" || echo "No changes"
+
+          git push

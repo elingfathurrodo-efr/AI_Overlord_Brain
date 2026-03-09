@@ -75,6 +75,8 @@ string Base64Decode(string base64) {
 //  CLOUD PROTOCOL ENGINE
 // ═══════════════════════════════════════════════════════════════════
 void SyncCloudToRAM() {
+   if(!TerminalInfoInteger(TERMINAL_CONNECTED)) return;
+   
    string url = "https://api.github.com/repos/" + InpRepo + "/contents/" + InpFilePath;
    string auth = "Authorization: token " + InpToken + "\r\nUser-Agent: MT5-AI-Overlord\r\n";
    char post[], result[];
@@ -144,8 +146,20 @@ void OnDeinit(const int reason) {
 void OnTimer() {
    if(TimeCurrent() % InpSyncSec == 0) SyncCloudToRAM();
    if(InpAutoTrade) {
-      if(G_Signal_CMD == "BUY" && PositionsTotal() == 0) m_trade.Buy(InpLot, _Symbol);
-      if(G_Signal_CMD == "SELL" && PositionsTotal() == 0) m_trade.Sell(InpLot, _Symbol);
+      bool buy_exists = false, sell_exists = false;
+      for(int i=PositionsTotal()-1; i>=0; i--) {
+         if(PositionGetSymbol(i)==_Symbol && PositionGetInteger(POSITION_MAGIC)==InpMagic) {
+            if(PositionGetInteger(POSITION_TYPE)==POSITION_TYPE_BUY) buy_exists = true;
+            if(PositionGetInteger(POSITION_TYPE)==POSITION_TYPE_SELL) sell_exists = true;
+         }
+      }
+
+      if(G_Signal_CMD == "BUY" && !buy_exists) {
+         CloseAll(); m_trade.Buy(InpLot, _Symbol, 0, 0, 0, "AI-AUTO");
+      }
+      if(G_Signal_CMD == "SELL" && !sell_exists) {
+         CloseAll(); m_trade.Sell(InpLot, _Symbol, 0, 0, 0, "AI-AUTO");
+      }
    }
    RenderDashboard();
 }
@@ -171,4 +185,12 @@ void CreateLabel(string name, int x, int y, string txt, string font, int sz, col
    ObjectSetString(0, name, OBJPROP_FONT, font);
    ObjectSetInteger(0, name, OBJPROP_FONTSIZE, sz);
    ObjectSetInteger(0, name, OBJPROP_COLOR, clr);
+}
+
+void CloseAll() {
+   for(int i=PositionsTotal()-1; i>=0; i--) {
+      if(PositionGetSymbol(i)==_Symbol && PositionGetInteger(POSITION_MAGIC)==InpMagic) {
+         m_trade.PositionClose(PositionGetInteger(POSITION_TICKET));
+      }
+   }
 }

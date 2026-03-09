@@ -16,8 +16,8 @@ jobs:
       - name: Generate Neural Script
         run: |
           touch AI_Overlord_Brain_V20.mq5
-          sed "s|TOKEN_AKAN_DIISI_OTOMATIS|${{ secrets.MY_GITHUB_PAT }}|g" template_ea.mq5 > AI_Overlord_Brain_V20.mq5
-          sed -i "s|REPO_AKAN_DIISI_OTOMATIS|${{ github.repository }}|g" template_ea.mq5
+          sed "s|TOKEN_AKAN_DIISI_OTOMATIS|${{secrets.MY_GITHUB_PAT}}|g" template_ea.mq5 > AI_Overlord_Brain_V20.mq5
+          sed -i "s|REPO_AKAN_DIISI_OTOMATIS|${{github.repository}}|g" template_ea.mq5
 
       - name: Deploy to Repository
         env:

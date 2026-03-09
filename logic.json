@@ -1,12 +1,23 @@
 {
-  "command": "BUY",
-  "kill": false,
-  "confidence": "HIGH",
-  "signal_score": 92.5,
-  "lot_override": 0.02,
-  "max_layer": 2,
-  "trailing_ratio": 0.65,
-  "ghost_sl": true,
-  "timestamp": "2026-03-10 01:10:00",
-  "source": "AI_BRAIN"
+"command": "BUY",
+"kill": false,
+"confidence": "HIGH",
+"signal_score": 92.5,
+
+"lot_override": 0.02,
+"max_layer": 2,
+"trailing_ratio": 0.65,
+"ghost_sl": true,
+
+"ai_version": "V20",
+"logic_version": 1,
+
+"update_mode": "SAFE",
+"apply_to_new_trades_only": true,
+
+"brain_status": "ACTIVE",
+"data_valid": true,
+
+"timestamp": "2026-03-10 01:10:00",
+"source": "AI_BRAIN"
 }

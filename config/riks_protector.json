@@ -1,4 +1,6 @@
 {
+    "protection": 0.95,
+    "equity_guard": 0.85,
     "global_kill_switch": false,
     "max_daily_drawdown_percent": 5.0,
     "max_total_drawdown_percent": 15.0,

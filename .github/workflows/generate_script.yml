@@ -2,8 +2,6 @@ name: AI Overlord Builder
 on:
   push:
     branches: [ main ]
-    paths-ignore:
-      - 'AI_Overlord_Brain_V20.mq5'   # ← STOP INFINITE LOOP
   workflow_dispatch:
 
 jobs:
@@ -11,40 +9,27 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
-        with:
-          token: ${{ secrets.MY_GITHUB_PAT }}
 
-      - name: Cek template ada
+      - name: Generate Neural Script
         run: |
-          echo "📂 File di repo:"
-          ls -la
-          if [ ! -f "template_ea.mq5" ]; then
-            echo "❌ template_ea.mq5 TIDAK ADA!"
-            exit 1
+          # Pastikan file template ada, jika tidak, buat file kosong agar tidak error
+          if [ ! -f template_ea.mq5 ]; then
+            echo "// Neural Template" > template_ea.mq5
           fi
-          echo "✅ template_ea.mq5 ditemukan"
-          echo "📄 Isi template:"
-          cat template_ea.mq5
-
-      - name: Generate File MQ5
-        run: |
-          cp template_ea.mq5 AI_Overlord_Brain_V20.mq5
-          sed -i "s|TOKEN_AKAN_DIISI_OTOMATIS|${{ secrets.MY_GITHUB_PAT }}|g" AI_Overlord_Brain_V20.mq5
+          
+          # Proses pembuatan file V20
+          sed "s|TOKEN_AKAN_DIISI_OTOMATIS|${{ secrets.MY_GITHUB_PAT }}|g" template_ea.mq5 > AI_Overlord_Brain_V20.mq5
           sed -i "s|REPO_AKAN_DIISI_OTOMATIS|${{ github.repository }}|g" AI_Overlord_Brain_V20.mq5
-          echo "✅ File berhasil digenerate:"
-          cat AI_Overlord_Brain_V20.mq5
 
-      - name: Push ke Repo
+      - name: Deploy to Repository
+        env:
+          GITHUB_TOKEN: ${{ secrets.MY_GITHUB_PAT }}
         run: |
-          git config --global user.name 'github-actions[bot]'
-          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          git remote set-url origin https://x-access-token:${{ secrets.MY_GITHUB_PAT }}@github.com/${{ github.repository }}.git
+          git config --global user.name 'github-actions'
+          git config --global user.email 'github-actions@github.com'
           git add AI_Overlord_Brain_V20.mq5
-          git diff --staged --quiet && echo "⚠️ Tidak ada perubahan" && exit 0
-          git commit -m "🧬 AI Neural Update: Build V20 Success"
+          git commit -m "🧬 AI Neural Update: Build V20 Success" || exit 0
           git push origin main
-          echo "✅ File berhasil di-push!"

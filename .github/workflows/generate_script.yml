@@ -1,20 +1,4 @@
-name: Generate MT5 Script Automatically
-
-on:
-  push:
-    branches: [ main ]
-  workflow_dispatch:
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Generate Full MQ5 File
+- name: Generate Full MQ5 File
         run: |
           # Replace token and repository in the template
           sed "s/TOKEN_TO_BE_AUTOMATICALLY_FILLED/${{secrets.MY_GITHUB_PAT}}/g" template_ea.mq5 > AI_Overlord_Brain_V20.mq5
@@ -32,4 +16,3 @@ jobs:
           else
             echo "No changes to commit"
           fi
-

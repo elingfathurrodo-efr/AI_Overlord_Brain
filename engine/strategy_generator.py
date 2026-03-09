@@ -2,48 +2,58 @@ import json
 import os
 import random
 
-# --- PATH KONFIGURASI ---
-FORMULA_DIR = 'formulas/'
-GENOME_PATH = 'genomes/genomes_active.json'
+# ----------------------------
+# PATH KONFIGURASI
+# ----------------------------
+FORMULA_DIR = 'formulas/'              # Folder berisi file .json indikator dan rumus trading
+GENOME_PATH = 'genomes/genomes_active.json'  # File DNA aktif
 
+# ----------------------------
+# GENERATIVE STRATEGY ENGINE
+# ----------------------------
 def generate_new_strategy():
+
     print("🧪 Generative Engine: Menciptakan Kombinasi Strategi Baru...")
 
-    # 1. List semua rumus yang tersedia di folder formulas/
+    # 1️⃣ List semua rumus yang tersedia
     available_formulas = [f for f in os.listdir(FORMULA_DIR) if f.endswith('.json')]
     
     if len(available_formulas) < 2:
-        print("⚠️ Rumus tidak cukup untuk kombinasi. Tambahkan lebih banyak file .json di folder formulas/.")
+        print("⚠️ Tidak cukup rumus. Tambahkan file .json di folder formulas/")
         return
 
-    # 2. Pilih 2-3 rumus secara acak untuk dikombinasikan (Prinsip 4)
+    # 2️⃣ Pilih 2-3 rumus acak (bisa dari internet strategy + elite + indikator)
     selected_formulas = random.sample(available_formulas, k=min(3, len(available_formulas)))
     print(f"🧬 Menggabungkan: {', '.join(selected_formulas)}")
 
+    # 3️⃣ Buat DNA baru
     new_dna = {
-        "strategy_id": f"GEN-{random.randint(1000, 9999)}",
+        "strategy_id": f"GEN-{random.randint(10000,99999)}",
         "active_components": selected_formulas,
         "parameters": {},
         "risk_management": {
             "max_lot": 0.5,
-            "use_ghost_mode": True
+            "use_ghost_mode": True,
+            "trailing_ratio": 0.65
         }
     }
 
-    # 3. Ekstrak parameter dari tiap rumus dan gabungkan (Modular)
+    # 4️⃣ Ambil parameter default dari setiap formula
     for formula_file in selected_formulas:
         with open(os.path.join(FORMULA_DIR, formula_file), 'r') as f:
             formula_data = json.load(f)
-            # Ambil parameter default dari rumus
             for key, value in formula_data.items():
                 new_dna["parameters"][f"{formula_file.replace('.json','')}_{key}"] = value
 
-    # 4. Simpan sebagai DNA Aktif untuk dicoba oleh MT5
+    # 5️⃣ Simpan sebagai DNA aktif
     with open(GENOME_PATH, 'w') as f:
         json.dump(new_dna, f, indent=4)
-    
+
     print(f"✅ Strategi Generatif Berhasil Dibuat: {new_dna['strategy_id']}")
 
+
+# ----------------------------
+# EKSEKUSI LANGSUNG
+# ----------------------------
 if __name__ == "__main__":
     generate_new_strategy()
-

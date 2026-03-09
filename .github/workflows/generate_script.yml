@@ -1,7 +1,40 @@
+name: AI Overlord Builder
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Check template exists
+        run: |
+          if [ ! -f "template_ea.mq5" ]; then
+            echo "❌ ERROR: template_ea.mq5 not found!"
+            exit 1
+          fi
+          echo "✅ template_ea.mq5 found"
+
+      - name: Generate Neural Script
+        run: |
+          sed "s|TOKEN_AKAN_DIISI_OTOMATIS|${{ secrets.MY_GITHUB_PAT }}|g" template_ea.mq5 > AI_Overlord_Brain_V20.mq5
+          sed -i "s|REPO_AKAN_DIISI_OTOMATIS|${{ github.repository }}|g" AI_Overlord_Brain_V20.mq5
+          echo "✅ File generated:"
+          cat AI_Overlord_Brain_V20.mq5
+
       - name: Deploy to Repository
         run: |
           git config --global user.name 'github-actions'
           git config --global user.email 'github-actions@github.com'
+          # ✅ FIX: Set remote URL dengan PAT agar push bisa auth
+          git remote set-url origin https://x-access-token:${{ secrets.MY_GITHUB_PAT }}@github.com/${{ github.repository }}
           git add AI_Overlord_Brain_V20.mq5
-          git commit -m "🧬 Force Build V20" || exit 0
-          git push https://${{ secrets.MY_GITHUB_PAT }}@github.com/${{ github.repository }}.git main
+          git commit -m "🧬 AI Neural Update: Build V20 Success" || echo "Nothing to commit"
+          git push origin main

@@ -1,0 +1,26 @@
+name: Generate MT5 Script Automatically
+
+on:
+  push:
+    branches: [ main ] # Setiap kali Anda push/update file, script baru akan lahir
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Generate Full MQ5 File
+        run: |
+          # Mengambil template dan mengisi Token serta Repo Anda secara otomatis
+          sed "s/{{TOKEN_AKAN_DIISI_OTOMATIS}}/${{ secrets.MY_GITHUB_PAT }}/g" template_ea.mq5 > AI_Overlord_Brain_V20.mq5
+          sed -i "s/{{REPO_AKAN_DIISI_OTOMATIS}}/${{ github.repository }}/g" AI_Overlord_Brain_V20.mq5
+          
+      - name: Commit Updated Script
+        run: |
+          git config --global user.name 'AI-Overlord-Bot'
+          git config --global user.email 'bot@ai-overlord.com'
+          git add AI_Overlord_Brain_V20.mq5
+          git commit -m "GitHub melahirkan script MT5 baru [Automated]"
+          git push

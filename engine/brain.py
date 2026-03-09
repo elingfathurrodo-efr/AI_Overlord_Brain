@@ -4,6 +4,9 @@ import pandas as pd
 import numpy as np
 from datetime import datetime
 
+from engine.market_regime import detect_market_regime
+
+
 # =========================
 # PATH
 # =========================
@@ -250,6 +253,18 @@ if __name__ == "__main__":
     if df is None:
 
         update_logic("IDLE","INITIALIZING",0)
+        exit()
+
+    # MARKET REGIME DETECTOR
+    regime = detect_market_regime(df)
+
+    print("Market Mode:", regime)
+
+    # CHAOS PROTECTION
+    if regime == "CHAOS":
+
+        update_logic("IDLE","LOW",0)
+        print("⚠ Market Chaos Detected - Trading Paused")
         exit()
 
     sensory = sensory_layer(df,weights)

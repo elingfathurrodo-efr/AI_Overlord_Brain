@@ -2,7 +2,7 @@ name: Generate MT5 Script Automatically
 
 on:
   push:
-    branches: [main]
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:

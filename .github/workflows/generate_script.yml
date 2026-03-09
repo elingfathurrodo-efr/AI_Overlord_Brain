@@ -16,7 +16,7 @@ jobs:
 
       - name: Generate Full MQ5 File
         run: |
-          # Gunakan perintah sed yang lebih bersih
+          # Gunakan perintah SED (bukan sad)
           sed "s/TOKEN_AKAN_DIISI_OTOMATIS/${{ secrets.MY_GITHUB_PAT }}/g" template_ea.mq5 > AI_Overlord_Brain_V20.mq5
           sed -i "s|REPO_AKAN_DIISI_OTOMATIS|${{ github.repository }}|g" AI_Overlord_Brain_V20.mq5
           

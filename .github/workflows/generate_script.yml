@@ -1,48 +1,35 @@
-name: AI Overlord Builder & Neural Evolution
-
+name: AI Overlord Builder
 on:
   push:
     branches: [ main ]
-  workflow_dispatch: 
+  workflow_dispatch:
 
 jobs:
-  build-and-evolve:
+  build:
     runs-on: ubuntu-latest
+    # --- BARIS WAJIB DIBAWAH INI AGAR FILE MUNCUL LAGI ---
     permissions:
       contents: write
-    
+    # ----------------------------------------------------
     steps:
-      - name: 🛰️ Checkout Repository
+      - name: Checkout Code
         uses: actions/checkout@v3
 
-      - name: 🐍 Set Up Python Environment
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.9'
-
-      - name: 🧬 Run Strategy Generator
+      - name: Generate Neural Script
         run: |
-          # Pastikan folder engine, formulas, dan genomes sudah ada
-          python engine/strategy_generator.py || echo "⚠️ Python script skipped"
-
-      - name: 🛠️ Build Final MQ5 Script
-        run: |
-          # Mengisi Token dan Repo secara otomatis ke file baru
-          sed "s/TOKEN_AKAN_DIISI_OTOMATIS/${{ secrets.MY_GITHUB_PAT }}/g" template_ea.mq5 > AI_Overlord_Brain_V20.mq5
+          # Buat file baru jika sebelumnya sudah dihapus
+          touch AI_Overlord_Brain_V20.mq5
+          # Suntikkan token dan nama repo
+          sed "s|TOKEN_AKAN_DIISI_OTOMATIS|${{ secrets.MY_GITHUB_PAT }}|g" template_ea.mq5 > AI_Overlord_Brain_V20.mq5
           sed -i "s|REPO_AKAN_DIISI_OTOMATIS|${{ github.repository }}|g" AI_Overlord_Brain_V20.mq5
-          echo "✅ Final script generated successfully."
 
-      - name: 🚀 Deploy Updates to GitHub
+      - name: Deploy to Repository
         env:
           GITHUB_TOKEN: ${{ secrets.MY_GITHUB_PAT }}
         run: |
           git config --global user.name 'AI-Overlord-Bot'
           git config --global user.email 'bot@ai-overlord.com'
-          
-          # Menambahkan semua file hasil update
-          git add AI_Overlord_Brain_V20.mq5 genomes/*.json index.json logic.json || true
-          
-          # Commit hanya jika ada perubahan
-          git commit -m "🧬 AI Neural Update: v20.0 [Build Success]" || exit 0
-          
+          # Paksa add file yang baru dibuat
+          git add AI_Overlord_Brain_V20.mq5
+          git commit -m "🧬 AI Neural Update: Build V20 Success" || exit 0
           git push origin main

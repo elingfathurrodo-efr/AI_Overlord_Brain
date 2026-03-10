@@ -1,5 +1,6 @@
 import json
 import time
+import os
 
 log_file="../../dashboard/api/evolution.json"
 
@@ -13,12 +14,12 @@ def log_evolution(genome,score):
 
     }
 
-    try:
+    if os.path.exists(log_file):
 
         with open(log_file,"r") as f:
             data=json.load(f)
 
-    except:
+    else:
 
         data=[]
 
@@ -27,4 +28,4 @@ def log_evolution(genome,score):
     with open(log_file,"w") as f:
         json.dump(data,f,indent=2)
 
-    print("Evolution logged")
+    print("AI Evolution logged")

@@ -4,27 +4,25 @@
 bool BreakoutBuy()
 {
 
-   double high = iHigh(_Symbol,PERIOD_CURRENT,1);
-   double current = SymbolInfoDouble(_Symbol,SYMBOL_BID);
+   double prevHigh = iHigh(_Symbol,PERIOD_CURRENT,1);
+   double price = SymbolInfoDouble(_Symbol,SYMBOL_BID);
 
-   if(current > high)
-      return(true);
+   if(price > prevHigh)
+      return true;
 
-   return(false);
-
+   return false;
 }
 
 bool BreakoutSell()
 {
 
-   double low = iLow(_Symbol,PERIOD_CURRENT,1);
-   double current = SymbolInfoDouble(_Symbol,SYMBOL_BID);
+   double prevLow = iLow(_Symbol,PERIOD_CURRENT,1);
+   double price = SymbolInfoDouble(_Symbol,SYMBOL_BID);
 
-   if(current < low)
-      return(true);
+   if(price < prevLow)
+      return true;
 
-   return(false);
-
+   return false;
 }
 
 #endif

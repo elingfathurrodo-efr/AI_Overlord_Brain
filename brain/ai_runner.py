@@ -1,7 +1,7 @@
 import time
 
 # ==========================================
-# CURIOSITY ENGINE
+# CURIOSITY ENGINE (Internet Learning)
 # ==========================================
 
 try:
@@ -12,7 +12,7 @@ except:
 
 
 # ==========================================
-# MEMORY ENGINE
+# MEMORY ENGINE (Trauma Memory)
 # ==========================================
 
 try:
@@ -20,6 +20,20 @@ try:
 except:
     def load_trauma():
         return {"traumas":[]}
+
+
+# ==========================================
+# ECONOMIC INTELLIGENCE
+# ==========================================
+
+try:
+    from economy.economic_engine import analyze_market_conditions
+except:
+    def analyze_market_conditions():
+        return {
+            "market_mode":"NORMAL",
+            "volatility_level":2
+        }
 
 
 # ==========================================
@@ -83,6 +97,26 @@ def run_memory():
 
 
 # ==========================================
+# ECONOMIC INTELLIGENCE RUNNER
+# ==========================================
+
+def run_economic_intelligence():
+
+    print("\n[AI] Economic Intelligence")
+
+    try:
+
+        state = analyze_market_conditions()
+
+        print("[AI] Market Mode:", state["market_mode"])
+        print("[AI] Volatility Level:", state["volatility_level"])
+
+    except Exception as e:
+
+        print("[AI] Economic engine error:", e)
+
+
+# ==========================================
 # EVOLUTION RUNNER
 # ==========================================
 
@@ -142,6 +176,8 @@ def main_loop():
         run_curiosity()
 
         run_memory()
+
+        run_economic_intelligence()
 
         run_evolution()
 

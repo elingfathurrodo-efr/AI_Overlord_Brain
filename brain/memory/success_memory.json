@@ -1,0 +1,10 @@
+{
+ "success_cases":[
+  {
+   "strategy":"trend_following",
+   "volatility":1.2,
+   "spread":15,
+   "result":"profit"
+  }
+ ]
+}

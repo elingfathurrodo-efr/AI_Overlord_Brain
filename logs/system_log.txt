@@ -1,4 +1,0 @@
-[2026-03-08 22:50:00] SYSTEM: AI Overlord V20 Brain Initialized.
-[2026-03-08 22:50:00] SYSTEM: Neural Network Status: ONLINE.
-[2026-03-08 22:50:00] SYSTEM: Connecting to MT5 Cloud Bridge...
-[2026-03-08 22:50:01] INFO: Folder structure verified. Waiting for market data.

@@ -1,0 +1,22 @@
+{
+ "indicators":[
+  "RSI",
+  "EMA",
+  "MACD",
+  "ATR",
+  "BOLLINGER",
+  "STOCHASTIC"
+ ],
+ 
+ "entry_types":[
+  "trend_follow",
+  "breakout",
+  "mean_reversion"
+ ],
+ 
+ "timeframes":[
+  "M5",
+  "M15",
+  "H1"
+ ]
+}

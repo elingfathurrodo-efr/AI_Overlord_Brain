@@ -1,193 +1,130 @@
-//+------------------------------------------------------------------+
-//| AI OVERLORD EA                                                   |
-//| Autonomous AI Trading System                                     |
-//| Core Execution Engine                                            |
-//+------------------------------------------------------------------+
 #property strict
-#property version   "1.00"
 
-// Config
 #include "config/ai_settings.mqh"
 
-// Market reader
+// AI ENGINE
 #include "core/ai_engine/market_reader/market_reader.mqh"
+#include "core/ai_engine/neural_decision/neural_core.mqh"
+#include "core/ai_engine/neural_decision/neural_loader.mqh"
 
-// Strategy loader
-#include "core/ai_engine/strategy_library/ema_strategy.mqh"
-
-// Protection system
 #include "core/ai_engine/protection_system/equity_guard.mqh"
+#include "core/ai_engine/protection_system/profit_lock.mqh"
+#include "core/ai_engine/protection_system/layer_control.mqh"
 
-//-------------------------------------------------------------------
+#include "core/ai_engine/mining_scalping_mode/micro_scalping.mqh"
+#include "core/ai_engine/mining_scalping_mode/trade_frequency_ai.mqh"
+
+#include "learning/trade_memory.mqh"
+#include "learning/performance_analyzer.mqh"
+
+//------------------------------------
 // GLOBAL VARIABLES
-//-------------------------------------------------------------------
+//------------------------------------
 
-double CurrentSpread;
-double CurrentATR;
+double lotSize;
 
-bool AllowTrading=true;
-
-//-------------------------------------------------------------------
-// INITIALIZATION
-//-------------------------------------------------------------------
+//------------------------------------
+// INIT
+//------------------------------------
 
 int OnInit()
 {
-   Print("AI Overlord EA Initialized");
 
-   InitializeSystem();
+   Print("AI Overlord EA Started");
+
+   LoadNeuralWeights();
 
    return(INIT_SUCCEEDED);
+
 }
 
-//-------------------------------------------------------------------
-// DEINITIALIZATION
-//-------------------------------------------------------------------
-
-void OnDeinit(const int reason)
-{
-   Print("AI Overlord EA Shutdown");
-}
-
-//-------------------------------------------------------------------
-// MAIN TICK
-//-------------------------------------------------------------------
+//------------------------------------
+// MAIN LOOP
+//------------------------------------
 
 void OnTick()
 {
 
-   // STEP 1 - Read Market
-   UpdateMarketData();
-
-   // STEP 2 - Protection Check
-   if(!CheckProtection())
+   if(!MarketHealthy())
       return;
 
-   // STEP 3 - Strategy Decision
-   int signal = EvaluateStrategy();
+   if(!EquitySafe())
+      return;
 
-   // STEP 4 - Execute Trade
-   ExecuteTrade(signal);
+   if(!ProfitProtected())
+      return;
 
-}
+   if(!CanOpenLayer())
+      return;
 
-//-------------------------------------------------------------------
-// SYSTEM INITIALIZATION
-//-------------------------------------------------------------------
+   if(!ScalpingAllowed())
+      return;
 
-void InitializeSystem()
-{
+   if(!CanTradeNow())
+      return;
 
-   Print("Initializing AI Engine...");
+   int decision = AIDecision();
 
-}
+   lotSize = CalculateMicroLot();
 
-//-------------------------------------------------------------------
-// MARKET UPDATE
-//-------------------------------------------------------------------
-
-void UpdateMarketData()
-{
-
-   CurrentSpread = GetSpread();
-   CurrentATR    = GetATR();
-
-}
-
-//-------------------------------------------------------------------
-// STRATEGY EVALUATION
-//-------------------------------------------------------------------
-
-int EvaluateStrategy()
-{
-
-   int signal = 0;
-
-   signal = EMA_Strategy();
-
-   return(signal);
-
-}
-
-//-------------------------------------------------------------------
-// TRADE EXECUTION
-//-------------------------------------------------------------------
-
-void ExecuteTrade(int signal)
-{
-
-   if(signal==1)
+   if(decision == 1)
       OpenBuy();
 
-   if(signal==-1)
+   if(decision == -1)
       OpenSell();
 
 }
 
-//-------------------------------------------------------------------
-// BUY ORDER
-//-------------------------------------------------------------------
+//------------------------------------
+// BUY FUNCTION
+//------------------------------------
 
 void OpenBuy()
 {
 
    double price = SymbolInfoDouble(_Symbol,SYMBOL_ASK);
 
-   MqlTradeRequest request;
-   MqlTradeResult result;
+   MqlTradeRequest req;
+   MqlTradeResult res;
 
-   ZeroMemory(request);
-   ZeroMemory(result);
+   ZeroMemory(req);
 
-   request.action   = TRADE_ACTION_DEAL;
-   request.symbol   = _Symbol;
-   request.volume   = BaseLot;
-   request.type     = ORDER_TYPE_BUY;
-   request.price    = price;
-   request.deviation= 20;
+   req.action = TRADE_ACTION_DEAL;
+   req.symbol = _Symbol;
+   req.volume = lotSize;
+   req.type = ORDER_TYPE_BUY;
+   req.price = price;
+   req.deviation = 10;
 
-   OrderSend(request,result);
+   OrderSend(req,res);
+
+   Print("BUY executed");
 
 }
 
-//-------------------------------------------------------------------
-// SELL ORDER
-//-------------------------------------------------------------------
+//------------------------------------
+// SELL FUNCTION
+//------------------------------------
 
 void OpenSell()
 {
 
    double price = SymbolInfoDouble(_Symbol,SYMBOL_BID);
 
-   MqlTradeRequest request;
-   MqlTradeResult result;
+   MqlTradeRequest req;
+   MqlTradeResult res;
 
-   ZeroMemory(request);
-   ZeroMemory(result);
+   ZeroMemory(req);
 
-   request.action   = TRADE_ACTION_DEAL;
-   request.symbol   = _Symbol;
-   request.volume   = BaseLot;
-   request.type     = ORDER_TYPE_SELL;
-   request.price    = price;
-   request.deviation= 20;
+   req.action = TRADE_ACTION_DEAL;
+   req.symbol = _Symbol;
+   req.volume = lotSize;
+   req.type = ORDER_TYPE_SELL;
+   req.price = price;
+   req.deviation = 10;
 
-   OrderSend(request,result);
+   OrderSend(req,res);
 
-}
-
-//-------------------------------------------------------------------
-// PROTECTION CHECK
-//-------------------------------------------------------------------
-
-bool CheckProtection()
-{
-
-   if(!EquityGuard())
-      return(false);
-
-   return(true);
+   Print("SELL executed");
 
 }
-
-//+------------------------------------------------------------------+

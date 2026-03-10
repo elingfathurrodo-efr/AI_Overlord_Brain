@@ -1,0 +1,20 @@
+{
+ "genomes":[
+  {
+   "name":"rsi_scalp",
+   "rsi_period":14,
+   "ema_fast":20,
+   "ema_slow":50,
+   "lot_factor":1.0,
+   "score":0
+  },
+  {
+   "name":"trend_follow",
+   "rsi_period":21,
+   "ema_fast":50,
+   "ema_slow":200,
+   "lot_factor":1.0,
+   "score":0
+  }
+ ]
+}

@@ -1,19 +1,19 @@
 import time
 
-# ===============================
+# ==========================================
 # CURIOSITY ENGINE
-# ===============================
+# ==========================================
 
 try:
     from curiosity.strategy_hunter import search_github_strategies
 except:
     def search_github_strategies():
-        print("Curiosity module not ready yet")
+        print("[AI] Curiosity module not ready")
 
 
-# ===============================
+# ==========================================
 # MEMORY ENGINE
-# ===============================
+# ==========================================
 
 try:
     from engine.memory_engine import load_trauma
@@ -22,20 +22,31 @@ except:
         return {"traumas":[]}
 
 
-# ===============================
+# ==========================================
 # GENOME EVOLUTION ENGINE
-# ===============================
+# ==========================================
 
 try:
     from genome.genome_engine import evolve_population
 except:
     def evolve_population():
-        print("Genome engine not ready yet")
+        print("[AI] Genome engine not ready")
 
 
-# ===============================
+# ==========================================
+# CAPITAL MANAGER
+# ==========================================
+
+try:
+    from capital.capital_manager import evaluate_capital
+except:
+    def evaluate_capital(balance):
+        return {"risk_level":1.0}
+
+
+# ==========================================
 # CURIOSITY RUNNER
-# ===============================
+# ==========================================
 
 def run_curiosity():
 
@@ -52,9 +63,9 @@ def run_curiosity():
         print("[AI] Curiosity error:", e)
 
 
-# ===============================
+# ==========================================
 # MEMORY RUNNER
-# ===============================
+# ==========================================
 
 def run_memory():
 
@@ -71,9 +82,9 @@ def run_memory():
         print("[AI] Memory error:", e)
 
 
-# ===============================
+# ==========================================
 # EVOLUTION RUNNER
-# ===============================
+# ==========================================
 
 def run_evolution():
 
@@ -90,9 +101,31 @@ def run_evolution():
         print("[AI] Evolution error:", e)
 
 
-# ===============================
+# ==========================================
+# CAPITAL MANAGER RUNNER
+# ==========================================
+
+def run_capital_management():
+
+    print("\n[AI] Capital Management")
+
+    try:
+
+        # nanti ini akan diganti data real dari MT5
+        balance = 100
+
+        state = evaluate_capital(balance)
+
+        print("[AI] Risk Level:", state["risk_level"])
+
+    except Exception as e:
+
+        print("[AI] Capital manager error:", e)
+
+
+# ==========================================
 # MAIN AI LOOP
-# ===============================
+# ==========================================
 
 def main_loop():
 
@@ -112,16 +145,18 @@ def main_loop():
 
         run_evolution()
 
-        print("\nAI Cycle Completed")
+        run_capital_management()
 
-        print("Sleeping 10 minutes...\n")
+        print("\n[AI] Cycle Completed")
+
+        print("[AI] Sleeping 10 minutes...\n")
 
         time.sleep(600)
 
 
-# ===============================
+# ==========================================
 # START AI
-# ===============================
+# ==========================================
 
 if __name__ == "__main__":
     main_loop()

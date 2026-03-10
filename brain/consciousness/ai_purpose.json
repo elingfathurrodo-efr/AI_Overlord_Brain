@@ -1,0 +1,7 @@
+{
+ "primary_goal":"grow_capital",
+ "secondary_goal":"avoid_extinction",
+ "learning_mode":"active",
+ "risk_tolerance":0.3,
+ "last_evaluation":0
+}

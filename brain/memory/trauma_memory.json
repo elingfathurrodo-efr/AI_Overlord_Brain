@@ -1,16 +1,1 @@
-{
- "traumas":[
-  {
-   "event":"spread_spike",
-   "spread":40,
-   "result":"loss",
-   "lesson":"avoid_scalping_high_spread"
-  },
-  {
-   "event":"extreme_volatility",
-   "volatility":3.5,
-   "result":"drawdown",
-   "lesson":"reduce_lot_high_volatility"
-  }
- ]
-}
+[]

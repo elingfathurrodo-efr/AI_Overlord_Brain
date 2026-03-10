@@ -1,0 +1,11 @@
+{
+ "capital":100,
+ "equity":100,
+ "profit_today":0,
+ "active_strategy":"none",
+ "market_regime":"unknown",
+ "ai_health":"starting",
+ "evolution_score":0,
+ "mining_mode":"inactive",
+ "last_trade":"none"
+}

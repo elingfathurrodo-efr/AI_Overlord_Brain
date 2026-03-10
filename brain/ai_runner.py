@@ -1,50 +1,127 @@
 import time
 
-# Curiosity Engine
-from curiosity.strategy_hunter import search_github_strategies
+# ===============================
+# CURIOSITY ENGINE
+# ===============================
 
-# Memory Engine
-from engine.memory_engine import load_trauma
+try:
+    from curiosity.strategy_hunter import search_github_strategies
+except:
+    def search_github_strategies():
+        print("Curiosity module not ready yet")
+
+
+# ===============================
+# MEMORY ENGINE
+# ===============================
+
+try:
+    from engine.memory_engine import load_trauma
+except:
+    def load_trauma():
+        return {"traumas":[]}
+
+
+# ===============================
+# GENOME EVOLUTION ENGINE
+# ===============================
+
+try:
+    from genome.genome_engine import evolve_population
+except:
+    def evolve_population():
+        print("Genome engine not ready yet")
+
+
+# ===============================
+# CURIOSITY RUNNER
+# ===============================
 
 def run_curiosity():
 
-    print("AI Curiosity Engine: Searching strategies from internet...")
+    print("\n[AI] Curiosity Engine Start")
 
     try:
+
         search_github_strategies()
-        print("Curiosity scan completed")
+
+        print("[AI] Curiosity scan completed")
 
     except Exception as e:
-        print("Curiosity error:",e)
+
+        print("[AI] Curiosity error:", e)
 
 
-def run_memory_check():
+# ===============================
+# MEMORY RUNNER
+# ===============================
 
-    print("Loading trauma memory...")
+def run_memory():
+
+    print("\n[AI] Loading trauma memory")
 
     try:
+
         trauma = load_trauma()
-        print("Trauma records:",len(trauma["traumas"]))
+
+        print("[AI] Trauma records:", len(trauma["traumas"]))
 
     except Exception as e:
-        print("Memory error:",e)
 
+        print("[AI] Memory error:", e)
+
+
+# ===============================
+# EVOLUTION RUNNER
+# ===============================
+
+def run_evolution():
+
+    print("\n[AI] Genome Evolution Start")
+
+    try:
+
+        evolve_population()
+
+        print("[AI] Evolution completed")
+
+    except Exception as e:
+
+        print("[AI] Evolution error:", e)
+
+
+# ===============================
+# MAIN AI LOOP
+# ===============================
 
 def main_loop():
 
+    print("\n==============================")
+    print("AI OVERLORD BRAIN STARTED")
+    print("==============================")
+
     while True:
 
-        print("AI Brain Cycle Start")
+        print("\n---------------------------------")
+        print("AI BRAIN CYCLE START")
+        print("---------------------------------")
 
         run_curiosity()
 
-        run_memory_check()
+        run_memory()
 
-        print("Cycle complete")
-        print("Sleeping 10 minutes")
+        run_evolution()
+
+        print("\nAI Cycle Completed")
+
+        print("Sleeping 10 minutes...\n")
 
         time.sleep(600)
 
+
+# ===============================
+# START AI
+# ===============================
 
 if __name__ == "__main__":
     main_loop()

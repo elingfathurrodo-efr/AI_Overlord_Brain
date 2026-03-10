@@ -1,33 +1,37 @@
 #ifndef RSI_STRATEGY
 #define RSI_STRATEGY
 
-double GetRSI(int period=14)
+int rsiHandle;
+
+void InitRSI()
 {
-   return(iRSI(_Symbol,PERIOD_CURRENT,period,PRICE_CLOSE,0));
+   rsiHandle = iRSI(_Symbol,PERIOD_CURRENT,14,PRICE_CLOSE);
+}
+
+double GetRSI()
+{
+   double buf[];
+
+   if(CopyBuffer(rsiHandle,0,0,1,buf) <=0)
+      return 50;
+
+   return buf[0];
 }
 
 bool RSI_BuySignal()
 {
+   if(GetRSI() < 30)
+      return true;
 
-   double rsi = GetRSI();
-
-   if(rsi < 30)
-      return(true);
-
-   return(false);
-
+   return false;
 }
 
 bool RSI_SellSignal()
 {
+   if(GetRSI() > 70)
+      return true;
 
-   double rsi = GetRSI();
-
-   if(rsi > 70)
-      return(true);
-
-   return(false);
-
+   return false;
 }
 
 #endif

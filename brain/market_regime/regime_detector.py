@@ -1,15 +1,20 @@
-def detect_regime(trend,volatility):
+from market_regime.volatility_analyzer import check_volatility
+from market_regime.trend_analyzer import check_trend
+from market_regime.liquidity_analyzer import check_liquidity
 
-    if trend=="trend" and volatility=="high":
 
-        return "TREND_VOLATILE"
+def detect_regime(atr,ma_fast,ma_slow,spread):
 
-    if trend=="trend":
+    vol = check_volatility(atr)
 
-        return "TREND"
+    trend = check_trend(ma_fast,ma_slow)
 
-    if volatility=="high":
+    liquidity = check_liquidity(spread)
 
-        return "VOLATILE"
+    return {
 
-    return "SIDEWAYS"
+        "volatility":vol,
+        "trend":trend,
+        "liquidity":liquidity
+
+    }

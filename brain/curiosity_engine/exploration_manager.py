@@ -1,19 +1,21 @@
-import random
+from curiosity_engine.strategy_generator import generate_strategy
+from curiosity_engine.indicator_combiner import combine_indicators
+from curiosity_engine.experiment_tracker import save_experiment
 
-strategies=[
 
-"rsi_strategy",
-"ema_strategy",
-"macd_strategy",
-"breakout_strategy",
-"mean_reversion"
+def explore():
 
-]
+    strategy = generate_strategy()
 
-def explore_strategy():
+    combo = combine_indicators()
 
-    new_strategy=random.choice(strategies)
+    experiment = {
 
-    print("AI exploring:",new_strategy)
+        "strategy":strategy,
+        "indicators":combo
 
-    return new_strategy
+    }
+
+    save_experiment(experiment)
+
+    return experiment

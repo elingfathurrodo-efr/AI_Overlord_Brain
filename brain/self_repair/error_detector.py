@@ -1,38 +1,15 @@
-import json
+def detect_error(drawdown,system_state):
 
-error_log="logs/error_log.json"
+    if drawdown > 30:
 
-def detect_error(loss,drawdown):
+        return "critical"
 
-    if loss > 5 or drawdown > 20:
+    if system_state == "crash":
 
-        error={
+        return "critical"
 
-            "type":"risk_failure",
-            "loss":loss,
-            "drawdown":drawdown
+    if drawdown > 15:
 
-        }
+        return "warning"
 
-        save_error(error)
-
-        return True
-
-    return False
-
-
-def save_error(error):
-
-    try:
-
-        with open(error_log,"r") as f:
-            data=json.load(f)
-
-    except:
-
-        data=[]
-
-    data.append(error)
-
-    with open(error_log,"w") as f:
-        json.dump(data,f,indent=2)
+    return "normal"

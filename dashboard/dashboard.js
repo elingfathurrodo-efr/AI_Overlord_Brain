@@ -1,94 +1,195 @@
+// =========================
+// AI DASHBOARD CONTROLLER
+// =========================
+
+// =========================
+// FETCH AI STATS
+// =========================
+
 async function loadStats(){
 
-try{
+    try{
 
-let response = await fetch("api/stats.json")
+        let res = await fetch("../stats.json");
 
-let data = await response.json()
+        let data = await res.json();
 
-document.getElementById("capital").innerText = data.capital
-document.getElementById("equity").innerText = data.equity
-document.getElementById("profit_today").innerText = data.profit_today
-document.getElementById("strategy").innerText = data.active_strategy
-document.getElementById("market").innerText = data.market_regime
-document.getElementById("ai_health").innerText = data.ai_health
-document.getElementById("evolution_score").innerText = data.evolution_score
-document.getElementById("mining_mode").innerText = data.mining_mode
-document.getElementById("last_trade").innerText = data.last_trade
+        document.getElementById("balance").innerText = data.balance;
+        document.getElementById("equity").innerText = data.equity;
+        document.getElementById("profit").innerText = data.profit;
 
-}catch(error){
+    }catch(e){
 
-console.log("Stats loading error:",error)
+        console.log("Stats error",e);
+
+    }
 
 }
 
-}
+// =========================
+// FETCH ORGANISM STATE
+// =========================
 
+async function loadOrganism(){
 
+    try{
 
-async function loadEvolution(){
+        let res = await fetch("../organism_state.json");
 
-try{
+        let data = await res.json();
 
-let response = await fetch("api/evolution.json")
+        document.getElementById("energy").innerText = data.energy;
+        document.getElementById("stress").innerText = data.stress;
+        document.getElementById("growth").innerText = data.growth;
 
-let data = await response.json()
+    }catch(e){
 
-drawEvolution(data)
+        console.log("Organism error",e);
 
-}catch(error){
-
-console.log("Evolution loading error:",error)
-
-}
-
-}
-
-
-
-function drawEvolution(data){
-
-let canvas = document.getElementById("evolutionChart")
-
-let ctx = canvas.getContext("2d")
-
-ctx.clearRect(0,0,canvas.width,canvas.height)
-
-let x = 50
-let y = 150
-
-data.forEach((node,index)=>{
-
-ctx.beginPath()
-
-ctx.arc(x,y,5,0,Math.PI*2)
-
-ctx.fill()
-
-ctx.fillText(node.score,x-5,y-10)
-
-x += 50
-
-y = 150 - (node.score * 50)
-
-})
+    }
 
 }
 
 
+// =========================
+// EVOLUTION DOTS
+// =========================
 
-function startDashboard(){
+function drawEvolution(){
 
-loadStats()
+    let canvas = document.getElementById("evolution_canvas");
 
-loadEvolution()
+    if(!canvas) return;
+
+    let ctx = canvas.getContext("2d");
+
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    let dots = 60;
+
+    for(let i=0;i<dots;i++){
+
+        let x = Math.random()*canvas.width;
+        let y = Math.random()*canvas.height;
+
+        ctx.beginPath();
+        ctx.arc(x,y,3,0,Math.PI*2);
+        ctx.fillStyle="lime";
+        ctx.fill();
+
+    }
 
 }
 
 
+// =========================
+// GENERATE AI NODES
+// =========================
 
-setInterval(loadStats,2000)
+function generateNodes(count){
 
-setInterval(loadEvolution,5000)
+    let nodes=[];
 
-startDashboard()
+    for(let i=0;i<count;i++){
+
+        nodes.push({
+
+            x:Math.random()*800,
+            y:Math.random()*400
+
+        });
+
+    }
+
+    return nodes;
+
+}
+
+
+// =========================
+// DRAW CONNECTIONS
+// =========================
+
+function drawConnections(ctx,nodes){
+
+    for(let i=0;i<nodes.length;i++){
+
+        for(let j=i+1;j<nodes.length;j++){
+
+            let dx = nodes[i].x - nodes[j].x;
+            let dy = nodes[i].y - nodes[j].y;
+
+            let dist = Math.sqrt(dx*dx + dy*dy);
+
+            if(dist < 120){
+
+                ctx.beginPath();
+
+                ctx.moveTo(nodes[i].x,nodes[i].y);
+                ctx.lineTo(nodes[j].x,nodes[j].y);
+
+                ctx.strokeStyle="rgba(0,255,200,0.2)";
+                ctx.stroke();
+
+            }
+
+        }
+
+    }
+
+}
+
+
+// =========================
+// DRAW AI ORGANISM
+// =========================
+
+function drawOrganism(nodes){
+
+    let canvas = document.getElementById("ai_brain");
+
+    if(!canvas) return;
+
+    let ctx = canvas.getContext("2d");
+
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    for(let n of nodes){
+
+        ctx.beginPath();
+
+        ctx.arc(n.x,n.y,4,0,Math.PI*2);
+
+        ctx.fillStyle="cyan";
+
+        ctx.fill();
+
+    }
+
+    drawConnections(ctx,nodes);
+
+}
+
+
+// =========================
+// INITIALIZE AI VISUAL
+// =========================
+
+let nodes = generateNodes(40);
+
+
+// =========================
+// UPDATE LOOP
+// =========================
+
+setInterval(()=>{
+
+    loadStats();
+
+    loadOrganism();
+
+    drawEvolution();
+
+    drawOrganism(nodes);
+
+},2000);

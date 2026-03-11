@@ -2,21 +2,6 @@ import re
 
 def extract_formulas(text):
 
-    patterns=[
+    formulas=re.findall(r"\bRSI\b|\bEMA\b|\bMACD\b",text)
 
-        r"RSI\s*\(",
-        r"EMA\s*\(",
-        r"MACD\s*\(",
-        r"ATR\s*\("
-
-    ]
-
-    found=[]
-
-    for p in patterns:
-
-        if re.search(p,text):
-
-            found.append(p)
-
-    return found
+    return formulas

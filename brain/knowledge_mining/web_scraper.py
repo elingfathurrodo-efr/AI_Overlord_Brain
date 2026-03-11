@@ -1,15 +1,13 @@
 import requests
 
-def fetch_page(url):
+def fetch_web(url):
 
     try:
 
-        r=requests.get(url,timeout=10)
+        r=requests.get(url)
 
-        if r.status_code==200:
-
-            return r.text
+        return r.text
 
     except:
 
-        return None
+        return ""

@@ -1,21 +1,16 @@
 import json
+import shutil
 
-archive="genomes/genomes_archive.json"
-active="genomes/genomes_active.json"
+backup_file="genomes/genomes_backup.json"
+active_file="genomes/genomes_active.json"
 
 def rollback():
 
     try:
 
-        with open(archive,"r") as f:
-            data=json.load(f)
+        shutil.copy(backup_file,active_file)
 
-        last_good=data[-1]
-
-        with open(active,"w") as f:
-            json.dump(last_good,f,indent=2)
-
-        print("AI rolled back to previous stable genome")
+        print("System rollback executed")
 
     except:
 

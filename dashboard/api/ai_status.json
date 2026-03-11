@@ -1,0 +1,9 @@
+{
+ "ai_state":"active",
+ "current_strategy":"EMA_TREND",
+ "market_regime":"trend",
+ "evolution_generation":1,
+ "entropy":0.35,
+ "curiosity":true,
+ "capital_growth":0
+}

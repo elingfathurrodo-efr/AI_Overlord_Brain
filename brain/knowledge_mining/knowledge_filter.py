@@ -1,23 +1,22 @@
-def filter_trading_content(text):
+def filter_trading_knowledge(text):
 
     keywords=[
 
-        "RSI",
-        "MACD",
-        "EMA",
-        "ATR",
-        "breakout",
-        "support",
-        "resistance"
+        "rsi",
+        "ema",
+        "macd",
+        "indicator",
+        "strategy",
+        "forex"
 
     ]
 
-    score=0
+    found=[]
 
     for k in keywords:
 
-        if k.lower() in text.lower():
+        if k in text.lower():
 
-            score+=1
+            found.append(k)
 
-    return score
+    return found

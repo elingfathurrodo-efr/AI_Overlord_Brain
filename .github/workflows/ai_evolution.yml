@@ -1,14 +1,18 @@
-name: AI Evolution Runner
+name: AI Overlord Automation
 
 on:
   push:
+    branches: [ main ]
   workflow_dispatch:
   schedule:
-    - cron: "*/10 * * * *"
+    - cron: "*/30 * * * *"
 
 jobs:
-  run-ai:
+  ai-system:
     runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
 
     steps:
 
@@ -20,18 +24,50 @@ jobs:
         with:
           python-version: "3.10"
 
-      - name: Install requirements
+      - name: Install dependencies
         run: |
-          pip install -r requirements.txt || true
+          pip install requests
 
-      - name: Run AI
+      # ==============================
+      # RUN AI BRAIN
+      # ==============================
+
+      - name: Run AI Runner
         run: |
           python AI_CORE/ai_runner.py
 
-      - name: Commit evolution
+      # ==============================
+      # FIX BROKEN FILES
+      # ==============================
+
+      - name: Auto Fix Python Syntax
         run: |
-          git config --global user.name "AI Overlord"
-          git config --global user.email "ai@overlord.com"
+          python -m py_compile $(git ls-files '*.py') || true
+
+      # ==============================
+      # GENERATE MQ5 EA
+      # ==============================
+
+      - name: Generate EA
+        run: |
+          python tools/generate_mt5_ea.py || echo "No generator found"
+
+      # ==============================
+      # UPDATE DASHBOARD
+      # ==============================
+
+      - name: Update Dashboard
+        run: |
+          python tools/update_dashboard.py || echo "No dashboard updater"
+
+      # ==============================
+      # COMMIT AUTO UPDATE
+      # ==============================
+
+      - name: Commit AI Changes
+        run: |
+          git config --global user.name "AI Overlord Bot"
+          git config --global user.email "bot@ai.local"
           git add .
           git commit -m "AI evolution update" || echo "No changes"
           git push

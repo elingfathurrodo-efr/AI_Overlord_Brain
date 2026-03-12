@@ -1,0 +1,37 @@
+name: AI Evolution Runner
+
+on:
+  push:
+  workflow_dispatch:
+  schedule:
+    - cron: "*/10 * * * *"
+
+jobs:
+  run-ai:
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - name: Install requirements
+        run: |
+          pip install -r requirements.txt || true
+
+      - name: Run AI
+        run: |
+          python AI_CORE/ai_runner.py
+
+      - name: Commit evolution
+        run: |
+          git config --global user.name "AI Overlord"
+          git config --global user.email "ai@overlord.com"
+          git add .
+          git commit -m "AI evolution update" || echo "No changes"
+          git push

@@ -1,24 +1,16 @@
 import time
 
-# AI LOOP
-from autonomous_loop.ai_loop import run_ai_loop
-
-# CENTRAL BRAIN
-from central_brain.central_core import central_brain
-
-# MARKET SCANNER
-from autonomous_loop.market_scanner import scan_market
-
-# LEARNING & EVOLUTION
-from autonomous_loop.learning_cycle import learning_step
-from autonomous_loop.evolution_cycle import evolution_step
+from brain.autonomous_loop.market_scanner import scan_market
+from brain.autonomous_loop.learning_cycle import learning_step
+from brain.autonomous_loop.evolution_cycle import evolution_step
+from brain.central_brain.central_core import central_brain
 
 
 def start_ai():
 
-    print("===================================")
-    print("   AI TRADING SYSTEM STARTED")
-    print("===================================")
+    print("=================================")
+    print("AI OVERLORD SYSTEM STARTED")
+    print("=================================")
 
     while True:
 
@@ -27,31 +19,29 @@ def start_ai():
             # 1 scan market
             market_regime = scan_market()
 
-            # 2 risk mode default
+            # 2 risk mode
             risk_mode = "NORMAL"
 
-            # 3 central brain decision
+            # 3 AI decision
             decision = central_brain(market_regime, risk_mode)
 
-            print("Market Regime :", market_regime)
-            print("AI Decision   :", decision)
+            print("Market :", market_regime)
+            print("Decision :", decision)
 
-            # 4 learning cycle
+            # learning
             learning_step()
 
-            # 5 evolution cycle
+            # evolution
             evolution_step()
 
-            # delay siklus
             time.sleep(10)
 
         except Exception as e:
 
-            print("AI ERROR:", e)
+            print("ERROR :", e)
 
             time.sleep(5)
 
 
 if __name__ == "__main__":
-
     start_ai()

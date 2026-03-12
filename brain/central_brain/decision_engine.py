@@ -1,8 +1,11 @@
-import random
+def trading_decision(strategy,risk_mode):
 
+    if risk_mode == "STOP":
 
-def make_decision():
+        return "NO_TRADE"
 
-    action = random.choice(["BUY","SELL","WAIT"])
+    if strategy == "NONE":
 
-    return action
+        return "WAIT"
+
+    return "TRADE"

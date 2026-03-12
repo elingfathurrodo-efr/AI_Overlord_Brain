@@ -1,0 +1,7 @@
+#include <Trade/Trade.mqh>
+CTrade trade;
+
+void OnTick()
+{
+   Print("Reading AI signal");
+}

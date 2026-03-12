@@ -92,7 +92,7 @@ jobs:
       - name: Commit AI Changes
         run: |
           git config --global user.name "AI Overlord Bot"
-          git config --global user.email "bot@ai.local"
-          git add .
-          git commit -m "AI evolution update [skip ci]" || echo "No changes"
+          git config --global user.email "bot@ai-overlord.com"
+          git add shared/*.json
+          git commit -m "AI Update [skip ci]" || echo "No changes to commit"
           git push

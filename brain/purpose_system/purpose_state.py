@@ -1,6 +1,7 @@
 import json
 
-file="purpose_state.json"
+file = "purpose_state.json"
+
 
 def load_purpose():
 
@@ -13,5 +14,13 @@ def load_purpose():
         return {
 
             "main_goal":"STABLE_GROWTH",
+            "risk_priority":"CAPITAL_PROTECTION",
+            "evolution_mode":"ADAPTIVE"
 
-            "risk_priority":"CAP
+        }
+
+
+def save_purpose(data):
+
+    with open(file,"w") as f:
+        json.dump(data,f,indent=2)

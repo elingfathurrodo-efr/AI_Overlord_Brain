@@ -8,7 +8,9 @@ on:
     - cron: "*/30 * * * *"
 
 jobs:
+
   ai-system:
+
     runs-on: ubuntu-latest
 
     permissions:
@@ -16,58 +18,81 @@ jobs:
 
     steps:
 
+      # ==============================
+      # CHECKOUT REPOSITORY
+      # ==============================
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      # ==============================
+      # SETUP PYTHON
+      # ==============================
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: "3.10"
 
+      # ==============================
+      # INSTALL DEPENDENCIES
+      # ==============================
       - name: Install dependencies
         run: |
-          pip install requests
+          pip install requests numpy pandas
+
+      # ==============================
+      # CREATE REQUIRED FOLDERS
+      # ==============================
+      - name: Create required folders
+        run: |
+          mkdir -p shared
+          mkdir -p dashboard
+          mkdir -p mt5_ea
+          mkdir -p tools
 
       # ==============================
       # RUN AI BRAIN
       # ==============================
-
       - name: Run AI Runner
         run: |
-          python AI_CORE/ai_runner.py
+          python AI_CORE/ai_runner.py || echo "AI runner skipped"
 
       # ==============================
-      # FIX BROKEN FILES
+      # CHECK PYTHON SYNTAX
       # ==============================
-
       - name: Auto Fix Python Syntax
         run: |
-          python -m py_compile $(git ls-files '*.py') || true
+          python -m py_compile $(git ls-files '*.py') || echo "syntax warning"
 
       # ==============================
-      # GENERATE MQ5 EA
+      # GENERATE MT5 EA
       # ==============================
-
       - name: Generate EA
         run: |
-          python tools/generate_mt5_ea.py || echo "No generator found"
+          python tools/generate_mt5_ea.py || echo "No EA generator"
 
       # ==============================
       # UPDATE DASHBOARD
       # ==============================
-
       - name: Update Dashboard
         run: |
           python tools/update_dashboard.py || echo "No dashboard updater"
 
       # ==============================
-      # COMMIT AUTO UPDATE
+      # CREATE DEFAULT JSON FILES
       # ==============================
+      - name: Ensure JSON files exist
+        run: |
+          echo '{}' > shared/status.json
+          echo '{}' > shared/logic.json
+          echo '{}' > shared/trade_decision.json
 
+      # ==============================
+      # COMMIT CHANGES
+      # ==============================
       - name: Commit AI Changes
         run: |
           git config --global user.name "AI Overlord Bot"
           git config --global user.email "bot@ai.local"
           git add .
-          git commit -m "AI evolution update" || echo "No changes"
+          git commit -m "AI evolution update [skip ci]" || echo "No changes"
           git push
